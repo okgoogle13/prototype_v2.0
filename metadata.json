@@ -1,0 +1,5 @@
+{
+  "name": "Copy of CareerCopilot Chrome Extension",
+  "description": "An AI-powered Chrome extension that extracts career achievements and skills directly from web pages, refines them using Gemini, and saves the structured data to Supabase.",
+  "requestFramePermissions": []
+}
