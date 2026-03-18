@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { JobOpportunity, CareerDatabase } from '../types';
-import { extractJobOpportunity } from '../services/geminiService';
-import { searchJobs } from '../services/jobSearchService';
-import { useChromeExtension } from '../hooks/useChromeExtension';
+import React, { useState } from 'react';
+import { JobOpportunity } from '../types';
 
 interface JobOpportunityExtractorProps {
   onExtracted: (job: JobOpportunity) => void;
-  careerData?: CareerDatabase | null;
+  onExtract: (type: 'url' | 'text', content: string) => Promise<JobOpportunity>;
+  onSearch: (query: string) => Promise<Array<{ title: string; company: string; url: string; snippet: string }>>;
+  onExtractFromPage?: () => Promise<JobOpportunity>;
+  isExtension?: boolean;
+  currentPageUrl?: string;
 }
 
-export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = ({ onExtracted, careerData }) => {
+export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (props) => {
+  const { onExtracted, onExtract, onSearch, onExtractFromPage, isExtension = false, currentPageUrl: currentUrl } = props;
   const [inputType, setInputType] = useState<'url' | 'text' | 'search'>('url');
   const [url, setUrl] = useState('');
   const [text, setText] = useState('');
@@ -19,7 +21,6 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
   const [error, setError] = useState<string | null>(null);
   const [showFallback, setShowFallback] = useState(false);
   const [ignoreCriteria, setIgnoreCriteria] = useState(false);
-  const { isExtension, currentUrl, extractJobFromPage } = useChromeExtension();
 
   const validateUrl = async (url: string) => {
     try {
@@ -31,11 +32,11 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
   };
 
   const handleExtractFromPage = async () => {
-    if (!currentUrl) return;
+    if (!currentUrl || !onExtractFromPage) return;
     setIsLoading(true);
     setError(null);
     try {
-      const job = await extractJobFromPage();
+      const job = await onExtractFromPage!();
       onExtracted(job);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to extract from page');
@@ -49,7 +50,7 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
     setIsLoading(true);
     setError(null);
     try {
-      const results = await searchJobs(searchQuery);
+      const results = await onSearch(searchQuery);
       setSearchResults(results);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Search failed');
@@ -76,7 +77,7 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
     }
 
     try {
-      const job = await extractJobOpportunity(inputType === 'search' ? 'url' : inputType, finalContent, careerData || undefined);
+      const job = await onExtract(inputType === 'search' ? 'url' : inputType, finalContent);
       if (ignoreCriteria) {
         job.Required_Hard_Skills = [];
         job.Required_Soft_Skills = [];
@@ -92,45 +93,49 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-[var(--sys-color-charcoalBackground-steps-1)] rounded-xl border border-[var(--sys-color-concreteGrey-steps-0)] shadow-xl">
-      <h3 className="text-2xl font-bold text-white mb-4">Extract Job Opportunity</h3>
+    <div style={{ background: 'var(--sys-color-charcoalBackground-steps-1)', borderRadius: 'var(--sys-shape-blockRiot03)', borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderWidth: 1, borderStyle: 'solid' }} className="max-w-2xl mx-auto p-6 shadow-xl">
+      <h3 className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] mb-4">Extract Job Opportunity</h3>
       <p className="text-[var(--sys-color-worker-ash-base)] mb-6">
         Paste a URL, plain text, or search for a live job posting to automatically extract its key particulars.
       </p>
       
       {isExtension && (
-        <div className="mb-6 p-4 bg-cyan-900/30 border border-cyan-500/30 rounded-lg flex items-center justify-between">
+        <div style={{ background: 'color-mix(in srgb, var(--sys-color-inkGold-base) 12%, transparent)', borderRadius: 'var(--sys-shape-blockRiot02)', borderColor: 'color-mix(in srgb, var(--sys-color-inkGold-base) 35%, transparent)', borderWidth: 1, borderStyle: 'solid' }} className="mb-6 p-4 flex items-center justify-between">
           <div>
-            <h4 className="text-cyan-400 font-bold mb-1">Current Page</h4>
+            <h4 className="text-[var(--sys-color-inkGold-base)] font-bold mb-1">Current Page</h4>
             <p className="text-sm text-[var(--sys-color-worker-ash-base)] truncate max-w-md">{currentUrl || 'Loading...'}</p>
           </div>
           <button
             onClick={handleExtractFromPage}
             disabled={isLoading || !currentUrl}
-            className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm whitespace-nowrap"
+            className="bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] font-bold py-2 px-4 transition-colors text-sm whitespace-nowrap"
+            style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}
           >
             {isLoading ? 'Extracting...' : 'Extract from Page'}
           </button>
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row gap-4 mb-4 border-b border-[var(--sys-color-concreteGrey-steps-0)] pb-4 justify-between items-start md:items-center">
+      <div style={{ borderBottomColor: 'var(--sys-color-concreteGrey-steps-0)', borderBottomWidth: 1, borderBottomStyle: 'solid' }} className="flex flex-col md:flex-row gap-4 mb-4 pb-4 justify-between items-start md:items-center">
         <div className="flex gap-2 md:gap-4 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
           <button 
             onClick={() => setInputType('url')}
-            className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${inputType === 'url' ? 'bg-cyan-900/50 text-cyan-400 border border-cyan-500/50' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
+            style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}
+            className={`px-3 md:px-4 py-2 font-medium transition-colors whitespace-nowrap ${inputType === 'url' ? 'bg-color-mix(in srgb, var(--sys-color-inkGold-base) 12%, transparent) text-[var(--sys-color-inkGold-base)] border border-color-mix(in srgb, var(--sys-color-inkGold-base) 35%, transparent)' : 'text-[var(--sys-color-worker-ash-base)]'}`}
           >
             Paste URL
           </button>
           <button 
             onClick={() => setInputType('text')}
-            className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${inputType === 'text' ? 'bg-cyan-900/50 text-cyan-400 border border-cyan-500/50' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
+            style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}
+            className={`px-3 md:px-4 py-2 font-medium transition-colors whitespace-nowrap ${inputType === 'text' ? 'bg-color-mix(in srgb, var(--sys-color-inkGold-base) 12%, transparent) text-[var(--sys-color-inkGold-base)] border border-color-mix(in srgb, var(--sys-color-inkGold-base) 35%, transparent)' : 'text-[var(--sys-color-worker-ash-base)]'}`}
           >
             Paste Text
           </button>
           <button 
             onClick={() => setInputType('search')}
-            className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${inputType === 'search' ? 'bg-cyan-900/50 text-cyan-400 border border-cyan-500/50' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
+            style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}
+            className={`px-3 md:px-4 py-2 font-medium transition-colors whitespace-nowrap ${inputType === 'search' ? 'bg-color-mix(in srgb, var(--sys-color-inkGold-base) 12%, transparent) text-[var(--sys-color-inkGold-base)] border border-color-mix(in srgb, var(--sys-color-inkGold-base) 35%, transparent)' : 'text-[var(--sys-color-worker-ash-base)]'}`}
           >
             AI Search
           </button>
@@ -140,7 +145,7 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
             type="checkbox" 
             checked={ignoreCriteria} 
             onChange={(e) => setIgnoreCriteria(e.target.checked)}
-            className="rounded border-[var(--sys-color-concreteGrey-steps-0)] text-cyan-500 focus:ring-cyan-500 bg-[var(--sys-color-charcoalBackground-steps-2)]"
+            style={{ accentColor: 'var(--sys-color-inkGold-base)', background: 'var(--sys-color-charcoalBackground-steps-2)' }}
           />
           Ignore Strict Criteria
         </label>
@@ -155,15 +160,16 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="e.g., Frontend Developer in New York"
-                        className="flex-1 bg-[var(--sys-color-charcoalBackground-base)] border border-[var(--sys-color-concreteGrey-steps-0)] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500"
+                        style={{ borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderWidth: 1, borderStyle: 'solid', background: 'var(--sys-color-charcoalBackground-base)' }}
+                        className="flex-1 px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none"
                     />
-                    <button onClick={handleSearch} className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg">Search</button>
+                    <button onClick={handleSearch} className="bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] font-bold py-2 px-4" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>Search</button>
                 </div>
                 {searchResults.length > 0 && (
                     <div className="space-y-2">
                         {searchResults.map((res, i) => (
-                            <div key={i} className="p-3 bg-[var(--sys-color-charcoalBackground-steps-2)] rounded-lg cursor-pointer hover:bg-[var(--sys-color-charcoalBackground-steps-3)]" onClick={() => handleExtract(res.url)}>
-                                <h5 className="font-bold text-white">{res.title}</h5>
+                            <div key={i} style={{ background: 'var(--sys-color-charcoalBackground-steps-2)', borderRadius: 'var(--sys-shape-blockRiot02)' }} className="p-3 cursor-pointer" onClick={() => handleExtract(res.url)}>
+                                <h5 className="font-bold text-[var(--sys-color-paperWhite-base)]">{res.title}</h5>
                                 <p className="text-sm text-[var(--sys-color-paperWhite-base)]">{res.company}</p>
                             </div>
                         ))}
@@ -177,7 +183,8 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/job-posting"
-            className="w-full bg-[var(--sys-color-charcoalBackground-base)] border border-[var(--sys-color-concreteGrey-steps-0)] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500"
+            style={{ borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderWidth: 1, borderStyle: 'solid', background: 'var(--sys-color-charcoalBackground-base)' }}
+            className="w-full px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none"
             disabled={isLoading}
           />
         )}
@@ -186,7 +193,8 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Paste the full job description text here..."
-            className="w-full bg-[var(--sys-color-charcoalBackground-base)] border border-[var(--sys-color-concreteGrey-steps-0)] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500 min-h-[200px]"
+            style={{ borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderWidth: 1, borderStyle: 'solid', background: 'var(--sys-color-charcoalBackground-base)' }}
+            className="w-full px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none min-h-[200px]"
             disabled={isLoading}
           />
         )}
@@ -197,7 +205,8 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
             <button
             onClick={() => handleExtract()}
             disabled={isLoading}
-            className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-8 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] font-bold py-2 px-8 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}
             >
             {isLoading ? 'Extracting...' : 'Extract'}
             </button>
@@ -205,12 +214,12 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
       )}
 
       {error && (
-        <div className="text-red-400 text-sm mt-4 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
+        <div style={{ background: 'color-mix(in srgb, var(--sys-color-solidarityRed-base) 15%, transparent)', borderColor: 'color-mix(in srgb, var(--sys-color-solidarityRed-base) 35%, transparent)', borderWidth: 1, borderStyle: 'solid', borderRadius: 'var(--sys-shape-blockRiot02)' }} className="text-[var(--sys-color-solidarityRed-base)] text-sm mt-4 p-3">
           {error}
         </div>
       )}
       {inputType === 'url' && url && !isLoading && !error && (
-        <div className="text-amber-400 text-sm mt-4 p-3 bg-amber-900/20 border border-amber-500/30 rounded-lg flex items-center gap-2">
+        <div style={{ background: 'color-mix(in srgb, var(--sys-color-stencilYellow-base) 15%, transparent)', borderColor: 'color-mix(in srgb, var(--sys-color-stencilYellow-base) 35%, transparent)', borderWidth: 1, borderStyle: 'solid', borderRadius: 'var(--sys-shape-blockRiot02)' }} className="text-[var(--sys-color-stencilYellow-base)] text-sm mt-4 p-3 flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>

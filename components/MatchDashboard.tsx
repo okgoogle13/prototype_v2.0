@@ -1,8 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAutoSave } from '../hooks/useAutoSave';
-import { saveUserCareerData } from '../services/firebase';
 import { CareerDatabase, JobOpportunity, MatchAnalysis, SavedDocument } from '../types';
-import { generateMatchAnalysis } from '../services/geminiService';
 import { TailoredResumeView } from './TailoredResumeView';
 import { KSCResponsesView } from './KSCResponsesView';
 import { AuditDisplay } from './AuditDisplay';
@@ -21,9 +19,12 @@ interface MatchDashboardProps {
   job: JobOpportunity;
   onUpdate?: (data: CareerDatabase) => void;
   userId?: string;
+  onAnalyze: (careerData: CareerDatabase, job: JobOpportunity) => Promise<MatchAnalysis>;
+  onSave: (userId: string, data: CareerDatabase) => Promise<void>;
 }
 
-export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job, onUpdate, userId }) => {
+export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
+  const { careerData, job, onUpdate, userId, onAnalyze, onSave } = props;
   const [analysis, setAnalysis] = useState<MatchAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,14 +69,14 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
     setIsLoading(true);
     setError(null);
     try {
-      let result = await generateMatchAnalysis(careerData, job);
+      let result = await onAnalyze(careerData, job);
       
       // Self-Correction API Step: Check if the score is below a threshold and try to improve it once
       if (result.Overall_Fit_Score < 70) {
           console.log("Initial score below 70, attempting self-correction...");
           // In a real scenario, you might pass the previous result back to the AI to ask for improvements
           // For now, we'll just re-run it to see if it generates a better fit with a different seed/temperature
-          const retryResult = await generateMatchAnalysis(careerData, job);
+          const retryResult = await onAnalyze(careerData, job);
           if (retryResult.Overall_Fit_Score > result.Overall_Fit_Score) {
               console.log("Self-correction improved score.");
               result = retryResult;
@@ -107,7 +108,7 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
       Saved_Documents: [...(careerData.Saved_Documents || []), newDoc]
     };
 
-    await saveUserCareerData(userId, updatedData);
+    await onSave(userId!, updatedData);
     onUpdate(updatedData);
   };
 
@@ -317,19 +318,19 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
   if (!analysis && !isLoading) {
     return (
       <div className="max-w-4xl mx-auto text-center py-12">
-        <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-10 rounded-2xl border border-[var(--sys-color-concreteGrey-steps-0)] shadow-2xl">
-          <div className="w-20 h-20 bg-cyan-900/30 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyan-500/30">
-            <svg className="w-10 h-10 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-10 rounded-[var(--sys-shape-radius-xxl)] border border-[var(--sys-color-concreteGrey-steps-0)] shadow-2xl">
+          <div className="w-20 h-20 bg-cyan-900/30 rounded-[var(--sys-shape-radius-full)] flex items-center justify-center mx-auto mb-6 border border-cyan-500/30">
+            <svg className="w-10 h-10 text-[var(--sys-color-inkGold-base)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-4">Job Extracted Successfully</h2>
+          <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] mb-4">Job Extracted Successfully</h2>
           <p className="text-[var(--sys-color-worker-ash-base)] mb-8 max-w-lg mx-auto">
             We've analyzed the job posting. Now, let's see how your career database matches up and generate your tailored application materials.
           </p>
           <button
             onClick={handleAnalyze}
-            className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 px-12 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-cyan-900/20"
+            className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] text-[var(--sys-color-paperWhite-base)] font-bold py-4 px-12 rounded-[var(--sys-shape-radius-xl)] transition-all transform hover:scale-105 shadow-lg shadow-cyan-900/20"
           >
             Start Match Analysis
           </button>
@@ -342,10 +343,10 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
     return (
       <div className="max-w-4xl mx-auto text-center py-20">
         <div className="relative w-24 h-24 mx-auto mb-8">
-          <div className="absolute inset-0 border-4 border-cyan-500/20 rounded-full"></div>
-          <div className="absolute inset-0 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="absolute inset-0 border-4 border-cyan-500/20 rounded-[var(--sys-shape-radius-full)]"></div>
+          <div className="absolute inset-0 border-4 border-[var(--sys-color-inkGold-base)] border-t-transparent rounded-[var(--sys-shape-radius-full)] animate-spin"></div>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">Analyzing Match...</h2>
+        <h2 className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">Analyzing Match...</h2>
         <p className="text-[var(--sys-color-worker-ash-base)] animate-pulse">Gemini is researching the company and tailoring your profile.</p>
       </div>
     );
@@ -361,7 +362,7 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
       {/* Score Header */}
-      <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-8 rounded-xl border border-[var(--sys-color-concreteGrey-steps-0)] flex items-center gap-8">
+      <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-8 rounded-[var(--sys-shape-radius-xl)] border border-[var(--sys-color-concreteGrey-steps-0)] flex items-center gap-8">
         <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
             <circle cx="50" cy="50" r="45" fill="none" stroke="#374151" strokeWidth="10" />
@@ -374,12 +375,12 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-3xl font-bold text-white">{analysis.Overall_Fit_Score}%</span>
+            <span className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)]">{analysis.Overall_Fit_Score}%</span>
             <span className="text-xs text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Fit Score</span>
           </div>
         </div>
         <div>
-          <h2 className="text-3xl font-bold text-white mb-2">Match Analysis Complete</h2>
+          <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">Match Analysis Complete</h2>
           <p className="text-[var(--sys-color-worker-ash-base)] text-lg">
             Your profile is a <strong>{analysis.Overall_Fit_Score >= 80 ? 'strong' : analysis.Overall_Fit_Score >= 60 ? 'moderate' : 'weak'} match</strong> for the {job.Job_Title} role at {job.Company_Name}.
           </p>
@@ -387,21 +388,21 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
       </div>
 
       {/* Template Selector */}
-      <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-xl border border-[var(--sys-color-concreteGrey-steps-0)]">
+      <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-[var(--sys-shape-radius-xl)] border border-[var(--sys-color-concreteGrey-steps-0)]">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-sm font-bold text-cyan-500 uppercase tracking-widest">Select Document Template</h3>
+          <h3 className="text-sm font-bold text-[var(--sys-color-inkGold-base)] uppercase tracking-widest">Select Document Template</h3>
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Locale:</span>
-            <div className="flex bg-[var(--sys-color-charcoalBackground-base)] rounded-lg p-1 border border-[var(--sys-color-concreteGrey-steps-0)]">
+            <div className="flex bg-[var(--sys-color-charcoalBackground-base)] rounded-[var(--sys-shape-radius-lg)] p-1 border border-[var(--sys-color-concreteGrey-steps-0)]">
               <button
                 onClick={() => setLocale('US')}
-                className={`px-3 py-1 rounded text-xs font-bold transition-colors ${locale === 'US' ? 'bg-cyan-600 text-white' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
+                className={`px-3 py-1 rounded-[var(--sys-shape-radius-lg)] text-xs font-bold transition-colors ${locale === 'US' ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
               >
                 US
               </button>
               <button
                 onClick={() => setLocale('UK/AU')}
-                className={`px-3 py-1 rounded text-xs font-bold transition-colors ${locale === 'UK/AU' ? 'bg-cyan-600 text-white' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
+                className={`px-3 py-1 rounded-[var(--sys-shape-radius-lg)] text-xs font-bold transition-colors ${locale === 'UK/AU' ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
               >
                 UK/AU
               </button>
@@ -413,23 +414,23 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
             <button
               key={t.id}
               onClick={() => setSelectedTemplate(t)}
-              className={`group flex flex-col items-center gap-2 p-2 rounded-lg border transition-all ${
-                selectedTemplate.id === t.id ? 'bg-cyan-900/20 border-cyan-500' : 'bg-[var(--sys-color-charcoalBackground-base)] border-[var(--sys-color-concreteGrey-steps-0)] hover:border-[var(--sys-color-concreteGrey-steps-0)]'
+              className={`group flex flex-col items-center gap-2 p-2 rounded-[var(--sys-shape-radius-lg)] border transition-all ${
+                selectedTemplate.id === t.id ? 'bg-[var(--sys-color-solidarityRed-steps-0)]/20 border-[var(--sys-color-inkGold-base)]' : 'bg-[var(--sys-color-charcoalBackground-base)] border-[var(--sys-color-concreteGrey-steps-0)] hover:border-[var(--sys-color-concreteGrey-steps-0)]'
               }`}
             >
               <div 
-                className="w-full aspect-[3/4] rounded shadow-sm border border-white/10 overflow-hidden relative"
+                className="w-full aspect-[3/4] rounded shadow-sm border border-[var(--sys-color-paperWhite-base)]/10 overflow-hidden relative"
                 style={{ backgroundColor: t.bgLight }}
               >
                 <div className="absolute top-0 left-0 right-0 h-2" style={{ backgroundColor: t.primaryColor }} />
                 <div className="p-1 space-y-1">
-                  <div className="h-1 w-2/3 rounded-full mt-2" style={{ backgroundColor: t.headingColor, opacity: 0.3 }} />
-                  <div className="h-0.5 w-full rounded-full" style={{ backgroundColor: t.textColor, opacity: 0.1 }} />
-                  <div className="h-0.5 w-full rounded-full" style={{ backgroundColor: t.textColor, opacity: 0.1 }} />
-                  <div className="h-0.5 w-4/5 rounded-full" style={{ backgroundColor: t.textColor, opacity: 0.1 }} />
+                  <div className="h-1 w-2/3 rounded-[var(--sys-shape-radius-full)] mt-2" style={{ backgroundColor: t.headingColor, opacity: 0.3 }} />
+                  <div className="h-0.5 w-full rounded-[var(--sys-shape-radius-full)]" style={{ backgroundColor: t.textColor, opacity: 0.1 }} />
+                  <div className="h-0.5 w-full rounded-[var(--sys-shape-radius-full)]" style={{ backgroundColor: t.textColor, opacity: 0.1 }} />
+                  <div className="h-0.5 w-4/5 rounded-[var(--sys-shape-radius-full)]" style={{ backgroundColor: t.textColor, opacity: 0.1 }} />
                 </div>
               </div>
-              <span className={`text-[10px] font-bold truncate w-full text-center ${selectedTemplate.id === t.id ? 'text-cyan-400' : 'text-[var(--sys-color-worker-ash-base)] group-hover:text-[var(--sys-color-paperWhite-base)]'}`}>
+              <span className={`text-[10px] font-bold truncate w-full text-center ${selectedTemplate.id === t.id ? 'text-[var(--sys-color-inkGold-base)]' : 'text-[var(--sys-color-worker-ash-base)] group-hover:text-[var(--sys-color-paperWhite-base)]'}`}>
                 {t.name}
               </span>
             </button>
@@ -442,24 +443,24 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
         <div className="flex gap-2 md:gap-4 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
           <button
             onClick={() => setActiveTab('analysis')}
-            className={`px-3 md:px-4 py-2 font-bold rounded-t-lg transition-colors whitespace-nowrap ${
-              activeTab === 'analysis' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-cyan-400 border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
+            className={`px-3 md:px-4 py-2 font-bold rounded-[var(--sys-shape-radius-lg)] transition-colors whitespace-nowrap ${
+              activeTab === 'analysis' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-[var(--sys-color-inkGold-base)] border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
             }`}
           >
             Gap Analysis
           </button>
           <button
             onClick={() => setActiveTab('resume')}
-            className={`px-3 md:px-4 py-2 font-bold rounded-t-lg transition-colors whitespace-nowrap ${
-              activeTab === 'resume' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-cyan-400 border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
+            className={`px-3 md:px-4 py-2 font-bold rounded-[var(--sys-shape-radius-lg)] transition-colors whitespace-nowrap ${
+              activeTab === 'resume' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-[var(--sys-color-inkGold-base)] border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
             }`}
           >
             Tailored Resume
           </button>
           <button
             onClick={() => setActiveTab('coverLetter')}
-            className={`px-3 md:px-4 py-2 font-bold rounded-t-lg transition-colors whitespace-nowrap ${
-              activeTab === 'coverLetter' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-cyan-400 border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
+            className={`px-3 md:px-4 py-2 font-bold rounded-[var(--sys-shape-radius-lg)] transition-colors whitespace-nowrap ${
+              activeTab === 'coverLetter' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-[var(--sys-color-inkGold-base)] border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
             }`}
           >
             Cover Letter
@@ -467,8 +468,8 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
           {analysis?.KSC_Responses_Drafts && analysis.KSC_Responses_Drafts.length > 0 && (
             <button
               onClick={() => setActiveTab('ksc')}
-              className={`px-3 md:px-4 py-2 font-bold rounded-t-lg transition-colors whitespace-nowrap ${
-                activeTab === 'ksc' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-cyan-400 border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
+              className={`px-3 md:px-4 py-2 font-bold rounded-[var(--sys-shape-radius-lg)] transition-colors whitespace-nowrap ${
+                activeTab === 'ksc' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-[var(--sys-color-inkGold-base)] border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
               }`}
             >
               KSC Responses
@@ -479,7 +480,7 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
         <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0 w-full md:w-auto justify-end">
           <button
             onClick={handleAnalyze}
-            className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-1.5 px-3 md:py-2 md:px-4 rounded-lg transition-colors text-sm md:text-base"
+            className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] text-[var(--sys-color-paperWhite-base)] font-bold py-1.5 px-3 md:py-2 md:px-4 rounded-[var(--sys-shape-radius-lg)] transition-colors text-sm md:text-base"
           >
             Rescore
           </button>
@@ -489,8 +490,8 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
               {(activeTab === 'resume' || activeTab === 'coverLetter') && (
                 <button 
                   onClick={() => setShowAudit(!showAudit)}
-                  className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1 rounded text-xs md:text-sm font-bold transition-colors ${
-                    showAudit ? 'bg-cyan-600 text-white' : 'bg-[var(--sys-color-charcoalBackground-steps-2)] text-cyan-400 hover:bg-[var(--sys-color-charcoalBackground-steps-3)]'
+                  className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors ${
+                    showAudit ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)]' : 'bg-[var(--sys-color-charcoalBackground-steps-2)] text-[var(--sys-color-inkGold-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-3)]'
                   }`}
                 >
                   <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -504,9 +505,9 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
                 <button
                   onClick={handleSaveToProfile}
                   disabled={isSaving || saveSuccess}
-                  className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1 rounded text-xs md:text-sm font-bold transition-colors ${
+                  className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors ${
                     saveSuccess 
-                      ? 'bg-green-600 text-white' 
+                      ? 'bg-green-600 text-[var(--sys-color-paperWhite-base)]' 
                       : 'bg-[var(--sys-color-kr-activistSmokeGreen-steps-0)] hover:bg-[var(--sys-color-kr-activistSmokeGreen-steps-1)] text-[var(--sys-color-kr-activistSmokeGreen-base)] border border-[var(--sys-color-kr-activistSmokeGreen-base)]'
                   }`}
                 >
@@ -542,15 +543,15 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
                   navigator.clipboard.writeText(text);
                   alert('Copied to clipboard for ATS parsing!');
                 }}
-                className="bg-[var(--sys-color-kr-activistSmokeGreen-steps-0)] hover:bg-[var(--sys-color-kr-activistSmokeGreen-steps-1)] text-[var(--sys-color-kr-activistSmokeGreen-base)] border border-[var(--sys-color-kr-activistSmokeGreen-base)] px-2 py-1 md:px-3 rounded text-xs md:text-sm font-bold transition-colors"
+                className="bg-[var(--sys-color-kr-activistSmokeGreen-steps-0)] hover:bg-[var(--sys-color-kr-activistSmokeGreen-steps-1)] text-[var(--sys-color-kr-activistSmokeGreen-base)] border border-[var(--sys-color-kr-activistSmokeGreen-base)] px-2 py-1 md:px-3 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors"
                 title="Copy Text"
               >
                 Copy
               </button>
-              <button onClick={exportToPDF} className="bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-500/30 px-2 py-1 md:px-3 rounded text-xs md:text-sm font-bold transition-colors">
+              <button onClick={exportToPDF} className="bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-500/30 px-2 py-1 md:px-3 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors">
                 PDF
               </button>
-              <button onClick={exportToDOCX} className="bg-blue-900/40 hover:bg-blue-800/60 text-blue-300 border border-blue-500/30 px-2 py-1 md:px-3 rounded text-xs md:text-sm font-bold transition-colors">
+              <button onClick={exportToDOCX} className="bg-blue-900/40 hover:bg-blue-800/60 text-blue-300 border border-blue-500/30 px-2 py-1 md:px-3 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors">
                 DOCX
               </button>
             </div>
@@ -561,8 +562,8 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
       {activeTab === 'analysis' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Skill Gaps */}
-          <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-xl border border-[var(--sys-color-concreteGrey-steps-0)]">
-            <h3 className="text-xl font-bold text-cyan-300 mb-4 border-b border-[var(--sys-color-concreteGrey-steps-0)] pb-2">Skill Gap Analysis</h3>
+          <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-[var(--sys-shape-radius-xl)] border border-[var(--sys-color-concreteGrey-steps-0)]">
+            <h3 className="text-xl font-bold text-[var(--sys-color-inkGold-steps-2)] mb-4 border-b border-[var(--sys-color-concreteGrey-steps-0)] pb-2">Skill Gap Analysis</h3>
             <div className="space-y-3">
               {analysis.Skill_Gaps.map((gap, i) => {
                 const levelStyles = {
@@ -587,13 +588,13 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
                 }[gap.Match_Level];
 
                 return (
-                  <div key={i} className={`p-4 rounded-lg border ${levelStyles.bg} ${levelStyles.border}`}>
+                  <div key={i} className={`p-4 rounded-[var(--sys-shape-radius-lg)] border ${levelStyles.bg} ${levelStyles.border}`}>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
-                        <div className={`w-2.5 h-2.5 rounded-full ${levelStyles.dot}`} />
+                        <div className={`w-2.5 h-2.5 rounded-[var(--sys-shape-radius-full)] ${levelStyles.dot}`} />
                         <span className={`font-bold ${levelStyles.text}`}>{gap.Skill}</span>
                       </div>
-                      <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${levelStyles.bg} ${levelStyles.border}`}>
+                      <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-[var(--sys-shape-radius-full)] ${levelStyles.bg} ${levelStyles.border}`}>
                         {gap.Match_Level}
                       </span>
                     </div>
@@ -608,26 +609,26 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
 
           <div className="space-y-8">
             {/* Tailored Summary */}
-            <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-xl border border-[var(--sys-color-concreteGrey-steps-0)]">
-              <h3 className="text-xl font-bold text-cyan-300 mb-4 border-b border-[var(--sys-color-concreteGrey-steps-0)] pb-2">Tailored Resume Summary</h3>
-              <p className="text-[var(--sys-color-paperWhite-base)] leading-relaxed bg-[var(--sys-color-charcoalBackground-base)] p-4 rounded border border-[var(--sys-color-concreteGrey-steps-0)] mb-4">
+            <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-[var(--sys-shape-radius-xl)] border border-[var(--sys-color-concreteGrey-steps-0)]">
+              <h3 className="text-xl font-bold text-[var(--sys-color-inkGold-steps-2)] mb-4 border-b border-[var(--sys-color-concreteGrey-steps-0)] pb-2">Tailored Resume Summary</h3>
+              <p className="text-[var(--sys-color-paperWhite-base)] leading-relaxed bg-[var(--sys-color-charcoalBackground-base)] p-4 rounded-[var(--sys-shape-radius-lg)] border border-[var(--sys-color-concreteGrey-steps-0)] mb-4">
                 {analysis.Tailored_Summary}
               </p>
               <button 
                 onClick={() => setActiveTab('coverLetter')}
-                className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                className="w-full bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] text-[var(--sys-color-paperWhite-base)] font-bold py-2 px-4 rounded-[var(--sys-shape-radius-lg)] transition-colors"
               >
                 Generate/Edit Cover Letter
               </button>
             </div>
 
             {/* Recommended Achievements */}
-            <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-xl border border-[var(--sys-color-concreteGrey-steps-0)]">
-              <h3 className="text-xl font-bold text-cyan-300 mb-4 border-b border-[var(--sys-color-concreteGrey-steps-0)] pb-2">Top Achievements to Include</h3>
+            <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-[var(--sys-shape-radius-xl)] border border-[var(--sys-color-concreteGrey-steps-0)]">
+              <h3 className="text-xl font-bold text-[var(--sys-color-inkGold-steps-2)] mb-4 border-b border-[var(--sys-color-concreteGrey-steps-0)] pb-2">Top Achievements to Include</h3>
               <ul className="space-y-3">
                 {recommendedAchievements.map((ach, i) => ach && (
-                  <li key={i} className="text-[var(--sys-color-paperWhite-base)] text-sm bg-[var(--sys-color-charcoalBackground-base)] p-3 rounded border border-[var(--sys-color-concreteGrey-steps-0)] flex gap-3">
-                    <span className="text-cyan-500 font-bold">•</span>
+                  <li key={i} className="text-[var(--sys-color-paperWhite-base)] text-sm bg-[var(--sys-color-charcoalBackground-base)] p-3 rounded-[var(--sys-shape-radius-lg)] border border-[var(--sys-color-concreteGrey-steps-0)] flex gap-3">
+                    <span className="text-[var(--sys-color-inkGold-base)] font-bold">•</span>
                     <span>{ach.Action_Verb} {ach.Noun_Task} {ach.Strategy} resulting in {ach.Outcome}.</span>
                   </li>
                 ))}
@@ -649,7 +650,7 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
               documentType="resume" 
             />
             {resumeRef.current && resumeRef.current.clientHeight > 1122 && ( // A4 is ~1122px at 96dpi
-              <div className="bg-amber-900/40 border border-amber-500/30 p-4 rounded-xl">
+              <div className="bg-amber-900/40 border border-amber-500/30 p-4 rounded-[var(--sys-shape-radius-xl)]">
                 <div className="flex items-center gap-3 mb-2">
                   <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -671,7 +672,7 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = ({ careerData, job,
 
       {activeTab === 'coverLetter' && (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
-          <div className="xl:col-span-2 bg-white p-10 shadow-lg" style={{ fontFamily: selectedTemplate.fontSans, color: selectedTemplate.textColor }}>
+          <div className="xl:col-span-2 bg-[var(--sys-color-paperWhite-base)] p-10 shadow-lg" style={{ fontFamily: selectedTemplate.fontSans, color: selectedTemplate.textColor }}>
             <h1 className="text-3xl font-bold uppercase mb-8 border-b-2 pb-4" style={{ color: selectedTemplate.primaryColor, borderColor: selectedTemplate.primaryColor }}>Cover Letter</h1>
             <textarea 
               className="w-full h-[600px] bg-transparent text-[var(--sys-color-charcoalBackground-base)] p-0 border-none focus:outline-none leading-relaxed resize-none"
