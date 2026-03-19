@@ -1,5 +1,6 @@
 import React from 'react';
 import { CareerDatabase } from '../types';
+import { ProfileCompleteness } from './ProfileCompleteness';
 
 interface DashboardProps {
   onCreateProfile: () => void;
@@ -16,8 +17,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateProfile, onUseExis
       </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="p-8 bg-[var(--sys-color-charcoalBackground-steps-1)] border-2 border-[var(--sys-color-concreteGrey-steps-0)]" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
-          <h3 className="text-2xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-6 uppercase tracking-tight">Master Profile</h3>
+        <div className="p-8 bg-[var(--sys-color-charcoalBackground-steps-1)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] space-y-6" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
+          <h3 className="text-2xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">Master Profile</h3>
+          <ProfileCompleteness completed={4} total={6} />
           <div className="space-y-4">
             <button 
               onClick={onCreateProfile} 

@@ -28,13 +28,14 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
   const [analysis, setAnalysis] = useState<MatchAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'analysis' | 'resume' | 'coverLetter' | 'ksc'>('analysis');
+  const [activeTab, setActiveTab] = useState<'resume' | 'coverLetter' | 'ksc'>('resume');
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateStyle>(RESUME_TEMPLATES[0]);
   const [showAudit, setShowAudit] = useState(false);
   const [coverLetterContent, setCoverLetterContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [locale, setLocale] = useState<'US' | 'UK/AU'>('US');
+  const [hasSelectionCriteria, setHasSelectionCriteria] = useState(false);
   const resumeRef = useRef<HTMLDivElement>(null);
   const kscRef = useRef<HTMLDivElement>(null);
 
@@ -85,6 +86,7 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
 
       setAnalysis(result);
       setCoverLetterContent(result.Cover_Letter_Draft);
+      setHasSelectionCriteria(!!result.KSC_Responses_Drafts && result.KSC_Responses_Drafts.length > 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -442,20 +444,12 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
       <div className="flex flex-col md:flex-row justify-between items-end border-b border-[var(--sys-color-concreteGrey-steps-0)] pb-2 sticky top-0 bg-[var(--sys-color-charcoalBackground-base)] z-40 pt-4">
         <div className="flex gap-2 md:gap-4 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
           <button
-            onClick={() => setActiveTab('analysis')}
-            className={`px-3 md:px-4 py-2 font-bold rounded-[var(--sys-shape-radius-lg)] transition-colors whitespace-nowrap ${
-              activeTab === 'analysis' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-[var(--sys-color-inkGold-base)] border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
-            }`}
-          >
-            Gap Analysis
-          </button>
-          <button
             onClick={() => setActiveTab('resume')}
             className={`px-3 md:px-4 py-2 font-bold rounded-[var(--sys-shape-radius-lg)] transition-colors whitespace-nowrap ${
               activeTab === 'resume' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-[var(--sys-color-inkGold-base)] border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
             }`}
           >
-            Tailored Resume
+            Resume
           </button>
           <button
             onClick={() => setActiveTab('coverLetter')}
@@ -465,7 +459,7 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
           >
             Cover Letter
           </button>
-          {analysis?.KSC_Responses_Drafts && analysis.KSC_Responses_Drafts.length > 0 && (
+          {hasSelectionCriteria && (
             <button
               onClick={() => setActiveTab('ksc')}
               className={`px-3 md:px-4 py-2 font-bold rounded-[var(--sys-shape-radius-lg)] transition-colors whitespace-nowrap ${

@@ -4,7 +4,7 @@ import { FileIcon } from './icons/FileIcon';
 import { TrashIcon } from './icons/TrashIcon';
 
 interface DocumentInputProps {
-  onProcess: (files: File[]) => void;
+  onProcess: (files: File[], rawText?: string) => void;
   isLoading: boolean;
 }
 
@@ -13,6 +13,7 @@ const ALLOWED_TYPES = ['application/pdf', 'application/vnd.openxmlformats-office
 
 export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoading }) => {
   const [files, setFiles] = useState<File[]>([]);
+  const [rawText, setRawText] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,41 +66,58 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoadi
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (files.length > 0 && !isLoading) {
-      onProcess(files);
+    if ((files.length > 0 || rawText.trim().length > 0) && !isLoading) {
+      onProcess(files, rawText.trim());
     }
   };
 
   return (
-    <div className="p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] my-8 mx-auto max-w-4xl" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
+    <div className="p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] my-8 mx-auto max-w-6xl" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
       <h2 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-4 uppercase tracking-tight">1. Upload Your Career Documents</h2>
       <p className="type-melancholyLonging text-[var(--sys-color-worker-ash-base)] text-lg mb-8">
-        Upload your career documents (.pdf, .docx, .txt). The AI will process up to 100 documents to de-duplicate and merge the information.
+        Upload your career documents (.pdf, .docx, .txt) or paste raw text. The AI will process up to 100 documents to de-duplicate and merge the information.
       </p>
       <form onSubmit={handleSubmit}>
-        <div
-          className={`relative border-4 border-dashed p-12 text-center transition-all cursor-pointer
-            ${isDragging ? 'border-[var(--sys-color-solidarityRed-base)] bg-[var(--sys-color-charcoalBackground-steps-2)]' : 'border-[var(--sys-color-concreteGrey-steps-0)] hover:border-[var(--sys-color-paperWhite-base)]'}`}
-          style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
-          onDragEnter={handleDragEnter}
-          onDragLeave={handleDragLeave}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
-            onChange={(e) => handleFiles(e.target.files)}
-            className="hidden"
-            disabled={isLoading}
-          />
-          <div className="flex flex-col items-center text-[var(--sys-color-paperWhite-base)]">
-            <UploadIcon className="w-16 h-16 mb-6 text-[var(--sys-color-solidarityRed-base)]" />
-            <p className="text-xl font-bold uppercase tracking-wider mb-2">Drag & drop files here</p>
-            <p className="text-[var(--sys-color-worker-ash-base)]">or click to select (Up to {MAX_FILES} documents)</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div
+            className={`relative border-4 border-dashed p-12 text-center transition-all cursor-pointer
+              ${isDragging ? 'border-[var(--sys-color-solidarityRed-base)] bg-[var(--sys-color-charcoalBackground-steps-2)]' : 'border-[var(--sys-color-concreteGrey-steps-0)] hover:border-[var(--sys-color-paperWhite-base)]'}`}
+            style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+              onChange={(e) => handleFiles(e.target.files)}
+              className="hidden"
+              disabled={isLoading}
+            />
+            <div className="flex flex-col items-center text-[var(--sys-color-paperWhite-base)]">
+              <UploadIcon className="w-16 h-16 mb-6 text-[var(--sys-color-solidarityRed-base)]" />
+              <p className="text-xl font-bold uppercase tracking-wider mb-2">Drag & drop files here</p>
+              <p className="text-[var(--sys-color-worker-ash-base)]">or click to select (Up to {MAX_FILES} documents)</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <label htmlFor="rawText" className="text-xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-4 uppercase tracking-tight">
+              Paste raw text instead
+            </label>
+            <textarea
+              id="rawText"
+              value={rawText}
+              onChange={(e) => setRawText(e.target.value)}
+              placeholder="If your PDF fails to upload, paste your unformatted resume or job description here..."
+              className="flex-grow p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] text-[var(--sys-color-paperWhite-base)] focus:border-[var(--sys-color-solidarityRed-base)] transition-colors"
+              style={{ borderRadius: 'var(--sys-shape-blockRiot01)', minHeight: '200px' }}
+              disabled={isLoading}
+            />
           </div>
         </div>
         

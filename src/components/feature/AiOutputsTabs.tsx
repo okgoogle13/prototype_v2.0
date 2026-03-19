@@ -5,6 +5,18 @@ import { Badge } from "../ui/Badge";
 
 export function AiOutputsTabs() {
   const [activeTab, setActiveTab] = useState('criteria');
+  const [ignoredCriteria, setIgnoredCriteria] = useState<number[]>([]);
+
+  const toggleCriteria = (id: number) => {
+    setIgnoredCriteria(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const criteria = [
+    { id: 1, title: "5+ years experience in React and TypeScript", required: true },
+    { id: 2, title: "Experience with GraphQL and Node.js", required: false },
+  ];
 
   return (
     <div className="mt-12">
@@ -29,29 +41,28 @@ export function AiOutputsTabs() {
                 <p className="type-melancholyLonging text-lg text-[var(--sys-color-worker-ash-base)]">
                   The following key selection criteria were extracted from the job description.
                 </p>
-                {/* Placeholder for criteria list */}
-                <motion.div 
-                  whileHover={{ scale: 1.01, rotate: 0.5 }}
-                  className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] cursor-default" 
-                  style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="font-mono text-sm text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest">Criteria 01</p>
-                    <Badge label="Required" variant="danger" />
-                  </div>
-                  <p className="text-xl text-[var(--sys-color-paperWhite-base)] font-bold">5+ years experience in React and TypeScript</p>
-                </motion.div>
-                <motion.div 
-                  whileHover={{ scale: 1.01, rotate: -0.5 }}
-                  className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] cursor-default" 
-                  style={{ borderRadius: 'var(--sys-shape-blockRiot03)' }}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="font-mono text-sm text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest">Criteria 02</p>
-                    <Badge label="Nice to have" variant="success" />
-                  </div>
-                  <p className="text-xl text-[var(--sys-color-paperWhite-base)] font-bold">Experience with GraphQL and Node.js</p>
-                </motion.div>
+                {criteria.map(c => (
+                  <motion.div 
+                    key={c.id}
+                    whileHover={{ scale: 1.01, rotate: ignoredCriteria.includes(c.id) ? 0 : (c.id % 2 === 0 ? -0.5 : 0.5) }}
+                    className={`p-6 border-2 border-[var(--sys-color-concreteGrey-steps-0)] cursor-default transition-opacity ${ignoredCriteria.includes(c.id) ? 'opacity-40 bg-[var(--sys-color-charcoalBackground-steps-1)]' : 'bg-[var(--sys-color-charcoalBackground-steps-2)]'}`}
+                    style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <p className="font-mono text-sm text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest">Criteria 0{c.id}</p>
+                      <div className="flex items-center gap-4">
+                        <Badge label={c.required ? "Required" : "Nice to have"} variant={c.required ? "danger" : "success"} />
+                        <button 
+                          onClick={() => toggleCriteria(c.id)}
+                          className="text-2xl text-[var(--sys-color-paperWhite-base)] hover:text-[var(--sys-color-solidarityRed-base)] transition-colors"
+                        >
+                          {ignoredCriteria.includes(c.id) ? '+' : '×'}
+                        </button>
+                      </div>
+                    </div>
+                    <p className={`text-xl font-bold ${ignoredCriteria.includes(c.id) ? 'text-[var(--sys-color-worker-ash-base)] line-through' : 'text-[var(--sys-color-paperWhite-base)]'}`}>{c.title}</p>
+                  </motion.div>
+                ))}
               </div>
             )}
             {activeTab === 'match' && (
