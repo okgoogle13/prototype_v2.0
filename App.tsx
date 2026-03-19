@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AppShell } from './src/components/layout/AppShell';
-import { ApplicationWorkspacePage } from './src/pages/ApplicationWorkspacePage';
-import { ProfileEditorPage } from './src/pages/ProfileEditorPage';
-import { PastApplicationsPage } from './src/pages/PastApplicationsPage';
-import { ComponentLibraryPage } from './src/pages/ComponentLibraryPage';
+import { ApplyQuickWorkspaceReference } from './src/pages/ApplyQuickWorkspaceReference';
+import { ProfileView } from './src/pages/ProfileView';
+import { PastApplicationsReference } from './src/pages/PastApplicationsReference';
+import { LibraryReferencePage } from './src/pages/LibraryReferencePage';
 import { ImageStudioPage } from './src/pages/ImageStudioPage';
 import { auth, signIn, logout } from './services/firebase';
 import { User, onAuthStateChanged } from 'firebase/auth';
@@ -157,11 +157,12 @@ const App: React.FC = () => {
 
   return (
     <AppShell onLogout={handleLogout}>
+      {/* Canonical routing is owned by the main repo router. */}
       <Routes>
-        <Route path="/workspace" element={<ApplicationWorkspacePage />} />
-        <Route path="/profile" element={<ProfileEditorPage />} />
-        <Route path="/past" element={<PastApplicationsPage />} />
-        <Route path="/components" element={<ComponentLibraryPage />} />
+        <Route path="/workspace" element={<ApplyQuickWorkspaceReference />} />
+        <Route path="/profile" element={<ProfileView />} />
+        <Route path="/past" element={<PastApplicationsReference />} />
+        <Route path="/components" element={<LibraryReferencePage />} />
         <Route path="/studio" element={<ImageStudioPage />} />
         <Route path="*" element={<Navigate to="/workspace" replace />} />
       </Routes>

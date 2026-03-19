@@ -4,6 +4,7 @@ import { Card } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 
 export function AiOutputsTabs() {
+  // Prototype-only navigation state
   const [activeTab, setActiveTab] = useState('ksc');
   const [ignoredCriteria, setIgnoredCriteria] = useState<number[]>([]);
 

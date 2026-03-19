@@ -9,7 +9,7 @@ import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { DocumentInput } from "../../components/DocumentInput";
 import { Modal } from "../components/ui/Modal";
 
-export function ProfileEditorPage() {
+export function ProfileView() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");

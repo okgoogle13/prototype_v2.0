@@ -23,11 +23,12 @@ interface MatchDashboardProps {
   onSave: (userId: string, data: CareerDatabase) => Promise<void>;
 }
 
-export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
+export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
   const { careerData, job, onUpdate, userId, onAnalyze, onSave } = props;
   const [analysis, setAnalysis] = useState<MatchAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Prototype-only navigation state
   const [activeTab, setActiveTab] = useState<'resume' | 'coverLetter' | 'ksc'>('resume');
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateStyle>(RESUME_TEMPLATES[0]);
   const [showAudit, setShowAudit] = useState(false);

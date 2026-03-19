@@ -22,11 +22,12 @@ export function SidebarNav({ onLogout }: Props) {
       }}
     >
       <div className="flex-1 flex min-[600px]:flex-col p-0 min-[600px]:py-4 min-[1200px]:py-6 gap-0 min-[600px]:gap-2 overflow-x-auto min-[600px]:overflow-y-auto min-[600px]:overflow-x-hidden justify-around min-[600px]:justify-start items-center min-[1200px]:items-stretch w-full">
-        <NavItem icon={<Briefcase size={24} />} label="Workspace" active={activePath === '/workspace'} onClick={() => navigate('/workspace')} />
-        <NavItem icon={<User size={24} />} label="Profile" active={activePath === '/profile'} onClick={() => navigate('/profile')} />
-        <NavItem icon={<History size={24} />} label="Past" active={activePath === '/past'} onClick={() => navigate('/past')} />
-        <NavItem icon={<Image size={24} />} label="Studio" active={activePath === '/studio'} onClick={() => navigate('/studio')} />
-        <NavItem icon={<Library size={24} />} label="Library" active={activePath === '/components'} onClick={() => navigate('/components')} />
+        {/* Prototype-only labels. Canonical runtime routing lives in the main CareerCopilot repo App.tsx and route matrix. */}
+        <NavItem icon={<Briefcase size={24} />} label="WORKSPACE" active={activePath === '/workspace'} onClick={() => navigate('/workspace')} />
+        <NavItem icon={<User size={24} />} label="PROFILE" active={activePath === '/profile'} onClick={() => navigate('/profile')} />
+        <NavItem icon={<History size={24} />} label="PAST" active={activePath === '/past'} onClick={() => navigate('/past')} />
+        <NavItem icon={<Image size={24} />} label="STUDIO" active={activePath === '/studio'} onClick={() => navigate('/studio')} />
+        <NavItem icon={<Library size={24} />} label="LIBRARY" active={activePath === '/components'} onClick={() => navigate('/components')} />
       </div>
 
       <div 

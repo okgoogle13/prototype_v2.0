@@ -2,17 +2,20 @@ import React from 'react';
 import { FileText, Briefcase, ClipboardList, LogOut, Database } from 'lucide-react';
 
 interface SidebarProps {
+  // Prototype-only navigation state
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onLogout: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout }) => {
+  // Prototype-only labels. Canonical runtime routing lives in the main CareerCopilot repo App.tsx and route matrix.
   const menuItems = [
-    { id: 'database', label: 'Career Database', icon: Database },
-    { id: 'job', label: 'Extract Job', icon: Briefcase },
-    { id: 'match', label: 'Match & Tailor', icon: ClipboardList },
-    { id: 'past', label: 'Past Applications', icon: FileText },
+    { id: 'workspace', label: 'WORKSPACE', icon: Briefcase },
+    { id: 'profile', label: 'PROFILE', icon: Database },
+    { id: 'past', label: 'PAST', icon: FileText },
+    { id: 'studio', label: 'STUDIO', icon: ClipboardList },
+    { id: 'components', label: 'LIBRARY', icon: Database },
   ];
 
   return (

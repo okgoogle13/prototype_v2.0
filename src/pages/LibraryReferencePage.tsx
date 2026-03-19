@@ -13,7 +13,7 @@ import { Checkbox } from "../components/ui/Checkbox";
 import { Loader } from "../components/ui/Loader";
 import { Modal } from "../components/ui/Modal";
 
-export function ComponentLibraryPage() {
+export function LibraryReferencePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
 

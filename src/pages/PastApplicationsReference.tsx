@@ -7,7 +7,7 @@ import { SectionHeader } from "../components/ui/SectionHeader";
 import { Card } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 
-export function PastApplicationsPage() {
+export function PastApplicationsReference() {
   return (
     <SolidarityPageLayout
       heroNode={

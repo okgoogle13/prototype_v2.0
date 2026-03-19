@@ -9,7 +9,7 @@ import { AiOutputsTabs } from "../components/feature/AiOutputsTabs";
 import { SaveApplicationBar } from "../components/feature/SaveApplicationBar";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 
-export function ApplicationWorkspacePage() {
+export function ApplyQuickWorkspaceReference() {
   const navigate = useNavigate();
 
   const handleLoadSampleProfile = () => {
