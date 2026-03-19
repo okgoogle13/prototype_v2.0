@@ -162,6 +162,31 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
     }
   };
 
+  const getFullResumeText = () => {
+    if (!analysis) return '';
+    let md = `${careerData.Personal_Information.FullName}\n\n`;
+    md += `Email: ${careerData.Personal_Information.Email} | Phone: ${careerData.Personal_Information.Phone} | Location: ${careerData.Personal_Information.Location}\n\n`;
+    md += `Professional Summary\n${analysis.Tailored_Summary}\n\n`;
+    md += `Professional Experience\n`;
+    
+    const workEntries = careerData.Career_Entries.filter(e => e.Entry_Type === "Work Experience")
+      .sort((a, b) => new Date(b.StartDate).getTime() - new Date(a.StartDate).getTime());
+
+    workEntries.forEach(entry => {
+      const entryAchievements = careerData.Structured_Achievements.filter(a => a.Entry_ID === entry.Entry_ID);
+      if (entryAchievements.length > 0) {
+        md += `${entry.Role}\n${entry.Organization} | ${entry.StartDate} - ${entry.EndDate}\n\n`;
+        entryAchievements.forEach(ach => {
+          md += `- ${ach.Action_Verb} ${ach.Noun_Task} ${ach.Strategy} resulting in ${ach.Outcome}.\n`;
+        });
+        md += '\n';
+      }
+    });
+    
+    md += `Skills\n${careerData.Master_Skills_Inventory.map(s => s.Skill_Name).join(', ')}\n`;
+    return md;
+  };
+
   const exportToMarkdown = () => {
     if (activeTab === 'resume' && analysis) {
       let md = `# ${careerData.Personal_Information.FullName}\n\n`;
@@ -412,7 +437,7 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {RESUME_TEMPLATES.slice(0, 3).map((t) => (
+          {RESUME_TEMPLATES.map((t) => (
             <button
               key={t.id}
               onClick={() => setSelectedTemplate(t)}
@@ -474,13 +499,13 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
         <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0 w-full md:w-auto justify-end">
           <button
             onClick={handleAnalyze}
-            className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] text-[var(--sys-color-paperWhite-base)] font-bold py-1.5 px-3 md:py-2 md:px-4 rounded-[var(--sys-shape-radius-lg)] transition-colors text-sm md:text-base"
+            className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] text-[var(--sys-color-paperWhite-base)] font-bold py-3 px-4 md:py-2 md:px-4 rounded-[var(--sys-shape-radius-lg)] transition-colors text-base md:text-base w-[calc(100%-2rem)] md:w-auto fixed bottom-4 left-4 md:relative md:bottom-auto md:left-auto z-50 shadow-[0_8px_16px_rgba(0,0,0,0.5)] md:shadow-none"
           >
-            Rescore
+            Save & Rescore
           </button>
           
           {(activeTab === 'resume' || activeTab === 'coverLetter' || activeTab === 'ksc') && (
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center w-full md:w-auto justify-end">
               {(activeTab === 'resume' || activeTab === 'coverLetter') && (
                 <button 
                   onClick={() => setShowAudit(!showAudit)}
@@ -533,14 +558,14 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
               <span className="text-[var(--sys-color-worker-ash-base)] text-xs md:text-sm hidden md:inline">Export:</span>
               <button 
                 onClick={() => {
-                  const text = activeTab === 'resume' ? getResumeText() : activeTab === 'coverLetter' ? coverLetterContent : analysis?.KSC_Responses_Drafts?.map(k => `${k.KSC_Prompt}\n${k.Response}`).join('\n\n') || '';
+                  const text = activeTab === 'resume' ? getFullResumeText() : activeTab === 'coverLetter' ? coverLetterContent : analysis?.KSC_Responses_Drafts?.map(k => `${k.KSC_Prompt}\n${k.Response}`).join('\n\n') || '';
                   navigator.clipboard.writeText(text);
                   alert('Copied to clipboard for ATS parsing!');
                 }}
                 className="bg-[var(--sys-color-kr-activistSmokeGreen-steps-0)] hover:bg-[var(--sys-color-kr-activistSmokeGreen-steps-1)] text-[var(--sys-color-kr-activistSmokeGreen-base)] border border-[var(--sys-color-kr-activistSmokeGreen-base)] px-2 py-1 md:px-3 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors"
                 title="Copy Text"
               >
-                Copy
+                Copy to Clipboard for ATS
               </button>
               <button onClick={exportToPDF} className="bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-500/30 px-2 py-1 md:px-3 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors">
                 PDF

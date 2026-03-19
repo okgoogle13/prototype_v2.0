@@ -19,7 +19,10 @@ export function LayeredHero({ imageUrl, altText = 'Hero Background' }: LayeredHe
         transition={{ duration: 1.5, ease: "easeOut" }}
       />
       {/* Optional: Add a subtle overlay to ensure text readability if needed */}
-      <div className="absolute inset-0 bg-[var(--sys-color-charcoalBackground-base)] opacity-40 mix-blend-multiply" />
+      <div 
+        className="absolute inset-0 opacity-40 mix-blend-multiply" 
+        style={{ background: 'var(--sys-color-charcoalBackground-base)' }}
+      />
     </div>
   );
 }

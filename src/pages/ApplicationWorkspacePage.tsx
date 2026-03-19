@@ -46,16 +46,40 @@ export function ApplicationWorkspacePage() {
             }
           }}
         >
-          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="mb-12 flex justify-between items-center">
-            <div>
-              <h1 className="text-7xl type-extremeVariableContrast text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none mb-4">
-                Application <br/><span className="text-[var(--sys-color-solidarityRed-base)]">Workspace</span>
-              </h1>
-              <p className="text-xl type-laborExploitationPressure text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest">
-                NO NEUTRAL CANVAS. TAILOR YOUR RESPONSE.
-              </p>
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="mb-16">
+            <div className="flex flex-col md:flex-row gap-12 items-center">
+              <div className="flex-1">
+                <h1 className="text-7xl md:text-8xl type-extremeVariableContrast text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none mb-6">
+                  Application <br/><span className="text-[var(--sys-color-solidarityRed-base)]">Workspace</span>
+                </h1>
+                <p className="text-xl type-laborExploitationPressure text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest mb-8">
+                  NO NEUTRAL CANVAS. TAILOR YOUR RESPONSE.
+                </p>
+                <PrimaryButton label="Load Sample Profile" onClick={handleLoadSampleProfile} variant="march" />
+              </div>
+              <div className="flex-1 w-full">
+                <div 
+                  className="w-full aspect-video border-2 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden"
+                  style={{ 
+                    borderRadius: 'var(--sys-shape-blockRiot03)',
+                    background: 'var(--sys-color-charcoalBackground-steps-2)',
+                    borderColor: 'var(--sys-color-concreteGrey-steps-0)'
+                  }}
+                >
+                  <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
+                  <h3 className="text-2xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-widest mb-4 relative z-10">
+                    Hero Illustration Placeholder
+                  </h3>
+                  <p className="text-sm type-melancholyLonging text-[var(--sys-color-worker-ash-base)] max-w-md relative z-10">
+                    Archetype: Placard / Scaffold. Hard architectural lines. Asymmetric radii.
+                    <br/><br/>
+                    <strong className="text-[var(--sys-color-solidarityRed-base)] uppercase tracking-widest">CRITICAL RULE: Zero-Flora lockdown.</strong>
+                    <br/>
+                    Absolutely NO Australian flora, eucalyptus, or wattle concepts permitted in the ultimate imagery.
+                  </p>
+                </div>
+              </div>
             </div>
-            <PrimaryButton label="Load Sample Profile" onClick={handleLoadSampleProfile} variant="march" />
           </motion.div>
           
           <div className="space-y-12">
