@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Briefcase, User, History, LogOut, Library } from "lucide-react";
+import { Briefcase, User, History, LogOut, Library, Image } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 type Props = {
@@ -29,6 +29,7 @@ export function SidebarNav({ onLogout }: Props) {
         <NavItem icon={<Briefcase size={20} />} label="Workspace" active={activePath === '/workspace'} onClick={() => navigate('/workspace')} />
         <NavItem icon={<User size={20} />} label="Master Profile" active={activePath === '/profile'} onClick={() => navigate('/profile')} />
         <NavItem icon={<History size={20} />} label="Past Applications" active={activePath === '/past'} onClick={() => navigate('/past')} />
+        <NavItem icon={<Image size={20} />} label="Image Studio" active={activePath === '/studio'} onClick={() => navigate('/studio')} />
         <NavItem icon={<Library size={20} />} label="Component Library" active={activePath === '/components'} onClick={() => navigate('/components')} />
       </div>
 

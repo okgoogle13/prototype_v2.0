@@ -14,6 +14,7 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
   const { Personal_Information, Career_Entries, Structured_Achievements, Master_Skills_Inventory } = careerData;
   const [achievements, setAchievements] = useState<StructuredAchievement[]>(Structured_Achievements);
   const [isPolishing, setIsPolishing] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<Record<string, string>>({});
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -33,15 +34,34 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
       const ach = achievements.find(a => a.Achievement_ID === achId);
       if (!ach) return;
       const polishedText = await refineAchievementField(ach, field);
-      setAchievements(prev => prev.map(a => 
-        a.Achievement_ID === achId ? { ...a, [field]: polishedText } : a
-      ));
+      setSuggestions(prev => ({ ...prev, [`${achId}-${field}`]: polishedText }));
     } catch (error) {
       console.error("Failed to polish text:", error);
       alert("Failed to polish text. Please try again.");
     } finally {
       setIsPolishing(null);
     }
+  };
+
+  const applySuggestion = (achId: string, field: keyof StructuredAchievement) => {
+    const suggestion = suggestions[`${achId}-${field}`];
+    if (!suggestion) return;
+    setAchievements(prev => prev.map(a => 
+      a.Achievement_ID === achId ? { ...a, [field]: suggestion } : a
+    ));
+    setSuggestions(prev => {
+      const next = { ...prev };
+      delete next[`${achId}-${field}`];
+      return next;
+    });
+  };
+
+  const discardSuggestion = (achId: string, field: keyof StructuredAchievement) => {
+    setSuggestions(prev => {
+      const next = { ...prev };
+      delete next[`${achId}-${field}`];
+      return next;
+    });
   };
 
   // Filter and sort achievements: recommended ones first, then others, grouped by Entry_ID
@@ -191,7 +211,7 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
                             key={j} 
                             className={`text-[11pt] leading-relaxed group relative ${isRecommended ? 'font-medium' : 'opacity-90'}`}
                           >
-                            - <span className="font-bold text-cyan-600">{ach.Action_Verb}</span> {ach.Noun_Task} {ach.Strategy} resulting in {ach.Outcome}.
+                            - <span className="font-bold text-cyan-600">{ach.Action_Verb}</span> {ach.Noun_Task} {ach.Strategy} resulting in {suggestions[`${ach.Achievement_ID}-Outcome`] || ach.Outcome}.
                             {isRecommended && (
                               <span 
                                 className="inline-block ml-2 w-1.5 h-1.5 rounded-full" 
@@ -199,23 +219,32 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
                                 title="Highly relevant to this job"
                               />
                             )}
-                            <button
-                              onClick={() => handlePolish(ach.Achievement_ID, 'Outcome')}
-                              disabled={isPolishing === `${ach.Achievement_ID}-Outcome`}
-                              className="absolute -right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-paperWhite-steps-1)] rounded text-[var(--sys-color-worker-ash-base)] hover:text-cyan-600"
-                              title="AI Polish Outcome"
-                            >
-                              {isPolishing === `${ach.Achievement_ID}-Outcome` ? (
-                                <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
+                            <div className="absolute -right-24 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                              {suggestions[`${ach.Achievement_ID}-Outcome`] ? (
+                                <>
+                                  <button onClick={() => applySuggestion(ach.Achievement_ID, 'Outcome')} className="p-1 bg-green-100 hover:bg-green-200 rounded text-green-700" title="Apply">✓</button>
+                                  <button onClick={() => discardSuggestion(ach.Achievement_ID, 'Outcome')} className="p-1 bg-red-100 hover:bg-red-200 rounded text-red-700" title="Discard">✕</button>
+                                </>
                               ) : (
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                                </svg>
+                                <button
+                                  onClick={() => handlePolish(ach.Achievement_ID, 'Outcome')}
+                                  disabled={isPolishing === `${ach.Achievement_ID}-Outcome`}
+                                  className="p-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-600"
+                                  title="AI Polish Outcome"
+                                >
+                                  {isPolishing === `${ach.Achievement_ID}-Outcome` ? (
+                                    <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                  )}
+                                </button>
                               )}
-                            </button>
+                            </div>
                           </li>
                         );
                       })}
@@ -327,24 +356,33 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
                               key={j} 
                               className={`text-[10pt] leading-relaxed group relative ${isRecommended ? 'font-medium' : 'opacity-90'}`}
                             >
-                              - <span className="font-bold text-cyan-600">{ach.Action_Verb}</span> {ach.Noun_Task} {ach.Strategy} resulting in {ach.Outcome}.
-                              <button
-                                onClick={() => handlePolish(ach.Achievement_ID, 'Outcome')}
-                                disabled={isPolishing === `${ach.Achievement_ID}-Outcome`}
-                                className="absolute -right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-paperWhite-steps-1)] rounded text-[var(--sys-color-worker-ash-base)] hover:text-cyan-600"
-                                title="AI Polish Outcome"
-                              >
-                                {isPolishing === `${ach.Achievement_ID}-Outcome` ? (
-                                  <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                ) : (
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                                  </svg>
-                                )}
-                              </button>
+                              - <span className="font-bold text-cyan-600">{ach.Action_Verb}</span> {ach.Noun_Task} {ach.Strategy} resulting in {suggestions[`${ach.Achievement_ID}-Outcome`] || ach.Outcome}.
+                            <div className="absolute -right-24 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                              {suggestions[`${ach.Achievement_ID}-Outcome`] ? (
+                                <>
+                                  <button onClick={() => applySuggestion(ach.Achievement_ID, 'Outcome')} className="p-1 bg-green-100 hover:bg-green-200 rounded text-green-700" title="Apply">✓</button>
+                                  <button onClick={() => discardSuggestion(ach.Achievement_ID, 'Outcome')} className="p-1 bg-red-100 hover:bg-red-200 rounded text-red-700" title="Discard">✕</button>
+                                </>
+                              ) : (
+                                <button
+                                  onClick={() => handlePolish(ach.Achievement_ID, 'Outcome')}
+                                  disabled={isPolishing === `${ach.Achievement_ID}-Outcome`}
+                                  className="p-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-600"
+                                  title="AI Polish Outcome"
+                                >
+                                  {isPolishing === `${ach.Achievement_ID}-Outcome` ? (
+                                    <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                  )}
+                                </button>
+                              )}
+                            </div>
                             </li>
                           );
                         })}

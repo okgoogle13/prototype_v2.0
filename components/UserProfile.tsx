@@ -8,11 +8,10 @@ interface UserProfileProps {
   user: User;
   data: CareerDatabase | null;
   onClose: () => void;
-  onDataDeleted?: () => void;
   onDeleteData: (uid: string) => Promise<void>;
 }
 
-export const UserProfile: React.FC<UserProfileProps> = ({ user, data, onClose, onDataDeleted, onDeleteData }) => {
+export const UserProfile: React.FC<UserProfileProps> = ({ user, data, onClose, onDeleteData }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const displayName = user.displayName || user.email;
   const photoURL = user.photoURL;
@@ -139,12 +138,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, data, onClose, o
       setIsDeleting(true);
       try {
         await onDeleteData(user.uid);
-        if (onDataDeleted) {
-          onDataDeleted();
-        }
         onClose();
       } catch (error) {
-        console.error("Error deleting data:", error);
         alert("Failed to delete data. Please try again.");
       } finally {
         setIsDeleting(false);
@@ -160,8 +155,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, data, onClose, o
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div style={{ background: 'var(--sys-color-charcoalBackground-steps-1)', borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderWidth: 1, borderStyle: 'solid', borderRadius: 'var(--sys-shape-blockRiot03)' }} className="w-full max-w-lg shadow-2xl overflow-hidden animate-slide-down">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[color-mix(in_srgb,var(--sys-color-charcoalBackground-base)_85%,transparent)] backdrop-blur-sm" style={{ animation: 'var(--motion-fadeIn, none)' }}>
+      <div style={{ background: 'var(--sys-color-charcoalBackground-steps-1)', borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderWidth: 1, borderStyle: 'solid', borderRadius: 'var(--sys-shape-blockRiot02)' }} className="w-full max-w-lg shadow-2xl overflow-hidden">
         <div style={{ borderBottomColor: 'var(--sys-color-concreteGrey-steps-0)', borderBottomWidth: 1, borderBottomStyle: 'solid', background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-base) 80%, transparent)' }} className="p-6 flex justify-between items-center">
           <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] flex items-center gap-2">
             <DocumentTextIcon className="w-6 h-6 text-[var(--sys-color-inkGold-base)]" />
@@ -176,33 +171,33 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, data, onClose, o
               <img 
                 src={photoURL} 
                 alt={displayName || 'User'} 
-                style={{ borderRadius: 'var(--sys-shape-blockRiot02)', borderColor: 'color-mix(in srgb, var(--sys-color-inkGold-base) 20%, transparent)', borderWidth: 4, borderStyle: 'solid' }} className="w-24 h-24 mb-4 shadow-lg"
+                style={{ borderRadius: 'var(--sys-shape-sentryAvatar)', borderColor: 'color-mix(in srgb, var(--sys-color-inkGold-base) 20%, transparent)', borderWidth: 4, borderStyle: 'solid' }} className="w-24 h-24 mb-4 shadow-lg"
               />
             ) : (
-              <div style={{ borderRadius: 'var(--sys-shape-blockRiot02)', background: 'var(--sys-color-charcoalBackground-steps-2)', borderColor: 'color-mix(in srgb, var(--sys-color-inkGold-base) 20%, transparent)', borderWidth: 4, borderStyle: 'solid' }} className="w-24 h-24 flex items-center justify-center mb-4 shadow-lg">
+              <div style={{ borderRadius: 'var(--sys-shape-sentryAvatar)', background: 'var(--sys-color-charcoalBackground-steps-2)', borderColor: 'color-mix(in srgb, var(--sys-color-inkGold-base) 20%, transparent)', borderWidth: 4, borderStyle: 'solid' }} className="w-24 h-24 flex items-center justify-center mb-4 shadow-lg">
                  <span className="text-3xl font-bold text-[var(--sys-color-inkGold-base)]">{displayName?.charAt(0) || user.email?.charAt(0)}</span>
               </div>
             )}
             <h4 className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)]">{displayName || 'Anonymous User'}</h4>
-            <p className="text-[var(--sys-color-worker-ash-base)]">{user.email}</p>
+            <p className="text-[var(--sys-color-concreteGrey-base)]">{user.email}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-8">
-            <div style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-base) 80%, transparent)', borderRadius: 'var(--sys-shape-blockRiot02)', borderColor: 'color-mix(in srgb, var(--sys-color-concreteGrey-steps-0) 60%, transparent)', borderWidth: 1, borderStyle: 'solid' }} className="p-4 text-center">
-              <p className="text-2xl font-bold text-[var(--sys-color-inkGold-base)]">{stats.entries}</p>
-              <p className="text-[10px] uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] font-bold">Entries</p>
+            <div style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-base) 80%, transparent)', borderRadius: 'var(--sys-shape-blockRiot01)', borderColor: 'color-mix(in srgb, var(--sys-color-concreteGrey-steps-0) 60%, transparent)', borderWidth: 1, borderStyle: 'solid' }} className="p-4 text-center">
+              <p className="text-2xl font-bold text-[var(--sys-color-solidarityRed-base)]">{stats.entries}</p>
+              <p className="text-[10px] uppercase tracking-widest text-[var(--sys-color-concreteGrey-base)] font-bold">Entries</p>
             </div>
-            <div style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-base) 80%, transparent)', borderRadius: 'var(--sys-shape-blockRiot02)', borderColor: 'color-mix(in srgb, var(--sys-color-concreteGrey-steps-0) 60%, transparent)', borderWidth: 1, borderStyle: 'solid' }} className="p-4 text-center">
+            <div style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-base) 80%, transparent)', borderRadius: 'var(--sys-shape-blockRiot01)', borderColor: 'color-mix(in srgb, var(--sys-color-concreteGrey-steps-0) 60%, transparent)', borderWidth: 1, borderStyle: 'solid' }} className="p-4 text-center">
               <p className="text-2xl font-bold text-[var(--sys-color-stencilYellow-base)]">{stats.achievements}</p>
-              <p className="text-[10px] uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] font-bold">Achievements</p>
+              <p className="text-[10px] uppercase tracking-widest text-[var(--sys-color-concreteGrey-base)] font-bold">Achievements</p>
             </div>
-            <div style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-base) 80%, transparent)', borderRadius: 'var(--sys-shape-blockRiot02)', borderColor: 'color-mix(in srgb, var(--sys-color-concreteGrey-steps-0) 60%, transparent)', borderWidth: 1, borderStyle: 'solid' }} className="p-4 text-center">
-              <p className="text-2xl font-bold text-[var(--sys-color-protestMetalBlue-base)]">{stats.kscs}</p>
-              <p className="text-[10px] uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] font-bold">STAR Responses</p>
+            <div style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-base) 80%, transparent)', borderRadius: 'var(--sys-shape-blockRiot01)', borderColor: 'color-mix(in srgb, var(--sys-color-concreteGrey-steps-0) 60%, transparent)', borderWidth: 1, borderStyle: 'solid' }} className="p-4 text-center">
+              <p className="text-2xl font-bold text-[var(--sys-color-inkGold-base)]">{stats.kscs}</p>
+              <p className="text-[10px] uppercase tracking-widest text-[var(--sys-color-concreteGrey-base)] font-bold">STAR Responses</p>
             </div>
-            <div style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-base) 80%, transparent)', borderRadius: 'var(--sys-shape-blockRiot02)', borderColor: 'color-mix(in srgb, var(--sys-color-concreteGrey-steps-0) 60%, transparent)', borderWidth: 1, borderStyle: 'solid' }} className="p-4 text-center">
-              <p className="text-2xl font-bold text-[var(--sys-color-kr-activistSmokeGreen-base)]">{stats.skills}</p>
-              <p className="text-[10px] uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] font-bold">Skills</p>
+            <div style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-base) 80%, transparent)', borderRadius: 'var(--sys-shape-blockRiot01)', borderColor: 'color-mix(in srgb, var(--sys-color-concreteGrey-steps-0) 60%, transparent)', borderWidth: 1, borderStyle: 'solid' }} className="p-4 text-center">
+              <p className="text-2xl font-bold text-[var(--sys-color-worker-ash-base)]">{stats.skills}</p>
+              <p className="text-[10px] uppercase tracking-widest text-[var(--sys-color-concreteGrey-base)] font-bold">Skills</p>
             </div>
           </div>
 
@@ -211,7 +206,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, data, onClose, o
               onClick={downloadMasterResume}
               disabled={!data}
               style={{ background: 'var(--sys-color-solidarityRed-base)', borderRadius: 'var(--sys-shape-blockRiot02)' }}
-              className="w-full py-4 text-[var(--sys-color-paperWhite-base)] font-bold transition-all flex items-center justify-center gap-2 shadow-lg group transform hover:scale-[1.02] disabled:bg-[var(--sys-color-concreteGrey-steps-0)]"
+              className="w-full py-4 text-[var(--sys-color-paperWhite-base)] font-bold transition-all flex items-center justify-center gap-2 shadow-lg group transform hover:scale-[1.02] disabled:bg-[var(--sys-color-charcoalBackground-steps-2)] disabled:text-[var(--sys-color-concreteGrey-base)]/40 hover:bg-[var(--sys-color-solidarityRed-steps-1)]"
             >
               <DocumentTextIcon className="w-6 h-6" />
               <span className="text-lg">Download Master Resume</span>
@@ -219,8 +214,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, data, onClose, o
             <button 
               onClick={downloadJSON}
               disabled={!data}
-              style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-steps-2) 60%, transparent)', borderRadius: 'var(--sys-shape-blockRiot02)', borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderWidth: 1, borderStyle: 'solid' }}
-              className="w-full py-3 text-[var(--sys-color-worker-ash-base)] font-medium transition-all flex items-center justify-center gap-2"
+              style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-steps-2) 60%, transparent)', borderRadius: 'var(--sys-shape-blockRiot01)', borderColor: 'color-mix(in srgb, var(--sys-color-concreteGrey-base)]/30', borderWidth: 1, borderStyle: 'solid' }}
+              className="w-full py-3 text-[var(--sys-color-worker-ash-base)] font-medium transition-all flex items-center justify-center gap-2 hover:bg-[var(--sys-color-charcoalBackground-steps-3)]"
             >
               <ArrowPathIcon className="w-4 h-4" />
               <span>Export Raw JSON Database</span>
@@ -228,8 +223,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, data, onClose, o
             <button 
               onClick={handleDeleteData}
               disabled={isDeleting || !data}
-              style={{ background: 'color-mix(in srgb, var(--sys-color-solidarityRed-base) 20%, transparent)', borderRadius: 'var(--sys-shape-blockRiot02)', borderColor: 'color-mix(in srgb, var(--sys-color-solidarityRed-base) 40%, transparent)', borderWidth: 1, borderStyle: 'solid' }}
-              className="w-full py-3 text-[var(--sys-color-solidarityRed-base)] font-medium transition-all flex items-center justify-center gap-2 mt-4"
+              style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
+              className="w-full py-3 text-[var(--sys-color-solidarityRed-base)] font-medium transition-all flex items-center justify-center gap-2 mt-4 bg-[color-mix(in_srgb,var(--sys-color-solidarityRed-base)_20%,transparent)] hover:bg-[color-mix(in_srgb,var(--sys-color-solidarityRed-base)_35%,transparent)] border border-[var(--sys-color-solidarityRed-base)]/30 hover:border-[var(--sys-color-solidarityRed-base)]/50"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -239,7 +234,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, data, onClose, o
           </div>
           
           {!data && (
-            <p className="mt-4 text-xs text-center text-[var(--sys-color-stencilYellow-base)] font-medium animate-pulse">
+            <p className="mt-4 text-xs text-center text-[var(--sys-color-stencilYellow-base)] font-medium">
               * Process your career documents first to generate your master data.
             </p>
           )}

@@ -1,10 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AppShell } from './src/components/layout/AppShell';
 import { ApplicationWorkspacePage } from './src/pages/ApplicationWorkspacePage';
 import { ProfileEditorPage } from './src/pages/ProfileEditorPage';
 import { PastApplicationsPage } from './src/pages/PastApplicationsPage';
 import { ComponentLibraryPage } from './src/pages/ComponentLibraryPage';
+import { ImageStudioPage } from './src/pages/ImageStudioPage';
 import { auth, signIn, logout } from './services/firebase';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { useChromeExtension } from './hooks/useChromeExtension';
@@ -12,8 +14,8 @@ import { useChromeExtension } from './hooks/useChromeExtension';
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'workspace' | 'profile' | 'past' | 'components'>('workspace');
   const { isExtension } = useChromeExtension();
+  const navigate = useNavigate();
 
   // Auth Listener
   useEffect(() => {
@@ -46,7 +48,7 @@ const App: React.FC = () => {
 
   const handleLogout = async () => {
     await logout();
-    setActiveTab('workspace');
+    navigate('/workspace');
   };
 
   if (isAuthLoading) {
@@ -78,11 +80,15 @@ const App: React.FC = () => {
   }
 
   return (
-    <AppShell activeTab={activeTab} onTabChange={setActiveTab} onLogout={handleLogout}>
-      {activeTab === 'workspace' && <ApplicationWorkspacePage />}
-      {activeTab === 'profile' && <ProfileEditorPage />}
-      {activeTab === 'past' && <PastApplicationsPage />}
-      {activeTab === 'components' && <ComponentLibraryPage />}
+    <AppShell onLogout={handleLogout}>
+      <Routes>
+        <Route path="/workspace" element={<ApplicationWorkspacePage />} />
+        <Route path="/profile" element={<ProfileEditorPage />} />
+        <Route path="/past" element={<PastApplicationsPage />} />
+        <Route path="/components" element={<ComponentLibraryPage />} />
+        <Route path="/studio" element={<ImageStudioPage />} />
+        <Route path="*" element={<Navigate to="/workspace" replace />} />
+      </Routes>
     </AppShell>
   );
 };

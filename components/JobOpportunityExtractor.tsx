@@ -1,17 +1,27 @@
 import React, { useState } from 'react';
-import { JobOpportunity } from '../types';
+import { JobOpportunity, CareerDatabase } from '../types';
 
 interface JobOpportunityExtractorProps {
   onExtracted: (job: JobOpportunity) => void;
-  onExtract: (type: 'url' | 'text', content: string) => Promise<JobOpportunity>;
-  onSearch: (query: string) => Promise<Array<{ title: string; company: string; url: string; snippet: string }>>;
-  onExtractFromPage?: () => Promise<JobOpportunity>;
-  isExtension?: boolean;
-  currentPageUrl?: string;
+  onExtract: (
+    type: 'url' | 'text',
+    content: string,
+    careerData?: CareerDatabase
+  ) => Promise<JobOpportunity>;
+  onSearch: (
+    query: string
+  ) => Promise<{ title: string; company: string; url: string; snippet: string }[]>;
+  extensionContext?: {
+    isExtension: boolean;
+    currentUrl: string | null;
+    extractJobFromPage: () => Promise<JobOpportunity>;
+  };
+  careerData?: CareerDatabase;
 }
 
 export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (props) => {
-  const { onExtracted, onExtract, onSearch, onExtractFromPage, isExtension = false, currentPageUrl: currentUrl } = props;
+  const { onExtracted, onExtract, onSearch, extensionContext, careerData } = props;
+  const { isExtension = false, currentUrl } = extensionContext ?? {};
   const [inputType, setInputType] = useState<'url' | 'text' | 'search'>('url');
   const [url, setUrl] = useState('');
   const [text, setText] = useState('');
@@ -32,11 +42,11 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
   };
 
   const handleExtractFromPage = async () => {
-    if (!currentUrl || !onExtractFromPage) return;
+    if (!currentUrl || !extensionContext?.extractJobFromPage) return;
     setIsLoading(true);
     setError(null);
     try {
-      const job = await onExtractFromPage!();
+      const job = await extensionContext.extractJobFromPage();
       onExtracted(job);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to extract from page');
@@ -77,7 +87,7 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
     }
 
     try {
-      const job = await onExtract(inputType === 'search' ? 'url' : inputType, finalContent);
+      const job = await onExtract(inputType === 'search' ? 'url' : inputType, finalContent, careerData || undefined);
       if (ignoreCriteria) {
         job.Required_Hard_Skills = [];
         job.Required_Soft_Skills = [];
@@ -95,15 +105,15 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
   return (
     <div style={{ background: 'var(--sys-color-charcoalBackground-steps-1)', borderRadius: 'var(--sys-shape-blockRiot03)', borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderWidth: 1, borderStyle: 'solid' }} className="max-w-2xl mx-auto p-6 shadow-xl">
       <h3 className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] mb-4">Extract Job Opportunity</h3>
-      <p className="text-[var(--sys-color-worker-ash-base)] mb-6">
+      <p className="text-[var(--sys-color-concreteGrey-base)] mb-6">
         Paste a URL, plain text, or search for a live job posting to automatically extract its key particulars.
       </p>
       
       {isExtension && (
-        <div style={{ background: 'color-mix(in srgb, var(--sys-color-inkGold-base) 12%, transparent)', borderRadius: 'var(--sys-shape-blockRiot02)', borderColor: 'color-mix(in srgb, var(--sys-color-inkGold-base) 35%, transparent)', borderWidth: 1, borderStyle: 'solid' }} className="mb-6 p-4 flex items-center justify-between">
+        <div style={{ background: 'color-mix(in srgb, var(--sys-color-solidarityRed-base)_12%,transparent)', borderRadius: 'var(--sys-shape-blockRiot02)', borderColor: 'var(--sys-color-solidarityRed-base)/30', borderWidth: 1, borderStyle: 'solid' }} className="mb-6 p-4 flex items-center justify-between">
           <div>
-            <h4 className="text-[var(--sys-color-inkGold-base)] font-bold mb-1">Current Page</h4>
-            <p className="text-sm text-[var(--sys-color-worker-ash-base)] truncate max-w-md">{currentUrl || 'Loading...'}</p>
+            <h4 className="text-[var(--sys-color-solidarityRed-base)] font-bold mb-1">Current Page</h4>
+            <p className="text-sm text-[var(--sys-color-concreteGrey-base)] truncate max-w-md">{currentUrl || 'Loading...'}</p>
           </div>
           <button
             onClick={handleExtractFromPage}
@@ -121,31 +131,31 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
           <button 
             onClick={() => setInputType('url')}
             style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}
-            className={`px-3 md:px-4 py-2 font-medium transition-colors whitespace-nowrap ${inputType === 'url' ? 'bg-color-mix(in srgb, var(--sys-color-inkGold-base) 12%, transparent) text-[var(--sys-color-inkGold-base)] border border-color-mix(in srgb, var(--sys-color-inkGold-base) 35%, transparent)' : 'text-[var(--sys-color-worker-ash-base)]'}`}
+            className={`px-3 md:px-4 py-2 font-medium transition-colors whitespace-nowrap ${inputType === 'url' ? 'bg-[color-mix(in_srgb,var(--sys-color-solidarityRed-base)_20%,transparent)] text-[var(--sys-color-solidarityRed-base)] border border-[var(--sys-color-solidarityRed-base)]/30' : 'text-[var(--sys-color-concreteGrey-base)]'}`}
           >
             Paste URL
           </button>
           <button 
             onClick={() => setInputType('text')}
             style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}
-            className={`px-3 md:px-4 py-2 font-medium transition-colors whitespace-nowrap ${inputType === 'text' ? 'bg-color-mix(in srgb, var(--sys-color-inkGold-base) 12%, transparent) text-[var(--sys-color-inkGold-base)] border border-color-mix(in srgb, var(--sys-color-inkGold-base) 35%, transparent)' : 'text-[var(--sys-color-worker-ash-base)]'}`}
+            className={`px-3 md:px-4 py-2 font-medium transition-colors whitespace-nowrap ${inputType === 'text' ? 'bg-[color-mix(in_srgb,var(--sys-color-solidarityRed-base)_20%,transparent)] text-[var(--sys-color-solidarityRed-base)] border border-[var(--sys-color-solidarityRed-base)]/30' : 'text-[var(--sys-color-concreteGrey-base)]'}`}
           >
             Paste Text
           </button>
           <button 
             onClick={() => setInputType('search')}
             style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}
-            className={`px-3 md:px-4 py-2 font-medium transition-colors whitespace-nowrap ${inputType === 'search' ? 'bg-color-mix(in srgb, var(--sys-color-inkGold-base) 12%, transparent) text-[var(--sys-color-inkGold-base)] border border-color-mix(in srgb, var(--sys-color-inkGold-base) 35%, transparent)' : 'text-[var(--sys-color-worker-ash-base)]'}`}
+            className={`px-3 md:px-4 py-2 font-medium transition-colors whitespace-nowrap ${inputType === 'search' ? 'bg-[color-mix(in_srgb,var(--sys-color-solidarityRed-base)_20%,transparent)] text-[var(--sys-color-solidarityRed-base)] border border-[var(--sys-color-solidarityRed-base)]/30' : 'text-[var(--sys-color-concreteGrey-base)]'}`}
           >
             AI Search
           </button>
         </div>
-        <label className="flex items-center gap-2 text-sm text-[var(--sys-color-worker-ash-base)] cursor-pointer whitespace-nowrap">
+        <label className="flex items-center gap-2 text-sm text-[var(--sys-color-concreteGrey-base)] cursor-pointer whitespace-nowrap">
           <input 
             type="checkbox" 
             checked={ignoreCriteria} 
             onChange={(e) => setIgnoreCriteria(e.target.checked)}
-            style={{ accentColor: 'var(--sys-color-inkGold-base)', background: 'var(--sys-color-charcoalBackground-steps-2)' }}
+            style={{ accentColor: 'var(--sys-color-solidarityRed-base)', background: 'var(--sys-color-charcoalBackground-steps-2)' }}
           />
           Ignore Strict Criteria
         </label>
@@ -161,7 +171,7 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="e.g., Frontend Developer in New York"
                         style={{ borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderWidth: 1, borderStyle: 'solid', background: 'var(--sys-color-charcoalBackground-base)' }}
-                        className="flex-1 px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none"
+                        className="flex-1 px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none focus:border-[var(--sys-color-solidarityRed-base)]"
                     />
                     <button onClick={handleSearch} className="bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] font-bold py-2 px-4" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>Search</button>
                 </div>
@@ -170,7 +180,7 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
                         {searchResults.map((res, i) => (
                             <div key={i} style={{ background: 'var(--sys-color-charcoalBackground-steps-2)', borderRadius: 'var(--sys-shape-blockRiot02)' }} className="p-3 cursor-pointer" onClick={() => handleExtract(res.url)}>
                                 <h5 className="font-bold text-[var(--sys-color-paperWhite-base)]">{res.title}</h5>
-                                <p className="text-sm text-[var(--sys-color-paperWhite-base)]">{res.company}</p>
+                                <p className="text-sm text-[var(--sys-color-worker-ash-base)]">{res.company}</p>
                             </div>
                         ))}
                     </div>
@@ -184,7 +194,7 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/job-posting"
             style={{ borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderWidth: 1, borderStyle: 'solid', background: 'var(--sys-color-charcoalBackground-base)' }}
-            className="w-full px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none"
+            className="w-full px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none focus:border-[var(--sys-color-solidarityRed-base)]"
             disabled={isLoading}
           />
         )}
@@ -194,7 +204,7 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
             onChange={(e) => setText(e.target.value)}
             placeholder="Paste the full job description text here..."
             style={{ borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderWidth: 1, borderStyle: 'solid', background: 'var(--sys-color-charcoalBackground-base)' }}
-            className="w-full px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none min-h-[200px]"
+            className="w-full px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none focus:border-[var(--sys-color-solidarityRed-base)] min-h-[200px]"
             disabled={isLoading}
           />
         )}
@@ -205,7 +215,7 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
             <button
             onClick={() => handleExtract()}
             disabled={isLoading}
-            className="bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] font-bold py-2 px-8 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-1)] text-[var(--sys-color-paperWhite-base)] font-bold py-2 px-8 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}
             >
             {isLoading ? 'Extracting...' : 'Extract'}
@@ -214,12 +224,12 @@ export const JobOpportunityExtractor: React.FC<JobOpportunityExtractorProps> = (
       )}
 
       {error && (
-        <div style={{ background: 'color-mix(in srgb, var(--sys-color-solidarityRed-base) 15%, transparent)', borderColor: 'color-mix(in srgb, var(--sys-color-solidarityRed-base) 35%, transparent)', borderWidth: 1, borderStyle: 'solid', borderRadius: 'var(--sys-shape-blockRiot02)' }} className="text-[var(--sys-color-solidarityRed-base)] text-sm mt-4 p-3">
+        <div style={{ background: 'color-mix(in srgb, var(--sys-color-solidarityRed-base) 15%, transparent)', borderColor: 'var(--sys-color-solidarityRed-base)/30', borderWidth: 1, borderStyle: 'solid', borderRadius: 'var(--sys-shape-blockRiot02)' }} className="text-[var(--sys-color-solidarityRed-base)] text-sm mt-4 p-3">
           {error}
         </div>
       )}
       {inputType === 'url' && url && !isLoading && !error && (
-        <div style={{ background: 'color-mix(in srgb, var(--sys-color-stencilYellow-base) 15%, transparent)', borderColor: 'color-mix(in srgb, var(--sys-color-stencilYellow-base) 35%, transparent)', borderWidth: 1, borderStyle: 'solid', borderRadius: 'var(--sys-shape-blockRiot02)' }} className="text-[var(--sys-color-stencilYellow-base)] text-sm mt-4 p-3 flex items-center gap-2">
+        <div style={{ background: 'color-mix(in srgb, var(--sys-color-solidarityRed-base) 15%, transparent)', borderColor: 'var(--sys-color-solidarityRed-base)/30', borderWidth: 1, borderStyle: 'solid', borderRadius: 'var(--sys-shape-blockRiot02)' }} className="text-[var(--sys-color-solidarityRed-base)] text-sm mt-4 p-3 flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
