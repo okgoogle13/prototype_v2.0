@@ -22,17 +22,17 @@ export function TextInput({ label, placeholder, value, onChange, type = "text" }
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className="w-full p-4 border-2 text-lg type-melancholyLonging focus:outline-none focus:shadow-[var(--sys-shadow-elevation2Placard)] text-[var(--sys-color-paperWhite-base)] transition-colors"
+        className="w-full p-4 border text-lg type-melancholyLonging focus:outline-none focus:shadow-[var(--sys-shadow-elevation2Placard)] text-[var(--sys-color-paperWhite-base)] transition-colors"
         style={{ 
           borderRadius: 'var(--sys-shape-blockRiot01)',
           background: 'var(--sys-color-charcoalBackground-steps-0)',
-          borderColor: 'var(--sys-color-concreteGrey-steps-0)'
+          borderColor: 'var(--sys-color-outline-variant)'
         }}
         onFocus={(e) => {
           e.currentTarget.style.borderColor = 'var(--sys-color-solidarityRed-base)';
         }}
         onBlur={(e) => {
-          e.currentTarget.style.borderColor = 'var(--sys-color-concreteGrey-steps-0)';
+          e.currentTarget.style.borderColor = 'var(--sys-color-outline-variant)';
         }}
       />
     </div>

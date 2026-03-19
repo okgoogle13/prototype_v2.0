@@ -12,7 +12,7 @@ export function SectionHeader({ title, subtitle }: Props) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="mb-8 border-b-2 border-[var(--sys-color-concreteGrey-steps-0)] pb-4"
+      className="mb-8 border-b border-[var(--sys-color-outline-variant)] pb-4"
     >
       <h2 className="text-5xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none">
         {title}

@@ -4,20 +4,28 @@ import { motion } from "motion/react";
 type Props = {
   label: string;
   onClick: () => void;
-  variant?: 'strike' | 'march';
+  variant?: 'strike' | 'march' | 'tonal';
   disabled?: boolean;
 };
 
 export function PrimaryButton({ label, onClick, variant = 'strike', disabled }: Props) {
   const baseClasses = "relative inline-flex items-center justify-center px-8 py-4 font-bold text-lg uppercase tracking-wider transition-colors overflow-hidden group";
   
-  const variantClasses = variant === 'strike' 
-    ? "text-[var(--sys-color-paperWhite-base)] shadow-[var(--sys-shadow-elevation2Placard)]"
-    : "text-[var(--sys-color-paperWhite-base)] border-2";
+  let variantClasses = "";
+  if (variant === 'strike') {
+    variantClasses = "text-[var(--sys-color-paperWhite-base)] shadow-[var(--sys-shadow-elevation2Placard)]";
+  } else if (variant === 'march') {
+    variantClasses = "text-[var(--sys-color-paperWhite-base)] border";
+  } else if (variant === 'tonal') {
+    variantClasses = "text-[var(--sys-color-paperWhite-base)]";
+  }
 
   const shape = variant === 'strike' ? 'var(--sys-shape-blockRiot03)' : 'var(--sys-shape-blockRiot01)';
-  const bg = variant === 'strike' ? 'var(--sys-color-solidarityRed-base)' : 'var(--sys-color-charcoalBackground-steps-3)';
-  const borderColor = variant === 'strike' ? 'transparent' : 'var(--sys-color-concreteGrey-steps-0)';
+  let bg = 'var(--sys-color-charcoalBackground-steps-3)';
+  if (variant === 'strike') bg = 'var(--sys-color-solidarityRed-base)';
+  if (variant === 'tonal') bg = 'var(--sys-color-charcoalBackground-steps-4)';
+  
+  const borderColor = variant === 'march' ? 'var(--sys-color-outline-variant)' : 'transparent';
 
   return (
     <motion.button
@@ -39,7 +47,7 @@ export function PrimaryButton({ label, onClick, variant = 'strike', disabled }: 
       }}
       onMouseLeave={(e) => {
         if (!disabled && variant === 'march') {
-          e.currentTarget.style.borderColor = 'var(--sys-color-concreteGrey-steps-0)';
+          e.currentTarget.style.borderColor = 'var(--sys-color-outline-variant)';
         }
       }}
     >

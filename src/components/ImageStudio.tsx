@@ -87,7 +87,7 @@ export function ImageStudio() {
   };
 
   return (
-    <div className="p-8 bg-[var(--sys-color-charcoalBackground-steps-1)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] shadow-[var(--sys-shadow-elevation2Placard)]" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
+    <div className="p-8 bg-[var(--sys-color-charcoalBackground-steps-1)] border border-[var(--sys-color-outline-variant)] shadow-[var(--sys-shadow-elevation2Placard)]" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
       <SectionHeader 
         title="Image Studio" 
         subtitle="Generate or edit images using Gemini Flash Image models."
@@ -106,7 +106,7 @@ export function ImageStudio() {
           <div className="flex gap-4 items-center">
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 bg-[var(--sys-color-charcoalBackground-steps-3)] text-[var(--sys-color-paperWhite-base)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] hover:bg-[var(--sys-color-charcoalBackground-steps-4)] transition-colors text-sm font-bold uppercase tracking-wider"
+              className="px-4 py-2 bg-[var(--sys-color-charcoalBackground-steps-3)] text-[var(--sys-color-paperWhite-base)] border border-[var(--sys-color-outline-variant)] hover:bg-[var(--sys-color-charcoalBackground-steps-4)] transition-colors text-sm font-bold uppercase tracking-wider"
               style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
             >
               Upload Image
@@ -138,14 +138,14 @@ export function ImageStudio() {
         </div>
 
         {error && (
-          <div className="p-4 bg-[color-mix(in_srgb,var(--sys-color-solidarityRed-base)_10%,transparent)] border-2 border-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-solidarityRed-base)]" style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}>
+          <div className="p-4 bg-[color-mix(in_srgb,var(--sys-color-solidarityRed-base)_10%,transparent)] border border-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-solidarityRed-base)]" style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}>
             <p className="font-bold uppercase tracking-widest text-xs mb-1">Error</p>
             <p className="text-sm">{error}</p>
           </div>
         )}
 
         {imageUrl && (
-          <div className="mt-8 border-2 border-[var(--sys-color-concreteGrey-steps-0)] overflow-hidden" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
+          <div className="mt-8 border border-[var(--sys-color-outline-variant)] overflow-hidden" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
             <img 
               src={imageUrl} 
               alt={prompt} 

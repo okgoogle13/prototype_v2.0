@@ -16,10 +16,10 @@ export function Checkbox({ label, checked, onChange }: Props) {
             scale: checked ? 1 : 0.9,
             rotate: checked ? -2 : 2,
             backgroundColor: checked ? 'var(--sys-color-solidarityRed-base)' : 'var(--sys-color-charcoalBackground-steps-0)',
-            borderColor: checked ? 'var(--sys-color-solidarityRed-base)' : 'var(--sys-color-concreteGrey-steps-0)',
+            borderColor: checked ? 'var(--sys-color-solidarityRed-base)' : 'var(--sys-color-outline-variant)',
           }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="absolute inset-0 border-2"
+          className="absolute inset-0 border"
           style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
         />
         <input

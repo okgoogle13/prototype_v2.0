@@ -72,7 +72,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoadi
   };
 
   return (
-    <div className="p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] my-8 mx-auto max-w-6xl" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
+    <div className="p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border border-[var(--sys-color-outline-variant)] my-8 mx-auto max-w-6xl" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
       <h2 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-4 uppercase tracking-tight">1. Upload Your Career Documents</h2>
       <p className="type-melancholyLonging text-[var(--sys-color-worker-ash-base)] text-lg mb-8">
         Upload your career documents (.pdf, .docx, .txt) or paste raw text. The AI will process up to 100 documents to de-duplicate and merge the information.
@@ -80,8 +80,8 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoadi
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div
-            className={`relative border-4 border-dashed p-12 text-center transition-all cursor-pointer
-              ${isDragging ? 'border-[var(--sys-color-solidarityRed-base)] bg-[var(--sys-color-charcoalBackground-steps-2)]' : 'border-[var(--sys-color-concreteGrey-steps-0)] hover:border-[var(--sys-color-paperWhite-base)]'}`}
+            className={`relative border-2 border-dashed p-12 text-center transition-all cursor-pointer
+              ${isDragging ? 'border-[var(--sys-color-solidarityRed-base)] bg-[var(--sys-color-charcoalBackground-steps-2)]' : 'border-[var(--sys-color-outline-variant)] hover:border-[var(--sys-color-paperWhite-base)]'}`}
             style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
@@ -114,7 +114,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoadi
               value={rawText}
               onChange={(e) => setRawText(e.target.value)}
               placeholder="If your PDF fails to upload, paste your unformatted resume or job description here..."
-              className="flex-grow p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] text-[var(--sys-color-paperWhite-base)] focus:border-[var(--sys-color-solidarityRed-base)] transition-colors"
+              className="flex-grow p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] focus:border-[var(--sys-color-solidarityRed-base)] focus:outline-none focus:shadow-[var(--sys-shadow-elevation2Placard)] transition-all resize-y"
               style={{ borderRadius: 'var(--sys-shape-blockRiot01)', minHeight: '200px' }}
               disabled={isLoading}
             />
@@ -128,7 +128,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoadi
             <h3 className="text-xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-4 uppercase tracking-tight">Selected Files:</h3>
             <div className="max-h-60 overflow-y-auto space-y-3 pr-2">
               {files.map((file, index) => (
-                <div key={`${file.name}-${index}`} className="flex items-center justify-between bg-[var(--sys-color-charcoalBackground-steps-2)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] p-4 animate-fade-in" style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}>
+                <div key={`${file.name}-${index}`} className="flex items-center justify-between bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] p-4 animate-fade-in" style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}>
                   <div className="flex items-center gap-4 overflow-hidden">
                     <FileIcon className="w-8 h-8 text-[var(--sys-color-inkGold-base)] flex-shrink-0" />
                     <div className="overflow-hidden">

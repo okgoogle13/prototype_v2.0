@@ -12,11 +12,11 @@ export function Card({ children, className = "", hoverEffect = false }: Props) {
     <motion.div
       whileHover={hoverEffect ? { scale: 1.01, rotate: -0.5, y: -2 } : {}}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className={`p-8 border-2 shadow-[var(--sys-shadow-elevation2Placard)] relative overflow-hidden ${className}`}
+      className={`p-8 border shadow-[var(--sys-shadow-elevation2Placard)] relative overflow-hidden ${className}`}
       style={{ 
         borderRadius: 'var(--sys-shape-placardTorn01)',
         background: 'var(--sys-color-charcoalBackground-steps-1)',
-        borderColor: 'var(--sys-color-concreteGrey-steps-0)'
+        borderColor: 'var(--sys-color-outline-variant)'
       }}
     >
       {/* Wheat-paste noise background */}

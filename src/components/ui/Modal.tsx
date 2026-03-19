@@ -27,11 +27,11 @@ export function Modal({ isOpen, onClose, title, children }: Props) {
             animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20, rotate: -2 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto border-2 shadow-[var(--sys-shadow-elevation4Float)] p-8"
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto border shadow-[var(--sys-shadow-elevation4Float)] p-8"
             style={{ 
               borderRadius: 'var(--sys-shape-alertShard01)',
               background: 'var(--sys-color-charcoalBackground-steps-1)',
-              borderColor: 'var(--sys-color-concreteGrey-steps-0)'
+              borderColor: 'var(--sys-color-outline-variant)'
             }}
           >
             {/* Wheat-paste noise background */}
@@ -39,8 +39,8 @@ export function Modal({ isOpen, onClose, title, children }: Props) {
             
             <div className="relative z-10">
               <div 
-                className="flex items-center justify-between mb-8 border-b-2 pb-4"
-                style={{ borderColor: 'var(--sys-color-concreteGrey-steps-0)' }}
+                className="flex items-center justify-between mb-8 border-b pb-4"
+                style={{ borderColor: 'var(--sys-color-outline-variant)' }}
               >
                 <h2 className="text-4xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none">
                   {title}

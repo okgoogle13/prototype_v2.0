@@ -9,7 +9,7 @@ type Props = {
 export function Badge({ label, variant = 'default' }: Props) {
   let textColor = "var(--sys-color-paperWhite-base)";
   let bg = "var(--sys-color-charcoalBackground-steps-3)";
-  let borderColor = "var(--sys-color-concreteGrey-steps-0)";
+  let borderColor = "var(--sys-color-outline-variant)";
   
   if (variant === 'warning') {
     textColor = "var(--sys-color-charcoalBackground-base)";
@@ -29,7 +29,7 @@ export function Badge({ label, variant = 'default' }: Props) {
     <motion.span
       whileHover={{ scale: 1.05, rotate: (Math.random() - 0.5) * 5 }}
       transition={{ type: "spring", stiffness: 400, damping: 10 }}
-      className="inline-block px-3 py-1 font-mono text-xs uppercase tracking-widest border-2"
+      className="inline-block px-3 py-1 font-mono text-xs uppercase tracking-widest border"
       style={{ 
         borderRadius: 'var(--sys-shape-blockRiot02)',
         color: textColor,

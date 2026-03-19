@@ -20,17 +20,17 @@ export function Textarea({ label, placeholder, value, onChange }: Props) {
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className="w-full p-6 border-2 text-lg type-melancholyLonging min-h-[160px] focus:outline-none focus:shadow-[var(--sys-shadow-elevation2Placard)] text-[var(--sys-color-paperWhite-base)] transition-colors resize-y"
+        className="w-full p-6 border text-lg type-melancholyLonging min-h-[160px] focus:outline-none focus:shadow-[var(--sys-shadow-elevation2Placard)] text-[var(--sys-color-paperWhite-base)] transition-colors resize-y"
         style={{ 
           borderRadius: 'var(--sys-shape-blockRiot01)',
           background: 'var(--sys-color-charcoalBackground-steps-0)',
-          borderColor: 'var(--sys-color-concreteGrey-steps-0)'
+          borderColor: 'var(--sys-color-outline-variant)'
         }}
         onFocus={(e) => {
           e.currentTarget.style.borderColor = 'var(--sys-color-solidarityRed-base)';
         }}
         onBlur={(e) => {
-          e.currentTarget.style.borderColor = 'var(--sys-color-concreteGrey-steps-0)';
+          e.currentTarget.style.borderColor = 'var(--sys-color-outline-variant)';
         }}
       />
     </div>

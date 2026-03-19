@@ -50,7 +50,7 @@ export function PastApplicationsPage() {
                 {/* Placeholder for list */}
                 <motion.div 
                   whileHover={{ scale: 1.01, rotate: -0.5 }}
-                  className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] flex justify-between items-center cursor-pointer" 
+                  className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] flex flex-col md:flex-row justify-between items-start md:items-center cursor-pointer gap-4" 
                   style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
                 >
                   <div>
@@ -66,7 +66,7 @@ export function PastApplicationsPage() {
                 </motion.div>
                 <motion.div 
                   whileHover={{ scale: 1.01, rotate: 0.5 }}
-                  className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] flex justify-between items-center cursor-pointer" 
+                  className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] flex flex-col md:flex-row justify-between items-start md:items-center cursor-pointer gap-4" 
                   style={{ borderRadius: 'var(--sys-shape-blockRiot03)' }}
                 >
                   <div>

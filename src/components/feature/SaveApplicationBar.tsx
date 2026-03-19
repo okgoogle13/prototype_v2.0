@@ -8,7 +8,7 @@ export function SaveApplicationBar() {
       initial={{ opacity: 0, y: 50, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.2 }}
-      className="mt-12 p-8 bg-[var(--sys-color-charcoalBackground-steps-2)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] flex items-center justify-between shadow-[var(--sys-shadow-elevation4Float)]" 
+      className="mt-12 p-8 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] flex flex-col md:flex-row gap-6 items-start md:items-center justify-between shadow-[var(--sys-shadow-elevation4Float)]" 
       style={{ borderRadius: 'var(--sys-shape-alertShard01)' }}
     >
       <div>

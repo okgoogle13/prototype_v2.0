@@ -19,7 +19,7 @@ export function JobInputPanel() {
       initial={{ opacity: 0, y: 40, rotate: 1 }}
       animate={{ opacity: 1, y: 0, rotate: 0 }}
       transition={{ type: "spring", stiffness: 200, damping: 20 }}
-      className="p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border-2 border-[var(--sys-color-concreteGrey-steps-0)] shadow-[var(--sys-shadow-elevation2Placard)] relative overflow-hidden" 
+      className="p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border border-[var(--sys-color-outline-variant)] shadow-[var(--sys-shadow-elevation2Placard)] relative overflow-hidden" 
       style={{ borderRadius: 'var(--sys-shape-placardTorn01)' }}
     >
       {/* Wheat-paste noise background */}

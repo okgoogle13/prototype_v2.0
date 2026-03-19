@@ -466,41 +466,53 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
       </div>
 
       {/* Tabs and Export */}
-      <div className="flex flex-col md:flex-row justify-between items-end border-b border-[var(--sys-color-concreteGrey-steps-0)] pb-2 sticky top-0 bg-[var(--sys-color-charcoalBackground-base)] z-40 pt-4">
-        <div className="flex gap-2 md:gap-4 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
+      <div className="flex flex-col md:flex-row justify-between items-end border-b border-[var(--sys-color-outline-variant)] pb-0 sticky top-0 bg-[var(--sys-color-charcoalBackground-base)] z-40 pt-4">
+        <div className="flex w-full md:w-auto overflow-x-auto scrollbar-hide">
           <button
             onClick={() => setActiveTab('resume')}
-            className={`px-3 md:px-4 py-2 font-bold rounded-[var(--sys-shape-radius-lg)] transition-colors whitespace-nowrap ${
-              activeTab === 'resume' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-[var(--sys-color-inkGold-base)] border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
+            className={`relative flex-1 md:flex-none px-6 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
+              activeTab === 'resume' ? 'text-[var(--sys-color-paperWhite-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
             }`}
           >
             Resume
+            {activeTab === 'resume' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--sys-color-solidarityRed-base)]" />
+            )}
           </button>
           <button
             onClick={() => setActiveTab('coverLetter')}
-            className={`px-3 md:px-4 py-2 font-bold rounded-[var(--sys-shape-radius-lg)] transition-colors whitespace-nowrap ${
-              activeTab === 'coverLetter' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-[var(--sys-color-inkGold-base)] border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
+            className={`relative flex-1 md:flex-none px-6 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
+              activeTab === 'coverLetter' ? 'text-[var(--sys-color-paperWhite-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
             }`}
           >
             Cover Letter
+            {activeTab === 'coverLetter' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--sys-color-solidarityRed-base)]" />
+            )}
           </button>
           {hasSelectionCriteria && (
             <button
               onClick={() => setActiveTab('ksc')}
-              className={`px-3 md:px-4 py-2 font-bold rounded-[var(--sys-shape-radius-lg)] transition-colors whitespace-nowrap ${
-                activeTab === 'ksc' ? 'bg-[var(--sys-color-charcoalBackground-steps-1)] text-[var(--sys-color-inkGold-base)] border-t border-l border-r border-[var(--sys-color-concreteGrey-steps-0)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
+              className={`relative flex-1 md:flex-none px-6 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
+                activeTab === 'ksc' ? 'text-[var(--sys-color-paperWhite-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
               }`}
             >
               KSC Responses
+              {activeTab === 'ksc' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--sys-color-solidarityRed-base)]" />
+              )}
             </button>
           )}
         </div>
         
-        <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0 w-full md:w-auto justify-end">
+        <div className="flex flex-wrap items-center gap-3 mt-4 md:mt-0 w-full md:w-auto justify-end pb-3 md:pb-2 pr-2">
           <button
             onClick={handleAnalyze}
-            className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] text-[var(--sys-color-paperWhite-base)] font-bold py-3 px-4 md:py-2 md:px-4 rounded-[var(--sys-shape-radius-lg)] transition-colors text-base md:text-base w-[calc(100%-2rem)] md:w-auto fixed bottom-4 left-4 md:relative md:bottom-auto md:left-auto z-50 shadow-[0_8px_16px_rgba(0,0,0,0.5)] md:shadow-none"
+            className="fixed bottom-20 right-4 md:static md:bottom-auto md:right-auto z-50 flex items-center gap-2 bg-[var(--sys-color-charcoalBackground-steps-3)] hover:bg-[var(--sys-color-charcoalBackground-steps-4)] text-[var(--sys-color-paperWhite-base)] font-bold py-4 px-6 md:py-2 md:px-4 rounded-2xl md:rounded-full transition-colors shadow-lg md:shadow-none border border-[var(--sys-color-outline-variant)]"
           >
+            <svg className="w-5 h-5 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
             Save & Rescore
           </button>
           
@@ -509,11 +521,11 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
               {(activeTab === 'resume' || activeTab === 'coverLetter') && (
                 <button 
                   onClick={() => setShowAudit(!showAudit)}
-                  className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors ${
-                    showAudit ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)]' : 'bg-[var(--sys-color-charcoalBackground-steps-2)] text-[var(--sys-color-inkGold-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-3)]'
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-colors border ${
+                    showAudit ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] border-[var(--sys-color-solidarityRed-base)]' : 'bg-transparent text-[var(--sys-color-paperWhite-base)] border-[var(--sys-color-outline-variant)] hover:bg-[var(--sys-color-charcoalBackground-steps-2)]'
                   }`}
                 >
-                  <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span className="hidden sm:inline">{showAudit ? 'Hide Audit' : 'Show Audit'}</span>
@@ -524,15 +536,15 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
                 <button
                   onClick={handleSaveToProfile}
                   disabled={isSaving || saveSuccess}
-                  className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-colors border ${
                     saveSuccess 
-                      ? 'bg-green-600 text-[var(--sys-color-paperWhite-base)]' 
-                      : 'bg-[var(--sys-color-kr-activistSmokeGreen-steps-0)] hover:bg-[var(--sys-color-kr-activistSmokeGreen-steps-1)] text-[var(--sys-color-kr-activistSmokeGreen-base)] border border-[var(--sys-color-kr-activistSmokeGreen-base)]'
+                      ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] border-[var(--sys-color-solidarityRed-base)]' 
+                      : 'bg-transparent text-[var(--sys-color-paperWhite-base)] border-[var(--sys-color-outline-variant)] hover:bg-[var(--sys-color-charcoalBackground-steps-2)]'
                   }`}
                 >
                   {isSaving ? (
                     <span className="flex items-center gap-1.5">
-                      <svg className="animate-spin h-3 w-3 md:h-4 md:w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
@@ -540,14 +552,14 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
                     </span>
                   ) : saveSuccess ? (
                     <span className="flex items-center gap-1.5">
-                      <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="hidden sm:inline">Saved!</span>
                     </span>
                   ) : (
                     <span className="flex items-center gap-1.5">
-                      <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                       </svg>
                       <span className="hidden sm:inline">Save</span>
@@ -555,22 +567,21 @@ export const MatchDashboard: React.FC<MatchDashboardProps> = (props) => {
                   )}
                 </button>
               )}
-              <span className="text-[var(--sys-color-worker-ash-base)] text-xs md:text-sm hidden md:inline">Export:</span>
               <button 
                 onClick={() => {
                   const text = activeTab === 'resume' ? getFullResumeText() : activeTab === 'coverLetter' ? coverLetterContent : analysis?.KSC_Responses_Drafts?.map(k => `${k.KSC_Prompt}\n${k.Response}`).join('\n\n') || '';
                   navigator.clipboard.writeText(text);
                   alert('Copied to clipboard for ATS parsing!');
                 }}
-                className="bg-[var(--sys-color-kr-activistSmokeGreen-steps-0)] hover:bg-[var(--sys-color-kr-activistSmokeGreen-steps-1)] text-[var(--sys-color-kr-activistSmokeGreen-base)] border border-[var(--sys-color-kr-activistSmokeGreen-base)] px-2 py-1 md:px-3 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors"
+                className="border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-2)] px-4 py-2 rounded-full text-sm font-medium transition-colors"
                 title="Copy Text"
               >
                 Copy to Clipboard for ATS
               </button>
-              <button onClick={exportToPDF} className="bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-500/30 px-2 py-1 md:px-3 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors">
+              <button onClick={exportToPDF} className="border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-2)] px-3 py-2 rounded-full text-sm font-medium transition-colors">
                 PDF
               </button>
-              <button onClick={exportToDOCX} className="bg-blue-900/40 hover:bg-blue-800/60 text-blue-300 border border-blue-500/30 px-2 py-1 md:px-3 rounded-[var(--sys-shape-radius-lg)] text-xs md:text-sm font-bold transition-colors">
+              <button onClick={exportToDOCX} className="border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-2)] px-3 py-2 rounded-full text-sm font-medium transition-colors">
                 DOCX
               </button>
             </div>

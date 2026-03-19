@@ -146,6 +146,7 @@
   --sys-color-concreteGrey-steps-3: #C4BDB3;
   --sys-color-concreteGrey-steps-4: #E0DBD3;
   --sys-color-concreteGrey-usage: borders, dividers, secondaryText, urbanTextures;
+  --sys-color-outline-variant: var(--sys-color-concreteGrey-steps-0);
   --sys-color-ochreEarth-base: #B8733D;
   --sys-color-ochreEarth-steps-0: #6A3F1F;
   --sys-color-ochreEarth-steps-1: #8F5A2D;

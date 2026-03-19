@@ -13,6 +13,7 @@ import { useChromeExtension } from './hooks/useChromeExtension';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const { isExtension } = useChromeExtension();
   const navigate = useNavigate();
@@ -46,8 +47,13 @@ const App: React.FC = () => {
     }
   };
 
+  const handleGuestLogin = () => {
+    setIsGuest(true);
+  };
+
   const handleLogout = async () => {
     await logout();
+    setIsGuest(false);
     navigate('/workspace');
   };
 
@@ -58,14 +64,17 @@ const App: React.FC = () => {
           style={{ background: 'var(--sys-color-charcoalBackground-base)' }}
         >
             <div 
-              className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin" 
-              style={{ borderColor: 'var(--sys-color-solidarityRed-base) transparent var(--sys-color-solidarityRed-base) var(--sys-color-solidarityRed-base)' }}
+              className="w-16 h-16 border-4 border-t-transparent animate-spin" 
+              style={{ 
+                borderColor: 'var(--sys-color-solidarityRed-base) transparent var(--sys-color-solidarityRed-base) var(--sys-color-solidarityRed-base)',
+                borderRadius: 'var(--sys-shape-cutoutRiot01)'
+              }}
             />
         </div>
     );
   }
 
-  if (!user) {
+  if (!user && !isGuest) {
     return (
       <div 
         className="min-h-screen flex flex-col items-center justify-center p-8 relative overflow-hidden"
@@ -82,31 +91,50 @@ const App: React.FC = () => {
             <p className="text-xl type-melancholyLonging text-[var(--sys-color-worker-ash-base)] mb-12 max-w-xl">
               A living manifesto for your career. No neutral canvas. Tailor your response.
             </p>
-            <button 
-              onClick={handleLogin}
-              className="px-8 py-4 text-[var(--sys-color-paperWhite-base)] font-bold uppercase tracking-widest text-xl hover:text-[var(--sys-color-solidarityRed-base)] border-2 transition-all"
-              style={{ 
-                borderRadius: 'var(--sys-shape-blockRiot01)',
-                background: 'var(--sys-color-solidarityRed-base)',
-                borderColor: 'var(--sys-color-solidarityRed-base)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--sys-color-charcoalBackground-steps-1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--sys-color-solidarityRed-base)';
-              }}
-            >
-              Sign In with Google
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button 
+                onClick={handleLogin}
+                className="px-8 py-4 text-[var(--sys-color-paperWhite-base)] font-bold uppercase tracking-widest text-xl hover:text-[var(--sys-color-solidarityRed-base)] border transition-all"
+                style={{ 
+                  borderRadius: 'var(--sys-shape-blockRiot01)',
+                  background: 'var(--sys-color-solidarityRed-base)',
+                  borderColor: 'var(--sys-color-solidarityRed-base)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--sys-color-charcoalBackground-steps-1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--sys-color-solidarityRed-base)';
+                }}
+              >
+                Sign In with Google
+              </button>
+              <button 
+                onClick={handleGuestLogin}
+                className="px-8 py-4 text-[var(--sys-color-paperWhite-base)] font-bold uppercase tracking-widest text-xl hover:text-[var(--sys-color-solidarityRed-base)] border transition-all"
+                style={{ 
+                  borderRadius: 'var(--sys-shape-blockRiot01)',
+                  background: 'transparent',
+                  borderColor: 'var(--sys-color-outline-variant)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--sys-color-paperWhite-base)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--sys-color-outline-variant)';
+                }}
+              >
+                Explore as Guest
+              </button>
+            </div>
           </div>
           <div className="flex-1 w-full">
             <div 
-              className="w-full aspect-square md:aspect-video border-2 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden"
+              className="w-full aspect-square md:aspect-video border flex flex-col items-center justify-center p-8 text-center relative overflow-hidden"
               style={{ 
                 borderRadius: 'var(--sys-shape-blockRiot03)',
                 background: 'var(--sys-color-charcoalBackground-steps-2)',
-                borderColor: 'var(--sys-color-concreteGrey-steps-0)'
+                borderColor: 'var(--sys-color-outline-variant)'
               }}
             >
               <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />

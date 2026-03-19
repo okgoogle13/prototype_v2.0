@@ -55,15 +55,15 @@ export function ApplicationWorkspacePage() {
                 <p className="text-xl type-laborExploitationPressure text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest mb-8">
                   NO NEUTRAL CANVAS. TAILOR YOUR RESPONSE.
                 </p>
-                <PrimaryButton label="Load Sample Profile" onClick={handleLoadSampleProfile} variant="march" />
+                <PrimaryButton label="Load Sample Profile" onClick={handleLoadSampleProfile} variant="tonal" />
               </div>
               <div className="flex-1 w-full">
                 <div 
-                  className="w-full aspect-video border-2 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden"
+                  className="w-full aspect-video border flex flex-col items-center justify-center p-8 text-center relative overflow-hidden"
                   style={{ 
                     borderRadius: 'var(--sys-shape-blockRiot03)',
                     background: 'var(--sys-color-charcoalBackground-steps-2)',
-                    borderColor: 'var(--sys-color-concreteGrey-steps-0)'
+                    borderColor: 'var(--sys-color-outline-variant)'
                   }}
                 >
                   <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
