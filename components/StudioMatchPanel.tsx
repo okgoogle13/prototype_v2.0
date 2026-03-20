@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support Component Only
+ * This component is for generation/analysis support and is not a canonical route.
+ */
 import React, { useState, useRef } from 'react';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { CareerDatabase, JobOpportunity, MatchAnalysis, SavedDocument } from '../types';

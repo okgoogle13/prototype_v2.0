@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support Component Only
+ * Prototype-only component.
+ */
 import React, { useState } from 'react';
 import { CareerDatabase, MatchAnalysis, StructuredAchievement } from '../types';
 import { TemplateStyle } from '../constants';

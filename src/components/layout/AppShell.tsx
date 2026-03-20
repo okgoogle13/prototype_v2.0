@@ -4,9 +4,11 @@ import { SidebarNav } from "./SidebarNav";
 type Props = {
   children: React.ReactNode;
   onLogout: () => void;
+  activeTab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'STUDIO' | 'LIBRARY';
+  onTabChange: (tab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'STUDIO' | 'LIBRARY') => void;
 };
 
-export function AppShell({ children, onLogout }: Props) {
+export function AppShell({ children, onLogout, activeTab, onTabChange }: Props) {
   return (
     <div 
       className="min-h-screen flex flex-col text-[var(--sys-color-worker-ash-base)] font-sans"
@@ -44,7 +46,7 @@ export function AppShell({ children, onLogout }: Props) {
       </header>
 
       <div className="flex flex-1 pt-[80px] max-[599px]:pb-[80px]">
-        <SidebarNav onLogout={onLogout} />
+        <SidebarNav onLogout={onLogout} activeTab={activeTab} onTabChange={onTabChange} />
         <main className="flex-1 min-[600px]:ml-[80px] min-[1200px]:ml-[360px] relative min-h-[calc(100vh-80px)]">
           {/* Grit Particle Overlay */}
           <div className="absolute inset-0 pointer-events-none opacity-5 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />

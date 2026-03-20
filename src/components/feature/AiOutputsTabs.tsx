@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support Component Only
+ * Prototype-only component.
+ */
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Card } from "../ui/Card";

@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support-Reference Page
+ * Prototype-only reference page.
+ */
 import React, { useState } from "react";
 import { motion } from "motion/react";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";

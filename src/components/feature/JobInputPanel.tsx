@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support Component Only
+ * Prototype-only component.
+ */
 import React, { useState } from "react";
 import { motion } from "motion/react";
 import { SectionHeader } from "../ui/SectionHeader";
@@ -20,7 +24,7 @@ export function JobInputPanel() {
       animate={{ opacity: 1, y: 0, rotate: 0 }}
       transition={{ type: "spring", stiffness: 200, damping: 20 }}
       className="p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border border-[var(--sys-color-outline-variant)] shadow-[var(--sys-shadow-elevation2Placard)] relative overflow-hidden" 
-      style={{ borderRadius: 'var(--sys-shape-placardTorn01)' }}
+      style={{ borderRadius: 'var(--sys-shape-block-main)' }}
     >
       {/* Wheat-paste noise background */}
       <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('https://www.transparenttextures.com/patterns/wall-4-light.png')]" />

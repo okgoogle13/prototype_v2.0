@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support Component Only
+ * Prototype-only component.
+ */
 import React from "react";
 import { motion } from "motion/react";
 import { PrimaryButton } from "../ui/PrimaryButton";

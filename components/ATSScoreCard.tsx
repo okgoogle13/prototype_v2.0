@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support Component Only
+ * Prototype-only component.
+ */
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { ATSScoreResult, DocumentType } from '../types';

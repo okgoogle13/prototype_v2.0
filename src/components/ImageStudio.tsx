@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support Component Only
+ * Prototype-only component.
+ */
 import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import { GoogleGenAI } from '@google/genai';

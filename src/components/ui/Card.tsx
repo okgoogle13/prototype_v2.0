@@ -14,7 +14,7 @@ export function Card({ children, className = "", hoverEffect = false }: Props) {
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className={`p-8 border shadow-[var(--sys-shadow-elevation2Placard)] relative overflow-hidden ${className}`}
       style={{ 
-        borderRadius: 'var(--sys-shape-placardTorn01)',
+        borderRadius: 'var(--sys-shape-block-main)',
         background: 'var(--sys-color-charcoalBackground-steps-1)',
         borderColor: 'var(--sys-color-outline-variant)'
       }}

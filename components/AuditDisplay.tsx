@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support Component Only
+ * Prototype-only component.
+ */
 import React from 'react';
 import type { DocumentAudit } from '../types';
 

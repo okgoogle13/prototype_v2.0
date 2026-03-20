@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support-Reference Page
+ * Prototype-only reference page.
+ */
 import React, { useState } from "react";
 import { motion } from "motion/react";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";
@@ -83,7 +87,7 @@ export function ProfileView() {
           <motion.div 
             variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
             className="p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border border-[var(--sys-color-outline-variant)] shadow-[var(--sys-shadow-elevation2Placard)] relative overflow-hidden mb-12" 
-            style={{ borderRadius: 'var(--sys-shape-placardTorn01)' }}
+            style={{ borderRadius: 'var(--sys-shape-block-main)' }}
           >
             <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('https://www.transparenttextures.com/patterns/wall-4-light.png')]" />
             
@@ -108,7 +112,7 @@ export function ProfileView() {
           <motion.div 
             variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
             className="p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border border-[var(--sys-color-outline-variant)] shadow-[var(--sys-shadow-elevation2Placard)] relative overflow-hidden" 
-            style={{ borderRadius: 'var(--sys-shape-placardTorn01)' }}
+            style={{ borderRadius: 'var(--sys-shape-block-main)' }}
           >
             <div className="relative z-10">
               <SectionHeader title="Settings" subtitle="Manage your profile settings." />

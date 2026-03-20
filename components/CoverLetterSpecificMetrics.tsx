@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support Component Only
+ * Prototype-only component. Maps to /cover-letter-generator in canonical product.
+ */
 import React from 'react';
 import { CoverLetterScoreResult } from '../types';
 

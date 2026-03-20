@@ -1,3 +1,7 @@
+/**
+ * CLASSIFICATION: Support Component Only
+ * Prototype-only component. Maps to /ksc-generator in canonical product.
+ */
 import React from 'react';
 import { MatchAnalysis } from '../types';
 import { TemplateStyle } from '../constants';

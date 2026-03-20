@@ -1,6 +1,10 @@
 
+/**
+ * CLASSIFICATION: Top-Level Shell / Router Shim
+ * This file handles prototype-only navigation state. 
+ * Canonical routing is owned by the main CareerCopilot repository.
+ */
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AppShell } from './src/components/layout/AppShell';
 import { ApplyQuickWorkspaceReference } from './src/pages/ApplyQuickWorkspaceReference';
 import { ProfileView } from './src/pages/ProfileView';
@@ -15,8 +19,9 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isGuest, setIsGuest] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  // Prototype-only activeTab state. Canonical routing belongs to the main repo.
+  const [activeTab, setActiveTab] = useState<'WORKSPACE' | 'PROFILE' | 'PAST' | 'STUDIO' | 'LIBRARY'>('WORKSPACE');
   const { isExtension } = useChromeExtension();
-  const navigate = useNavigate();
 
   // Auth Listener
   useEffect(() => {
@@ -54,7 +59,7 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     await logout();
     setIsGuest(false);
-    navigate('/workspace');
+    setActiveTab('WORKSPACE');
   };
 
   if (isAuthLoading) {
@@ -156,16 +161,13 @@ const App: React.FC = () => {
   }
 
   return (
-    <AppShell onLogout={handleLogout}>
+    <AppShell onLogout={handleLogout} activeTab={activeTab} onTabChange={setActiveTab}>
       {/* Canonical routing is owned by the main repo router. */}
-      <Routes>
-        <Route path="/workspace" element={<ApplyQuickWorkspaceReference />} />
-        <Route path="/profile" element={<ProfileView />} />
-        <Route path="/past" element={<PastApplicationsReference />} />
-        <Route path="/components" element={<LibraryReferencePage />} />
-        <Route path="/studio" element={<ImageStudioPage />} />
-        <Route path="*" element={<Navigate to="/workspace" replace />} />
-      </Routes>
+      {activeTab === 'WORKSPACE' && <ApplyQuickWorkspaceReference />}
+      {activeTab === 'PROFILE' && <ProfileView />}
+      {activeTab === 'PAST' && <PastApplicationsReference />}
+      {activeTab === 'LIBRARY' && <LibraryReferencePage />}
+      {activeTab === 'STUDIO' && <ImageStudioPage />}
     </AppShell>
   );
 };

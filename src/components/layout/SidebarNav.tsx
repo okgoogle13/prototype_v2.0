@@ -1,17 +1,14 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Briefcase, User, History, LogOut, Library, Image } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
 
 type Props = {
   onLogout: () => void;
+  activeTab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'STUDIO' | 'LIBRARY';
+  onTabChange: (tab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'STUDIO' | 'LIBRARY') => void;
 };
 
-export function SidebarNav({ onLogout }: Props) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const activePath = location.pathname;
-
+export function SidebarNav({ onLogout, activeTab, onTabChange }: Props) {
   return (
     <nav 
       className="fixed bottom-0 left-0 right-0 h-[80px] min-[600px]:top-[80px] min-[600px]:bottom-0 min-[600px]:w-[80px] min-[1200px]:w-[360px] min-[600px]:h-[calc(100vh-80px)] flex min-[600px]:flex-col z-40 border-t min-[600px]:border-t-0 min-[600px]:border-r"
@@ -23,11 +20,11 @@ export function SidebarNav({ onLogout }: Props) {
     >
       <div className="flex-1 flex min-[600px]:flex-col p-0 min-[600px]:py-4 min-[1200px]:py-6 gap-0 min-[600px]:gap-2 overflow-x-auto min-[600px]:overflow-y-auto min-[600px]:overflow-x-hidden justify-around min-[600px]:justify-start items-center min-[1200px]:items-stretch w-full">
         {/* Prototype-only labels. Canonical runtime routing lives in the main CareerCopilot repo App.tsx and route matrix. */}
-        <NavItem icon={<Briefcase size={24} />} label="WORKSPACE" active={activePath === '/workspace'} onClick={() => navigate('/workspace')} />
-        <NavItem icon={<User size={24} />} label="PROFILE" active={activePath === '/profile'} onClick={() => navigate('/profile')} />
-        <NavItem icon={<History size={24} />} label="PAST" active={activePath === '/past'} onClick={() => navigate('/past')} />
-        <NavItem icon={<Image size={24} />} label="STUDIO" active={activePath === '/studio'} onClick={() => navigate('/studio')} />
-        <NavItem icon={<Library size={24} />} label="LIBRARY" active={activePath === '/components'} onClick={() => navigate('/components')} />
+        <NavItem icon={<Briefcase size={24} />} label="WORKSPACE" active={activeTab === 'WORKSPACE'} onClick={() => onTabChange('WORKSPACE')} />
+        <NavItem icon={<User size={24} />} label="PROFILE" active={activeTab === 'PROFILE'} onClick={() => onTabChange('PROFILE')} />
+        <NavItem icon={<History size={24} />} label="PAST" active={activeTab === 'PAST'} onClick={() => onTabChange('PAST')} />
+        <NavItem icon={<Image size={24} />} label="STUDIO" active={activeTab === 'STUDIO'} onClick={() => onTabChange('STUDIO')} />
+        <NavItem icon={<Library size={24} />} label="LIBRARY" active={activeTab === 'LIBRARY'} onClick={() => onTabChange('LIBRARY')} />
       </div>
 
       <div 
