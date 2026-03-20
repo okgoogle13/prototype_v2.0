@@ -2,7 +2,7 @@
  * CLASSIFICATION: Support-Reference Page
  * Prototype-only reference page.
  */
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "motion/react";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";
 import { SolidarityPageLayout } from "../components/layout/SolidarityPageLayout";
@@ -11,69 +11,23 @@ import { JobInputPanel } from "../components/feature/JobInputPanel";
 import { StudioMatchPanel } from "../../components/StudioMatchPanel";
 import { SaveApplicationBar } from "../components/feature/SaveApplicationBar";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
-import { extractJobOpportunity, generateMatchAnalysis } from "../../services/geminiService";
-import { mockCareerData } from "../utils/mockData";
-import { JobOpportunity, CareerDatabase, MatchAnalysis } from "../../types";
+import { generateMatchAnalysis } from "../../services/geminiService";
+import { useApplyWorkspace } from "../hooks/useApplyWorkspace";
 
 interface Props {
   initialJobData?: { title: string; company: string; text: string } | null;
 }
 
 export function ApplyQuickWorkspaceReference({ initialJobData }: Props) {
-  const [careerData, setCareerData] = useState<CareerDatabase | null>(null);
-  const [job, setJob] = useState<JobOpportunity | null>(null);
-  const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
-
-  // Automatically process initial job data
-  React.useEffect(() => {
-    if (initialJobData && !job && !isAnalyzingJob) {
-      // Load sample profile automatically if none exists
-      const dataToUse = careerData || mockCareerData;
-      if (!careerData) {
-        setCareerData(mockCareerData);
-      }
-      
-      setIsAnalyzingJob(true);
-      extractJobOpportunity('text', `Title: ${initialJobData.title}\nCompany: ${initialJobData.company}\n\n${initialJobData.text}`, dataToUse)
-        .then(extractedJob => setJob(extractedJob))
-        .catch(err => {
-          console.error("Failed to analyze initial job:", err);
-          alert("Failed to analyze job. See console for details.");
-        })
-        .finally(() => setIsAnalyzingJob(false));
-    }
-  }, [initialJobData, job, isAnalyzingJob, careerData]);
-
-  const handleLoadSampleProfile = () => {
-    setCareerData(mockCareerData);
-    alert("Profile loaded (Prototype only)");
-  };
-
-  const handleAnalyzeJob = async (jobTitle: string, companyName: string, rawText: string) => {
-    if (!careerData) {
-      alert("Please load a profile first.");
-      return;
-    }
-    setIsAnalyzingJob(true);
-    try {
-      const extractedJob = await extractJobOpportunity('text', `Title: ${jobTitle}\nCompany: ${companyName}\n\n${rawText}`, careerData);
-      setJob(extractedJob);
-    } catch (err) {
-      console.error("Failed to analyze job:", err);
-      alert("Failed to analyze job. See console for details.");
-    } finally {
-      setIsAnalyzingJob(false);
-    }
-  };
-
-  const handleUpdateCareerData = (data: CareerDatabase) => {
-    setCareerData(data);
-  };
-
-  const handleSave = async (userId: string, data: CareerDatabase) => {
-    console.log("Saving data for user", userId, data);
-    // Mock save
-  };
+  const {
+    careerData,
+    job,
+    isAnalyzingJob,
+    handleLoadSampleProfile,
+    handleAnalyzeJob,
+    handleUpdateCareerData,
+    handleSave
+  } = useApplyWorkspace({ initialJobData });
 
   return (
     <SolidarityPageLayout

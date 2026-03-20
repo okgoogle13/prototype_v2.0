@@ -2,14 +2,14 @@
  * CLASSIFICATION: Support Component Only
  * Prototype-only component.
  */
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "motion/react";
 import { SectionHeader } from "../ui/SectionHeader";
 import { TextInput } from "../ui/TextInput";
 import { PrimaryButton } from "../ui/PrimaryButton";
 import { DocumentInput } from "../../../components/DocumentInput";
 import { StatusSpecificLoadingState } from "../ui/StatusSpecificLoadingState";
-import { useChromeExtension } from "../../hooks/useChromeExtension";
+import { useJobInput } from "../../hooks/useJobInput";
 
 interface Props {
   onAnalyze: (jobTitle: string, companyName: string, rawText: string) => void;
@@ -17,17 +17,17 @@ interface Props {
 }
 
 export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
-  const [jobTitle, setJobTitle] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [jobUrl, setJobUrl] = useState("");
-  const [rawText, setRawText] = useState("");
-  const { isInstalled } = useChromeExtension();
-
-  const handleAnalyze = () => {
-    // If URL is provided but no text, we could theoretically scrape it.
-    // For this prototype, we'll just pass the text.
-    onAnalyze(jobTitle, companyName, rawText || jobUrl);
-  };
+  const {
+    jobTitle,
+    setJobTitle,
+    companyName,
+    setCompanyName,
+    jobUrl,
+    setJobUrl,
+    setRawText,
+    isInstalled,
+    handleAnalyze,
+  } = useJobInput({ onAnalyze });
 
   return (
     <motion.div 

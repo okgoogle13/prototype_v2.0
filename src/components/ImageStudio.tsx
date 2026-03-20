@@ -2,93 +2,25 @@
  * CLASSIFICATION: Support Component Only
  * Prototype-only component.
  */
-import React, { useState, useRef } from 'react';
-import { motion } from 'motion/react';
-import { GoogleGenAI } from '@google/genai';
+import React from 'react';
 import { PrimaryButton } from './ui/PrimaryButton';
 import { TextInput } from './ui/TextInput';
 import { SectionHeader } from './ui/SectionHeader';
+import { useImageStudio } from '../hooks/useImageStudio';
 
 export function ImageStudio() {
-  const [prompt, setPrompt] = useState('');
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [baseImage, setBaseImage] = useState<{ data: string; mimeType: string } | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      const base64Data = result.split(',')[1];
-      setBaseImage({
-        data: base64Data,
-        mimeType: file.type,
-      });
-      setImageUrl(result); // Preview the uploaded image
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
-    setIsGenerating(true);
-    setError(null);
-
-    try {
-      const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error("Gemini API key is missing.");
-      
-      const ai = new GoogleGenAI({ apiKey });
-
-      const parts: any[] = [{ text: prompt }];
-      
-      if (baseImage) {
-        parts.unshift({
-          inlineData: {
-            data: baseImage.data,
-            mimeType: baseImage.mimeType,
-          },
-        });
-      }
-
-      const response = await ai.models.generateContent({
-        model: baseImage ? 'gemini-2.5-flash-image' : 'gemini-3.1-flash-image-preview',
-        contents: { parts },
-        config: baseImage ? undefined : {
-          imageConfig: {
-            aspectRatio: "1:1",
-            imageSize: "1K"
-          }
-        },
-      });
-
-      let foundImage = false;
-      if (response.candidates && response.candidates[0]?.content?.parts) {
-        for (const part of response.candidates[0].content.parts) {
-          if (part.inlineData) {
-            const base64EncodeString = part.inlineData.data;
-            setImageUrl(`data:image/png;base64,${base64EncodeString}`);
-            foundImage = true;
-            break;
-          }
-        }
-      }
-
-      if (!foundImage) {
-        throw new Error("No image was returned by the model.");
-      }
-    } catch (err: any) {
-      console.error("Image generation failed:", err);
-      setError(err.message || "Failed to generate image.");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+  const {
+    prompt,
+    setPrompt,
+    imageUrl,
+    baseImage,
+    isGenerating,
+    error,
+    fileInputRef,
+    handleImageUpload,
+    handleGenerate,
+    clearImage
+  } = useImageStudio();
 
   return (
     <div className="p-8 bg-[var(--sys-color-charcoalBackground-steps-1)] border border-[var(--sys-color-outline-variant)] shadow-[var(--sys-shadow-elevation2Placard)]" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
@@ -117,7 +49,7 @@ export function ImageStudio() {
             </button>
             {baseImage && (
               <button 
-                onClick={() => { setBaseImage(null); setImageUrl(null); }}
+                onClick={clearImage}
                 className="text-xs text-[var(--sys-color-solidarityRed-base)] hover:underline uppercase tracking-wider font-bold"
               >
                 Clear Image

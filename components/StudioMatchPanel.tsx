@@ -2,23 +2,19 @@
  * CLASSIFICATION: Support Component Only
  * This component is for generation/analysis support and is not a canonical route.
  */
-import React, { useState, useRef } from 'react';
-import { useAutoSave } from '../hooks/useAutoSave';
-import { CareerDatabase, JobOpportunity, MatchAnalysis, SavedDocument, CoverLetterScoreResult } from '../types';
+import React from 'react';
+import { CareerDatabase, JobOpportunity, MatchAnalysis, CoverLetterScoreResult } from '../types';
 import { TailoredResumeView } from './TailoredResumeView';
 import { KSCResponsesView } from './KSCResponsesView';
 import { AuditDisplay } from './AuditDisplay';
 import { ATSScoreCard } from './ATSScoreCard';
 import { CoverLetterSpecificMetrics } from './CoverLetterSpecificMetrics';
 import { SuggestionsPanel } from './SuggestionsPanel';
-import { useATSScoring } from '../hooks/useATSScoring';
-import { RESUME_TEMPLATES, TemplateStyle } from '../constants';
-import { useDocumentExport } from '../hooks/useDocumentExport';
-import { MatchScoreHeader } from './feature/MatchScoreHeader';
 import { TemplateSelector } from './feature/TemplateSelector';
 import { AnalysisTabContent } from './feature/AnalysisTabContent';
 import { ExportActionBar } from './feature/ExportActionBar';
-import { generateCoverLetter, generateKSCResponses } from '../services/geminiService';
+import { MatchScoreHeader } from './feature/MatchScoreHeader';
+import { useStudioMatch } from '../hooks/useStudioMatch';
 
 interface MatchDashboardProps {
   careerData: CareerDatabase;
@@ -31,145 +27,51 @@ interface MatchDashboardProps {
 
 export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
   const { careerData, job, onUpdate, userId, onAnalyze, onSave } = props;
-  const [analysis, setAnalysis] = useState<MatchAnalysis | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   
-  // Progressive Disclosure State
-  const [activeTab, setActiveTab] = useState<'resume' | 'coverLetter' | 'ksc' | 'analysis' | 'export'>('analysis');
-  const [completedSteps, setCompletedSteps] = useState<string[]>(['analysis']);
-
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateStyle>(RESUME_TEMPLATES[0]);
-  const [showAudit, setShowAudit] = useState(false);
-  const [coverLetterContent, setCoverLetterContent] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [locale, setLocale] = useState<'US' | 'UK/AU'>('US');
-  const [hasSelectionCriteria, setHasSelectionCriteria] = useState(false);
-  
-  const resumeRef = useRef<HTMLDivElement>(null);
-  const kscRef = useRef<HTMLDivElement>(null);
-
-  const { exportToPDF, exportToDOCX, getFullResumeText } = useDocumentExport({
-    activeTab,
+  const {
     analysis,
-    careerData,
+    isLoading,
+    error,
+    activeTab,
+    setActiveTab,
+    completedSteps,
     selectedTemplate,
+    setSelectedTemplate,
+    showAudit,
+    setShowAudit,
     coverLetterContent,
+    setCoverLetterContent,
+    isSaving,
+    saveSuccess,
+    locale,
+    setLocale,
+    hasSelectionCriteria,
     resumeRef,
-    kscRef
+    kscRef,
+    exportToPDF,
+    exportToDOCX,
+    resumeScoring,
+    coverLetterScoring,
+    isGeneratingCoverLetter,
+    isGeneratingKSC,
+    coverLetterInstructions,
+    setCoverLetterInstructions,
+    kscInstructions,
+    setKscInstructions,
+    handleAnalyze,
+    handleGenerateCoverLetter,
+    handleGenerateKSC,
+    handleSaveToProfile,
+    handleCopyToClipboard,
+    unlockStep
+  } = useStudioMatch({
+    careerData,
+    job,
+    onUpdate,
+    userId,
+    onAnalyze,
+    onSave
   });
-
-  const jobDescriptionText = `${job.Job_Title} at ${job.Company_Name}\n${job.Key_Responsibilities.join('\n')}\n${job.Required_Hard_Skills.join('\n')}\n${job.Required_Soft_Skills.join('\n')}`;
-
-  const resumeScoring = useATSScoring(getFullResumeText(), jobDescriptionText, 'resume');
-  const coverLetterScoring = useATSScoring(coverLetterContent, jobDescriptionText, 'coverLetter');
-
-  const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
-  const [isGeneratingKSC, setIsGeneratingKSC] = useState(false);
-  const [coverLetterInstructions, setCoverLetterInstructions] = useState('');
-  const [kscInstructions, setKscInstructions] = useState('');
-
-  const handleAnalyze = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      let result = await onAnalyze(careerData, job);
-      if (result.Overall_Fit_Score < 70) {
-          const retryResult = await onAnalyze(careerData, job);
-          if (retryResult.Overall_Fit_Score > result.Overall_Fit_Score) {
-              result = retryResult;
-          }
-      }
-      setAnalysis(result);
-      setCoverLetterContent(result.Cover_Letter_Draft || '');
-      setHasSelectionCriteria(!!result.KSC_Responses_Drafts && result.KSC_Responses_Drafts.length > 0);
-      setActiveTab('analysis');
-      setCompletedSteps(['analysis']);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGenerateCoverLetter = async () => {
-    setIsGeneratingCoverLetter(true);
-    try {
-      const result = await generateCoverLetter(careerData, job, coverLetterInstructions);
-      setAnalysis(prev => prev ? { ...prev, Cover_Letter_Draft: result.Cover_Letter_Draft, Cover_Letter_Audit: result.Cover_Letter_Audit } : null);
-      setCoverLetterContent(result.Cover_Letter_Draft);
-      unlockStep('coverLetter');
-      setCoverLetterInstructions('');
-    } catch (err) {
-      console.error("Failed to generate cover letter:", err);
-    } finally {
-      setIsGeneratingCoverLetter(false);
-    }
-  };
-
-  const handleGenerateKSC = async () => {
-    setIsGeneratingKSC(true);
-    try {
-      const result = await generateKSCResponses(careerData, job, kscInstructions);
-      setAnalysis(prev => prev ? { ...prev, KSC_Responses_Drafts: result.KSC_Responses_Drafts } : null);
-      setHasSelectionCriteria(true);
-      unlockStep('ksc');
-      setKscInstructions('');
-    } catch (err) {
-      console.error("Failed to generate KSC:", err);
-    } finally {
-      setIsGeneratingKSC(false);
-    }
-  };
-
-  const saveDocument = async (content: string) => {
-    if (!userId || !analysis || !onUpdate) return;
-    const newDoc: SavedDocument = {
-      id: crypto.randomUUID(),
-      jobTitle: job.Job_Title,
-      companyName: job.Company_Name,
-      dateSaved: new Date().toISOString(),
-      coverLetter: content,
-      tailoredSummary: analysis.Tailored_Summary
-    };
-
-    const updatedData = {
-      ...careerData,
-      Saved_Documents: [...(careerData.Saved_Documents || []), newDoc]
-    };
-
-    await onSave(userId!, updatedData);
-    onUpdate(updatedData);
-  };
-
-  const { isSaving: isAutoSaving, lastSaved, save } = useAutoSave(userId, coverLetterContent, saveDocument);
-
-  const handleSaveToProfile = async () => {
-    setIsSaving(true);
-    try {
-      await save(coverLetterContent);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (err) {
-      console.error("Failed to save document:", err);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCopyToClipboard = () => {
-    const text = activeTab === 'resume' ? getFullResumeText() : activeTab === 'coverLetter' ? coverLetterContent : analysis?.KSC_Responses_Drafts?.map(k => `${k.KSC_Prompt}\n${k.Response}`).join('\n\n') || '';
-    navigator.clipboard.writeText(text);
-    alert('Copied to clipboard for ATS parsing!');
-  };
-
-  const unlockStep = (step: string) => {
-    if (!completedSteps.includes(step)) {
-      setCompletedSteps(prev => [...prev, step]);
-    }
-    setActiveTab(step as any);
-  };
 
   if (!analysis && !isLoading) {
     return (
@@ -214,15 +116,6 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
     <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
       <MatchScoreHeader analysis={analysis} job={job} />
       
-      {activeTab === 'resume' && (
-        <TemplateSelector 
-          selectedTemplate={selectedTemplate} 
-          setSelectedTemplate={setSelectedTemplate} 
-          locale={locale} 
-          setLocale={setLocale} 
-        />
-      )}
-
       <ExportActionBar 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -252,7 +145,7 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
           <div className="xl:col-span-2 flex flex-col gap-6">
             <div ref={resumeRef}>
-              <TailoredResumeView careerData={careerData} analysis={analysis} template={selectedTemplate} locale={locale} />
+              <TailoredResumeView careerData={careerData} analysis={analysis} template={selectedTemplate} locale={locale} onUpdate={onUpdate} />
             </div>
             <div className="flex justify-end">
               {analysis.Cover_Letter_Draft ? (
@@ -343,7 +236,13 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-4">
+              <button 
+                onClick={() => unlockStep('export')}
+                className="bg-transparent hover:bg-[var(--sys-color-charcoalBackground-steps-2)] text-[var(--sys-color-worker-ash-base)] font-bold py-3 px-6 rounded-[var(--sys-shape-radius-lg)] transition-colors text-lg border border-[var(--sys-color-outline-variant)]"
+              >
+                Skip to Export
+              </button>
               {analysis.KSC_Responses_Drafts && analysis.KSC_Responses_Drafts.length > 0 ? (
                 <button 
                   onClick={() => unlockStep('ksc')}
@@ -485,7 +384,7 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
           <div className="mt-8">
             <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] mb-4">Resume Preview</h3>
             <div className="opacity-75 pointer-events-none transform scale-95 origin-top">
-              <TailoredResumeView careerData={careerData} analysis={analysis} template={selectedTemplate} locale={locale} />
+              <TailoredResumeView careerData={careerData} analysis={analysis} template={selectedTemplate} locale={locale} onUpdate={onUpdate} />
             </div>
           </div>
         </div>

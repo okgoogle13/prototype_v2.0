@@ -12,17 +12,34 @@ import { TextInput } from "../components/ui/TextInput";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { DocumentInput } from "../../components/DocumentInput";
 import { Modal } from "../components/ui/Modal";
+import { AutocompleteInput } from "../components/ui/AutocompleteInput";
+import { commonIndustrySkills } from "../utils/skills";
 
 export function ProfileView() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [completeness, setCompleteness] = useState(25);
+  const [skills, setSkills] = useState<string[]>(["React", "TypeScript"]);
+  const [newSkill, setNewSkill] = useState("");
 
   const handleLoadSampleProfile = () => {
     setFullName("Jane Doe");
     setEmail("jane.doe@example.com");
+    setSkills(["React", "TypeScript", "Node.js", "Tailwind CSS"]);
     setCompleteness(100);
+  };
+
+  const addSkill = (skill: string) => {
+    const trimmed = skill.trim();
+    if (trimmed && !skills.includes(trimmed)) {
+      setSkills([...skills, trimmed]);
+      setNewSkill("");
+    }
+  };
+
+  const removeSkill = (skill: string) => {
+    setSkills(skills.filter(s => s !== skill));
   };
 
   return (
@@ -104,6 +121,58 @@ export function ProfileView() {
                 <DocumentInput onProcess={(files, rawText) => {}} isLoading={false} />
                 <div className="flex justify-end">
                   <PrimaryButton label="Save Profile" onClick={() => {}} variant="strike" />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+            className="p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border border-[var(--sys-color-outline-variant)] shadow-[var(--sys-shadow-elevation2Placard)] relative overflow-hidden mb-12" 
+            style={{ borderRadius: 'var(--sys-shape-block-main)' }}
+          >
+            <div className="relative z-10">
+              <SectionHeader 
+                title="Master Skills Inventory" 
+                subtitle="Add your technical and soft skills. These will be used to match you with job opportunities."
+              />
+              <div className="space-y-8">
+                <div className="flex flex-wrap gap-3 mb-8">
+                  {skills.map(skill => (
+                    <motion.div
+                      key={skill}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="flex items-center gap-2 px-4 py-2 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold uppercase tracking-wider text-sm"
+                      style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
+                    >
+                      {skill}
+                      <button 
+                        onClick={() => removeSkill(skill)}
+                        className="text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-solidarityRed-base)] transition-colors"
+                      >
+                        ✕
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+                
+                <div className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <AutocompleteInput 
+                      label="Add Skill" 
+                      placeholder="e.g. React, Project Management..." 
+                      value={newSkill} 
+                      onChange={setNewSkill}
+                      onEnter={() => addSkill(newSkill)}
+                      suggestions={[...commonIndustrySkills, ...skills]}
+                    />
+                  </div>
+                  <PrimaryButton 
+                    label="Add" 
+                    onClick={() => addSkill(newSkill)} 
+                    variant="tonal" 
+                  />
                 </div>
               </div>
             </div>

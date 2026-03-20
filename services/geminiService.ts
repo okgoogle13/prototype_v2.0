@@ -357,8 +357,13 @@ export const analyzeFitAndGenerateDrafts = async (
       3. Write a Tailored_Summary (3-4 sentences) that the user can put at the top of their resume, specifically highlighting their most relevant experience for this exact role.
       4. Provide a Headline_Suggestion (e.g., "Senior Software Engineer | React Specialist") that positions the candidate perfectly for this role.
       5. Recommend 3-5 Achievement_IDs from the user's Structured_Achievements that are most relevant to this job's Key_Responsibilities.
-      6. Draft a highly tailored Cover_Letter (3-4 paragraphs) that connects the user's specific achievements and values to the company's needs and culture keywords.
+      6. Draft a highly tailored Cover_Letter (3-4 paragraphs) that connects the user's specific achievements and values to the company's needs and culture keywords. Ensure the tone is highly professional, aligns with the company's culture, and explicitly references the job description.
       
+      Guidelines for Authentic Tailoring:
+      - NO AI CLICHÉS: Do not use words like "thrilled", "delve", "testament", "tapestry", "navigate", or "fast-paced". Write like a real, confident professional.
+      - SHOW, DON'T TELL: Instead of saying "I have great leadership skills", use the candidate's achievements to demonstrate leadership.
+      - TONE AND CULTURE ALIGNMENT: Ensure the tone is highly professional and directly aligns with the company's culture and values as inferred from the job description and your research. Explicitly reference key themes or requirements from the job description.
+
       Return the result as a JSON object matching the requested schema.
     `;
 
@@ -618,13 +623,14 @@ export const generateCoverLetter = async (careerData: CareerDatabase, job: JobOp
       ${instructions ? `USER INSTRUCTIONS FOR REVISION:\nThe user has requested the following changes to the cover letter: "${instructions}". Please incorporate these instructions into your draft.` : ''}
 
       Perform the following:
-      1. Draft a highly tailored Cover_Letter (3-4 paragraphs) that connects the user's specific achievements and values to the company's needs and culture keywords.
+      1. Draft a highly tailored Cover_Letter (3-4 paragraphs) that connects the user's specific achievements and values to the company's needs and culture keywords. Ensure the tone is highly professional, aligns with the company's culture, and explicitly references the job description.
       2. Perform a "Best Practices" Audit for the Cover Letter.
 
       Guidelines for Authentic Tailoring:
       - NO AI CLICHÉS: Do not use words like "thrilled", "delve", "testament", "tapestry", "navigate", or "fast-paced". Write like a real, confident professional.
       - SHOW, DON'T TELL: Instead of saying "I have great leadership skills", use the candidate's achievements to demonstrate leadership.
       - COMPANY CONTEXT: Incorporate 1-2 subtle references to the company's actual current context (based on your search) in the cover letter to show genuine interest.
+      - TONE AND CULTURE ALIGNMENT: Ensure the tone is highly professional and directly aligns with the company's culture and values as inferred from the job description and your research. Explicitly reference key themes or requirements from the job description.
     `;
 
     const schema = {

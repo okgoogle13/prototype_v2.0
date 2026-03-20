@@ -2,26 +2,37 @@
  * CLASSIFICATION: Support Component Only
  * Prototype-only component.
  */
-import React, { useState } from 'react';
+import React from 'react';
 import { CareerDatabase, MatchAnalysis, StructuredAchievement } from '../types';
 import { TemplateStyle } from '../constants';
-import { refineAchievementField } from '../services/geminiService';
 import { SingleColumnResume } from './feature/SingleColumnResume';
 import { TwoColumnResume } from './feature/TwoColumnResume';
+import { useTailoredResume } from '../hooks/useTailoredResume';
 
 interface TailoredResumeViewProps {
   careerData: CareerDatabase;
   analysis: MatchAnalysis;
   template: TemplateStyle;
   locale?: 'US' | 'UK/AU';
+  onUpdate?: (data: CareerDatabase) => void;
 }
 
-export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerData, analysis, template, locale = 'US' }) => {
-  const { Personal_Information, Career_Entries, Structured_Achievements, Master_Skills_Inventory } = careerData;
-  const [achievements, setAchievements] = useState<StructuredAchievement[]>(Structured_Achievements);
-  const [tailoredSummary, setTailoredSummary] = useState(analysis.Tailored_Summary);
-  const [isPolishing, setIsPolishing] = useState<string | null>(null);
-  const [suggestions, setSuggestions] = useState<Record<string, string>>({});
+export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerData, analysis, template, locale = 'US', onUpdate }) => {
+  const { Personal_Information } = careerData;
+  
+  const {
+    achievements,
+    tailoredSummary,
+    setTailoredSummary,
+    isPolishing,
+    suggestions,
+    handlePolish,
+    applySuggestion,
+    discardSuggestion,
+    getAchievementsForEntry,
+    workEntries,
+    educationEntries
+  } = useTailoredResume({ careerData, analysis, onUpdate });
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -34,61 +45,6 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
       return date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
     }
   };
-
-  const handlePolish = async (achId: string, field: keyof StructuredAchievement) => {
-    setIsPolishing(`${achId}-${field}`);
-    try {
-      const ach = achievements.find(a => a.Achievement_ID === achId);
-      if (!ach) return;
-      const polishedText = await refineAchievementField(ach, field);
-      setSuggestions(prev => ({ ...prev, [`${achId}-${field}`]: polishedText }));
-    } catch (error) {
-      console.error("Failed to polish text:", error);
-      alert("Failed to polish text. Please try again.");
-    } finally {
-      setIsPolishing(null);
-    }
-  };
-
-  const applySuggestion = (achId: string, field: keyof StructuredAchievement) => {
-    const suggestion = suggestions[`${achId}-${field}`];
-    if (!suggestion) return;
-    setAchievements(prev => prev.map(a => 
-      a.Achievement_ID === achId ? { ...a, [field]: suggestion } : a
-    ));
-    setSuggestions(prev => {
-      const next = { ...prev };
-      delete next[`${achId}-${field}`];
-      return next;
-    });
-  };
-
-  const discardSuggestion = (achId: string, field: keyof StructuredAchievement) => {
-    setSuggestions(prev => {
-      const next = { ...prev };
-      delete next[`${achId}-${field}`];
-      return next;
-    });
-  };
-
-  // Filter and sort achievements: recommended ones first, then others, grouped by Entry_ID
-  const getAchievementsForEntry = (entryId: string) => {
-    const entryAchievements = achievements.filter(a => a.Entry_ID === entryId);
-    
-    // Sort so recommended achievements appear first
-    return entryAchievements.sort((a, b) => {
-      const aIsRecommended = analysis.Recommended_Achievement_IDs.includes(a.Achievement_ID);
-      const bIsRecommended = analysis.Recommended_Achievement_IDs.includes(b.Achievement_ID);
-      if (aIsRecommended && !bIsRecommended) return -1;
-      if (!aIsRecommended && bIsRecommended) return 1;
-      return 0;
-    });
-  };
-
-  const workEntries = Career_Entries.filter(e => e.Entry_Type === "Work Experience")
-    .sort((a, b) => new Date(b.StartDate).getTime() - new Date(a.StartDate).getTime());
-
-  const educationEntries = Career_Entries.filter(e => e.Entry_Type === "Education");
 
   return (
     <div 
