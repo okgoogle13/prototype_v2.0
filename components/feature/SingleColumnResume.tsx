@@ -136,7 +136,8 @@ export const SingleColumnResume: React.FC<Props> = ({
                         key={j} 
                         className={`text-[11pt] leading-relaxed group relative ${isRecommended ? 'font-medium' : 'opacity-90'}`}
                       >
-                        - <span className="font-bold text-cyan-600">{ach.Action_Verb}</span> {ach.Noun_Task} {ach.Strategy} resulting in {suggestions[`${ach.Achievement_ID}-Outcome`] || ach.Outcome}.
+                        <span className="mr-2" style={{ color: template.accentColor }}>•</span>
+                        <span className="font-semibold" style={{ color: template.primaryColor }}>{ach.Action_Verb}</span> {ach.Noun_Task} {ach.Strategy} resulting in {suggestions[`${ach.Achievement_ID}-Outcome`] || ach.Outcome}.
                         {isRecommended && (
                           <span 
                             className="inline-block ml-2 w-1.5 h-1.5 rounded-full" 
