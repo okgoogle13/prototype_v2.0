@@ -18,7 +18,7 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, ColumnBreak } from 
 import html2pdf from 'html2pdf.js';
 import { saveAs } from 'file-saver';
 
-interface MatchDashboardProps {
+interface StudioMatchPanelProps {
   careerData: CareerDatabase;
   job: JobOpportunity;
   onUpdate?: (data: CareerDatabase) => void;
@@ -27,7 +27,7 @@ interface MatchDashboardProps {
   onSave: (userId: string, data: CareerDatabase) => Promise<void>;
 }
 
-export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
+export const StudioMatchPanel: React.FC<StudioMatchPanelProps> = (props) => {
   const { careerData, job, onUpdate, userId, onAnalyze, onSave } = props;
   const [analysis, setAnalysis] = useState<MatchAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);

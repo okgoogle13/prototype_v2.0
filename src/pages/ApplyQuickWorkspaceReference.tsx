@@ -4,6 +4,7 @@
  */
 import React from "react";
 import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";
 import { SolidarityPageLayout } from "../components/layout/SolidarityPageLayout";
 import { LayeredHero } from "../components/layout/LayeredHero";
@@ -13,6 +14,8 @@ import { SaveApplicationBar } from "../components/feature/SaveApplicationBar";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 
 export function ApplyQuickWorkspaceReference() {
+  const navigate = useNavigate();
+
   const handleLoadSampleProfile = () => {
     // Mock data
     const mockProfile = {
