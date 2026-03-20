@@ -11,6 +11,7 @@ import { ProfileView } from './src/pages/ProfileView';
 import { PastApplicationsReference } from './src/pages/PastApplicationsReference';
 import { LibraryReferencePage } from './src/pages/LibraryReferencePage';
 import { ImageStudioPage } from './src/pages/ImageStudioPage';
+import { JobInputPanel } from './src/components/feature/JobInputPanel';
 import { auth, signIn, logout } from './services/firebase';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { useChromeExtension } from './hooks/useChromeExtension';
@@ -21,6 +22,7 @@ const App: React.FC = () => {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   // Prototype-only activeTab state. Canonical routing belongs to the main repo.
   const [activeTab, setActiveTab] = useState<'WORKSPACE' | 'PROFILE' | 'PAST' | 'STUDIO' | 'LIBRARY'>('WORKSPACE');
+  const [initialJobData, setInitialJobData] = useState<{title: string, company: string, text: string} | null>(null);
   const { isExtension } = useChromeExtension();
 
   // Auth Listener
@@ -96,6 +98,17 @@ const App: React.FC = () => {
             <p className="text-xl type-melancholyLonging text-[var(--sys-color-worker-ash-base)] mb-12 max-w-xl">
               A living manifesto for your career. No neutral canvas. Tailor your response.
             </p>
+            
+            <div className="w-full mb-12">
+              <JobInputPanel 
+                onAnalyze={(title, company, text) => {
+                  setInitialJobData({ title, company, text });
+                  handleGuestLogin();
+                }} 
+                isAnalyzing={false} 
+              />
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-4">
               <button 
                 onClick={handleLogin}
@@ -163,7 +176,7 @@ const App: React.FC = () => {
   return (
     <AppShell onLogout={handleLogout} activeTab={activeTab} onTabChange={setActiveTab}>
       {/* Canonical routing is owned by the main repo router. */}
-      {activeTab === 'WORKSPACE' && <ApplyQuickWorkspaceReference />}
+      {activeTab === 'WORKSPACE' && <ApplyQuickWorkspaceReference initialJobData={initialJobData} />}
       {activeTab === 'PROFILE' && <ProfileView />}
       {activeTab === 'PAST' && <PastApplicationsReference />}
       {activeTab === 'LIBRARY' && <LibraryReferencePage />}

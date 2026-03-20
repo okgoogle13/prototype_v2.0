@@ -17,6 +17,8 @@ import { Checkbox } from "../components/ui/Checkbox";
 import { Loader } from "../components/ui/Loader";
 import { Modal } from "../components/ui/Modal";
 
+import { AiOutputsTabs } from "../components/feature/AiOutputsTabs";
+
 export function LibraryReferencePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -53,6 +55,12 @@ export function LibraryReferencePage() {
               THE BUILDING BLOCKS OF THE REVOLUTION.
             </p>
           </motion.div>
+
+          {/* AI Outputs Tabs Prototype */}
+          <motion.section variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+            <SectionHeader title="AI Outputs Tabs" subtitle="Prototype for displaying generated content." />
+            <AiOutputsTabs />
+          </motion.section>
 
           {/* Buttons */}
           <motion.section variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>

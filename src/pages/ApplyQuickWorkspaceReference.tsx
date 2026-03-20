@@ -2,28 +2,77 @@
  * CLASSIFICATION: Support-Reference Page
  * Prototype-only reference page.
  */
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
-import { useNavigate } from "react-router-dom";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";
 import { SolidarityPageLayout } from "../components/layout/SolidarityPageLayout";
 import { LayeredHero } from "../components/layout/LayeredHero";
 import { JobInputPanel } from "../components/feature/JobInputPanel";
-import { AiOutputsTabs } from "../components/feature/AiOutputsTabs";
+import { StudioMatchPanel } from "../../components/StudioMatchPanel";
 import { SaveApplicationBar } from "../components/feature/SaveApplicationBar";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
+import { extractJobOpportunity, generateMatchAnalysis } from "../../services/geminiService";
+import { mockCareerData } from "../utils/mockData";
+import { JobOpportunity, CareerDatabase, MatchAnalysis } from "../../types";
 
-export function ApplyQuickWorkspaceReference() {
-  const navigate = useNavigate();
+interface Props {
+  initialJobData?: { title: string; company: string; text: string } | null;
+}
+
+export function ApplyQuickWorkspaceReference({ initialJobData }: Props) {
+  const [careerData, setCareerData] = useState<CareerDatabase | null>(null);
+  const [job, setJob] = useState<JobOpportunity | null>(null);
+  const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
+
+  // Automatically process initial job data
+  React.useEffect(() => {
+    if (initialJobData && !job && !isAnalyzingJob) {
+      // Load sample profile automatically if none exists
+      const dataToUse = careerData || mockCareerData;
+      if (!careerData) {
+        setCareerData(mockCareerData);
+      }
+      
+      setIsAnalyzingJob(true);
+      extractJobOpportunity('text', `Title: ${initialJobData.title}\nCompany: ${initialJobData.company}\n\n${initialJobData.text}`, dataToUse)
+        .then(extractedJob => setJob(extractedJob))
+        .catch(err => {
+          console.error("Failed to analyze initial job:", err);
+          alert("Failed to analyze job. See console for details.");
+        })
+        .finally(() => setIsAnalyzingJob(false));
+    }
+  }, [initialJobData, job, isAnalyzingJob, careerData]);
 
   const handleLoadSampleProfile = () => {
-    // Mock data
-    const mockProfile = {
-      workExperience: [{ title: "Software Engineer", company: "TechCorp" }],
-      skills: ["React", "TypeScript"]
-    };
-    console.log("Loading sample profile:", mockProfile);
+    setCareerData(mockCareerData);
     alert("Profile loaded (Prototype only)");
+  };
+
+  const handleAnalyzeJob = async (jobTitle: string, companyName: string, rawText: string) => {
+    if (!careerData) {
+      alert("Please load a profile first.");
+      return;
+    }
+    setIsAnalyzingJob(true);
+    try {
+      const extractedJob = await extractJobOpportunity('text', `Title: ${jobTitle}\nCompany: ${companyName}\n\n${rawText}`, careerData);
+      setJob(extractedJob);
+    } catch (err) {
+      console.error("Failed to analyze job:", err);
+      alert("Failed to analyze job. See console for details.");
+    } finally {
+      setIsAnalyzingJob(false);
+    }
+  };
+
+  const handleUpdateCareerData = (data: CareerDatabase) => {
+    setCareerData(data);
+  };
+
+  const handleSave = async (userId: string, data: CareerDatabase) => {
+    console.log("Saving data for user", userId, data);
+    // Mock save
   };
 
   return (
@@ -86,12 +135,24 @@ export function ApplyQuickWorkspaceReference() {
           </motion.div>
           
           <div className="space-y-12">
-            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-              <JobInputPanel />
-            </motion.div>
-            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-              <AiOutputsTabs />
-            </motion.div>
+            {!job ? (
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+                <JobInputPanel onAnalyze={handleAnalyzeJob} isAnalyzing={isAnalyzingJob} />
+              </motion.div>
+            ) : (
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+                {careerData && (
+                  <StudioMatchPanel 
+                    careerData={careerData} 
+                    job={job} 
+                    onUpdate={handleUpdateCareerData}
+                    userId="prototype-user"
+                    onAnalyze={generateMatchAnalysis}
+                    onSave={handleSave}
+                  />
+                )}
+              </motion.div>
+            )}
             <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
               <SaveApplicationBar />
             </motion.div>

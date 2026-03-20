@@ -2,7 +2,7 @@
  * CLASSIFICATION: Support Component Only
  * Prototype-only component. Maps to /ksc-generator in canonical product.
  */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MatchAnalysis } from '../types';
 import { TemplateStyle } from '../constants';
 
@@ -12,7 +12,22 @@ interface KSCResponsesViewProps {
 }
 
 export const KSCResponsesView: React.FC<KSCResponsesViewProps> = ({ analysis, template }) => {
-  if (!analysis.KSC_Responses_Drafts || analysis.KSC_Responses_Drafts.length === 0) {
+  const [responses, setResponses] = useState(analysis.KSC_Responses_Drafts || []);
+
+  useEffect(() => {
+    setResponses(analysis.KSC_Responses_Drafts || []);
+  }, [analysis.KSC_Responses_Drafts]);
+
+  const handleResponseChange = (index: number, newText: string) => {
+    const newResponses = [...responses];
+    newResponses[index] = { ...newResponses[index], Response: newText };
+    setResponses(newResponses);
+    // Note: To persist this to the parent, we would need an onChange callback.
+    // For this prototype, local state is sufficient for export.
+    analysis.KSC_Responses_Drafts = newResponses;
+  };
+
+  if (!responses || responses.length === 0) {
     return (
       <div className="bg-white p-10 shadow-lg max-w-4xl mx-auto text-center text-[var(--sys-color-worker-ash-base)] italic">
         No Key Selection Criteria responses generated for this role.
@@ -43,7 +58,7 @@ export const KSCResponsesView: React.FC<KSCResponsesViewProps> = ({ analysis, te
       </div>
 
       <div className="space-y-12">
-        {analysis.KSC_Responses_Drafts.map((ksc, i) => (
+        {responses.map((ksc, i) => (
           <div key={i} className="animate-fade-in">
             <h2 
               className="text-lg font-bold mb-4 pb-2 border-b"
@@ -55,9 +70,11 @@ export const KSCResponsesView: React.FC<KSCResponsesViewProps> = ({ analysis, te
             >
               Criterion {i + 1}: {ksc.KSC_Prompt}
             </h2>
-            <div className="text-sm space-y-4 whitespace-pre-wrap">
-              {ksc.Response}
-            </div>
+            <textarea
+              className="w-full min-h-[150px] bg-transparent text-inherit p-2 border border-gray-200 rounded focus:outline-none focus:border-cyan-500 leading-relaxed resize-y"
+              value={ksc.Response}
+              onChange={(e) => handleResponseChange(i, e.target.value)}
+            />
           </div>
         ))}
       </div>

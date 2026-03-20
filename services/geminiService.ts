@@ -514,9 +514,7 @@ export const generateMatchAnalysis = async (careerData: CareerDatabase, job: Job
          - VALUE PROPOSITION: The Tailored Summary should be a strong 2-3 sentence hook that aligns the user's top 2 strengths directly with the core problem the job is trying to solve.
          - HEADLINE: Provide a short, punchy Resume Headline (e.g., "Senior Software Engineer | React Specialist") that positions the candidate perfectly for this role.
       4. Select the top 5-7 most relevant Achievement_IDs from the candidate's Structured_Achievements that should be highlighted in the resume. Choose achievements that demonstrate impact related to the job's core responsibilities.
-      5. Draft a compelling, modern Cover Letter tailored to this company and role, drawing specific metrics and examples from the candidate's achievements.
-      6. Draft 2-3 Key Selection Criteria (KSC) Responses in STAR format (Situation, Task, Action, Result) based on the most critical requirements of the job. Each response should be 150-200 words.
-      7. Perform a "Best Practices" Audit for both the Resume and the Cover Letter based on the Resume Knowledge Library (RKL) rules below.
+      5. Perform a "Best Practices" Audit for the Resume based on the Resume Knowledge Library (RKL) rules below.
 
       RESUME KNOWLEDGE LIBRARY (RKL) RULES:
       - [L1.L1.001] Single-column layout preferred (universally safer).
@@ -561,18 +559,6 @@ export const generateMatchAnalysis = async (careerData: CareerDatabase, job: Job
             Headline_Suggestion: { type: Type.STRING },
             Tailored_Summary: { type: Type.STRING },
             Recommended_Achievement_IDs: { type: Type.ARRAY, items: { type: Type.STRING } },
-            Cover_Letter_Draft: { type: Type.STRING },
-            KSC_Responses_Drafts: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        KSC_Prompt: { type: Type.STRING },
-                        Response: { type: Type.STRING }
-                    },
-                    required: ["KSC_Prompt", "Response"]
-                }
-            },
             Resume_Audit: {
                 type: Type.OBJECT,
                 properties: {
@@ -594,7 +580,57 @@ export const generateMatchAnalysis = async (careerData: CareerDatabase, job: Job
                     recommendations: { type: Type.ARRAY, items: { type: Type.STRING } }
                 },
                 required: ["overallScore", "scanSimulation", "violations", "recommendations"]
-            },
+            }
+        },
+        required: ["Overall_Fit_Score", "Skill_Gaps", "Headline_Suggestion", "Tailored_Summary", "Recommended_Achievement_IDs", "Resume_Audit"]
+    };
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-3.1-pro-preview',
+        contents: { parts: [{ text: prompt }] },
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: schema,
+            temperature: 0.7,
+            thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH },
+            tools: [{ googleSearch: {} }]
+        }
+    });
+
+    const jsonString = response.text;
+    if (!jsonString) throw new Error("Empty response from Gemini");
+    return JSON.parse(jsonString) as MatchAnalysis;
+};
+
+export const generateCoverLetter = async (careerData: CareerDatabase, job: JobOpportunity, instructions?: string): Promise<{ Cover_Letter_Draft: string, Cover_Letter_Audit: any }> => {
+    const prompt = `
+      You are an elite executive career coach and expert resume writer.
+      Draft a compelling, modern Cover Letter tailored to this company and role, drawing specific metrics and examples from the candidate's achievements.
+      
+      CRITICAL INSTRUCTION: Use the Google Search tool to research the company "${job.Company_Name}". Look for recent news, their mission, core values, or current industry challenges they might be facing. Use this context to make the cover letter deeply authentic and specific to them.
+
+      Job Opportunity:
+      ${JSON.stringify(job)}
+      
+      Candidate Career Database:
+      ${JSON.stringify(careerData)}
+
+      ${instructions ? `USER INSTRUCTIONS FOR REVISION:\nThe user has requested the following changes to the cover letter: "${instructions}". Please incorporate these instructions into your draft.` : ''}
+
+      Perform the following:
+      1. Draft a highly tailored Cover_Letter (3-4 paragraphs) that connects the user's specific achievements and values to the company's needs and culture keywords.
+      2. Perform a "Best Practices" Audit for the Cover Letter.
+
+      Guidelines for Authentic Tailoring:
+      - NO AI CLICHÉS: Do not use words like "thrilled", "delve", "testament", "tapestry", "navigate", or "fast-paced". Write like a real, confident professional.
+      - SHOW, DON'T TELL: Instead of saying "I have great leadership skills", use the candidate's achievements to demonstrate leadership.
+      - COMPANY CONTEXT: Incorporate 1-2 subtle references to the company's actual current context (based on your search) in the cover letter to show genuine interest.
+    `;
+
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            Cover_Letter_Draft: { type: Type.STRING },
             Cover_Letter_Audit: {
                 type: Type.OBJECT,
                 properties: {
@@ -618,7 +654,7 @@ export const generateMatchAnalysis = async (careerData: CareerDatabase, job: Job
                 required: ["overallScore", "scanSimulation", "violations", "recommendations"]
             }
         },
-        required: ["Overall_Fit_Score", "Skill_Gaps", "Headline_Suggestion", "Tailored_Summary", "Recommended_Achievement_IDs", "Cover_Letter_Draft", "KSC_Responses_Drafts", "Resume_Audit", "Cover_Letter_Audit"]
+        required: ["Cover_Letter_Draft", "Cover_Letter_Audit"]
     };
 
     const response = await ai.models.generateContent({
@@ -635,5 +671,68 @@ export const generateMatchAnalysis = async (careerData: CareerDatabase, job: Job
 
     const jsonString = response.text;
     if (!jsonString) throw new Error("Empty response from Gemini");
-    return JSON.parse(jsonString) as MatchAnalysis;
+    return JSON.parse(jsonString);
+};
+
+export const generateKSCResponses = async (careerData: CareerDatabase, job: JobOpportunity, instructions?: string): Promise<{ KSC_Responses_Drafts: { KSC_Prompt: string, Response: string }[] }> => {
+    const starRules = `
+      STAR Method Rules:
+      - Situation: Set the context (who, what, where, when). Keep it brief (10-15%).
+      - Task: Describe the specific challenge or goal. What needed to be done? (10-15%).
+      - Action: Detail the specific actions YOU took. Use "I", not "we". Focus on skills and methods (60-70%).
+      - Result: Quantify the outcome. What was achieved? What did you learn? (10-15%).
+    `;
+
+    const prompt = `
+      You are an elite executive career coach and expert resume writer.
+      Draft 2-3 Key Selection Criteria (KSC) Responses in STAR format (Situation, Task, Action, Result) based on the most critical requirements of the job. Each response should be 150-200 words.
+      
+      Job Opportunity:
+      ${JSON.stringify(job)}
+      
+      Candidate Career Database:
+      ${JSON.stringify(careerData)}
+      
+      Knowledge Reference Files:
+      ${starRules}
+
+      ${instructions ? `USER INSTRUCTIONS FOR REVISION:\nThe user has requested the following changes to the KSC responses: "${instructions}". Please incorporate these instructions into your draft.` : ''}
+
+      Guidelines for Authentic Tailoring:
+      - NO AI CLICHÉS: Do not use words like "thrilled", "delve", "testament", "tapestry", "navigate", or "fast-paced". Write like a real, confident professional.
+      - SHOW, DON'T TELL: Instead of saying "I have great leadership skills", use the candidate's achievements to demonstrate leadership.
+    `;
+
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            KSC_Responses_Drafts: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        KSC_Prompt: { type: Type.STRING },
+                        Response: { type: Type.STRING }
+                    },
+                    required: ["KSC_Prompt", "Response"]
+                }
+            }
+        },
+        required: ["KSC_Responses_Drafts"]
+    };
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-3.1-pro-preview',
+        contents: { parts: [{ text: prompt }] },
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: schema,
+            temperature: 0.7,
+            thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH }
+        }
+    });
+
+    const jsonString = response.text;
+    if (!jsonString) throw new Error("Empty response from Gemini");
+    return JSON.parse(jsonString);
 };
