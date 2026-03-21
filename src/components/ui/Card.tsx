@@ -5,9 +5,10 @@ type Props = {
   children: React.ReactNode;
   className?: string;
   hoverEffect?: boolean;
+  style?: React.CSSProperties;
 };
 
-export function Card({ children, className = "", hoverEffect = false }: Props) {
+export function Card({ children, className = "", hoverEffect = false, style = {} }: Props) {
   return (
     <motion.div
       whileHover={hoverEffect ? { scale: 1.01, rotate: -0.5, y: -2 } : {}}
@@ -16,7 +17,8 @@ export function Card({ children, className = "", hoverEffect = false }: Props) {
       style={{ 
         borderRadius: 'var(--sys-shape-block-main)',
         background: 'var(--sys-color-charcoalBackground-steps-1)',
-        borderColor: 'var(--sys-color-outline-variant)'
+        borderColor: 'var(--sys-color-outline-variant)',
+        ...style
       }}
     >
       {/* Wheat-paste noise background */}

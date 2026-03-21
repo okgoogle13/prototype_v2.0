@@ -44,6 +44,7 @@ export function ProfileView({ user }: Props) {
     { id: "identity", label: "Identity", icon: "User" },
     { id: "documents", label: "Career Documents", icon: "FileText" },
     { id: "skills", label: "Skills", icon: "Zap" },
+    { id: "integrations", label: "Integrations", icon: "Link" },
     { id: "settings", label: "Settings", icon: "Settings" },
   ];
 
@@ -374,6 +375,36 @@ export function ProfileView({ user }: Props) {
                     </div>
                   )}
 
+                  {activeSection === "integrations" && (
+                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
+                      <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-6">Integrations</h3>
+                      <p className="text-[var(--sys-color-worker-ash-base)] mb-8">Connect your external tools to automate your job search.</p>
+                      
+                      <div className="space-y-4">
+                        <IntegrationCard 
+                          name="Gmail Scan" 
+                          desc="Automatically detect job application emails and update your tracker."
+                          status="Connected"
+                          lastSync="2 hours ago"
+                          icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}
+                        />
+                        <IntegrationCard 
+                          name="Job Scout" 
+                          desc="Sync clipped jobs from the CareerCopilot Chrome Extension."
+                          status="Connected"
+                          lastSync="15 mins ago"
+                          icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>}
+                        />
+                        <IntegrationCard 
+                          name="LinkedIn" 
+                          desc="Import your profile data and job history directly."
+                          status="Disconnected"
+                          icon={<svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>}
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   {activeSection === "settings" && (
                     <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
                       <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-6">Settings</h3>
@@ -412,5 +443,31 @@ export function ProfileView({ user }: Props) {
         </div>
       </Modal>
     </SolidarityPageLayout>
+  );
+}
+
+function IntegrationCard({ name, desc, status, lastSync, icon }: any) {
+  const isConnected = status === "Connected";
+  return (
+    <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl flex items-start gap-6">
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isConnected ? 'bg-[var(--sys-color-inkGold-base)]/10 text-[var(--sys-color-inkGold-base)]' : 'bg-[var(--sys-color-charcoalBackground-steps-2)] text-[var(--sys-color-worker-ash-base)]'}`}>
+        {icon}
+      </div>
+      <div className="flex-1">
+        <div className="flex items-center justify-between mb-1">
+          <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider">{name}</h4>
+          <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded ${isConnected ? 'bg-[var(--sys-color-kr-activistSmokeGreen-base)]/20 text-[var(--sys-color-kr-activistSmokeGreen-base)]' : 'bg-[var(--sys-color-charcoalBackground-steps-2)] text-[var(--sys-color-worker-ash-base)]'}`}>
+            {status}
+          </span>
+        </div>
+        <p className="text-xs text-[var(--sys-color-worker-ash-base)] mb-3">{desc}</p>
+        {lastSync && (
+          <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] italic">Last sync: {lastSync}</p>
+        )}
+      </div>
+      <button className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${isConnected ? 'border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] hover:bg-[var(--sys-color-kr-charcoalRed-base)] hover:text-[var(--sys-color-paperWhite-base)]' : 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)]'}`}>
+        {isConnected ? "Disconnect" : "Connect"}
+      </button>
+    </div>
   );
 }

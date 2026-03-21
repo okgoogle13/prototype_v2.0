@@ -11,7 +11,8 @@ import { StudioMatchPanel } from "../../components/StudioMatchPanel";
 import { SaveApplicationBar } from "../components/feature/SaveApplicationBar";
 import { generateMatchAnalysis } from "../../services/geminiService";
 import { useApplyWorkspace } from "../hooks/useApplyWorkspace";
-import { Link, Target, Sparkles } from "lucide-react";
+import { Link, Target, Sparkles, LayoutDashboard } from "lucide-react";
+import { DashboardOverview } from "../components/feature/DashboardOverview";
 
 import { User } from 'firebase/auth';
 
@@ -45,6 +46,8 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user }: Props) {
     handleUpdateCareerData,
     handleSave
   } = useApplyWorkspace({ initialJobData, user });
+
+  const [showDashboard, setShowDashboard] = React.useState(true);
 
   if (isLoadingProfile) {
     return (
@@ -82,41 +85,57 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user }: Props) {
             </div>
           </div>
 
-          {/* RIGHT PANE: Analysis / How It Works */}
+          {/* RIGHT PANE: Analysis / How It Works / Dashboard */}
           <div 
             className="flex-1 min-width-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-1)] flex flex-col overflow-y-auto rounded-b-[28px] md:rounded-r-[28px] md:rounded-tl-none md:rounded-bl-none"
           >
             <AnimatePresence mode="wait">
               {!job ? (
                 <motion.div 
-                  key="how-it-works"
+                  key={showDashboard ? "dashboard" : "how-it-works"}
                   initial={{ opacity: 0, x: 16 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -16 }}
                   transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-                  className="w-full max-w-2xl mx-auto flex flex-col justify-center h-full"
+                  className="w-full max-w-4xl mx-auto flex flex-col h-full"
                 >
-                  <h2 className="text-[clamp(22px,6vw,28px)] leading-[clamp(30px,7vw,36px)] type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-6 text-center">How It Works</h2>
-                  <div className="grid grid-cols-1 gap-4">
-                    <StepCard 
-                      number="1" 
-                      icon={Link} 
-                      label="Drop a URL" 
-                      desc="AI reads the job posting and extracts key requirements automatically." 
-                    />
-                    <StepCard 
-                      number="2" 
-                      icon={Target} 
-                      label="Match Scored" 
-                      desc="See exactly where you fit and identify critical skill gaps instantly." 
-                    />
-                    <StepCard 
-                      number="3" 
-                      icon={Sparkles} 
-                      label="Tailored Response" 
-                      desc="Resume + cover letter generated in seconds, optimized for this specific role." 
-                    />
+                  <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-[clamp(22px,6vw,28px)] leading-[clamp(30px,7vw,36px)] type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase">
+                      {showDashboard ? "Dashboard" : "How It Works"}
+                    </h2>
+                    <button 
+                      onClick={() => setShowDashboard(!showDashboard)}
+                      className="px-4 py-2 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] font-bold uppercase tracking-widest text-[10px] hover:text-[var(--sys-color-paperWhite-base)] transition-colors rounded-full flex items-center gap-2"
+                    >
+                      {showDashboard ? <Sparkles size={14} /> : <LayoutDashboard size={14} />}
+                      {showDashboard ? "View Guide" : "View Dashboard"}
+                    </button>
                   </div>
+
+                  {showDashboard ? (
+                    <DashboardOverview />
+                  ) : (
+                    <div className="grid grid-cols-1 gap-4 max-w-2xl mx-auto w-full">
+                      <StepCard 
+                        number="1" 
+                        icon={Link} 
+                        label="Drop a URL" 
+                        desc="AI reads the job posting and extracts key requirements automatically." 
+                      />
+                      <StepCard 
+                        number="2" 
+                        icon={Target} 
+                        label="Match Scored" 
+                        desc="See exactly where you fit and identify critical skill gaps instantly." 
+                      />
+                      <StepCard 
+                        number="3" 
+                        icon={Sparkles} 
+                        label="Tailored Response" 
+                        desc="Resume + cover letter generated in seconds, optimized for this specific role." 
+                      />
+                    </div>
+                  )}
                 </motion.div>
               ) : (
                 <motion.div 

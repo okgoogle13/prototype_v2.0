@@ -9,7 +9,7 @@ import { SolidarityPageLayout } from "../components/layout/SolidarityPageLayout"
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { Card } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
-import { Search, Target, Zap, ShieldCheck, CheckCircle2, XCircle, AlertCircle, ArrowRight, Download, FileText, Loader2 } from "lucide-react";
+import { Search, Target, Zap, ShieldCheck, CheckCircle2, XCircle, AlertCircle, ArrowRight, Download, FileText, Loader2, Info } from "lucide-react";
 import { GoogleGenAI, Type } from "@google/genai";
 
 import { User } from 'firebase/auth';
@@ -21,6 +21,8 @@ interface Props {
 export function OptimisePage({ user }: Props) {
   const [isScanned, setIsScanned] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isGovernmentJob, setIsGovernmentJob] = useState(false);
+  const [hasGeneratedKSC, setHasGeneratedKSC] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
   const [selectedResume, setSelectedResume] = useState("Software Engineer Resume");
   const [recommendations, setRecommendations] = useState<string[]>([
@@ -33,6 +35,12 @@ export function OptimisePage({ user }: Props) {
     if (!jobDescription) return;
     
     setIsAnalyzing(true);
+    setIsGovernmentJob(
+      jobDescription.toLowerCase().includes("government") || 
+      jobDescription.toLowerCase().includes("selection criteria") ||
+      jobDescription.toLowerCase().includes("ksc")
+    );
+    setHasGeneratedKSC(false);
     
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
@@ -247,7 +255,7 @@ export function OptimisePage({ user }: Props) {
                     </div>
                   </section>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 gap-8">
                     <section>
                       <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider mb-6">Skills Gap</h3>
                       <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] rounded-2xl border border-[var(--sys-color-outline-variant)] overflow-hidden">
@@ -264,23 +272,55 @@ export function OptimisePage({ user }: Props) {
                         </div>
                       </div>
                     </section>
-
-                    <section>
-                      <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider mb-6">AI Recommendations</h3>
-                      <Card className="p-6 border-[var(--sys-color-inkGold-base)]/30">
-                        <ul className="space-y-4">
-                          {recommendations.map((rec, idx) => (
-                            <li key={idx} className="flex gap-3">
-                              <AlertCircle size={18} className="text-[var(--sys-color-inkGold-base)] flex-shrink-0 mt-0.5" />
-                              <p className="text-sm text-[var(--sys-color-worker-ash-base)]">
-                                {rec}
-                              </p>
-                            </li>
-                          ))}
-                        </ul>
-                      </Card>
-                    </section>
                   </div>
+
+                  <section>
+                    <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider mb-6">AI Recommendations</h3>
+                    <Card className="p-6 border-[var(--sys-color-inkGold-base)]/30">
+                      <ul className="space-y-4">
+                        {recommendations.map((rec, idx) => (
+                          <li key={idx} className="flex gap-3">
+                            <AlertCircle size={18} className="text-[var(--sys-color-inkGold-base)] flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-[var(--sys-color-worker-ash-base)]">
+                              {rec}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    </Card>
+                  </section>
+
+                  {isGovernmentJob && (
+                    <section className="bg-[var(--sys-color-solidarityRed-base)]/10 p-6 rounded-[28px] border border-[var(--sys-color-solidarityRed-base)]/30">
+                      <div className="flex items-center gap-2 mb-4">
+                        <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider">Key Selection Criteria (KSC) — Government Applications</h3>
+                        <div className="group relative">
+                          <Info size={16} className="text-[var(--sys-color-worker-ash-base)] cursor-help" />
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-[var(--sys-color-charcoalBackground-steps-3)] text-[10px] text-[var(--sys-color-worker-ash-base)] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-[var(--sys-color-outline-variant)] shadow-xl z-50">
+                            AU/NZ government roles require specific responses to selection criteria. This tool helps you draft STAR-method responses.
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-sm text-[var(--sys-color-worker-ash-base)] mb-6">We've detected that this is a government role. Would you like to generate draft responses for the selection criteria?</p>
+                      <PrimaryButton 
+                        label="GENERATE KSC RESPONSES →" 
+                        onClick={() => setHasGeneratedKSC(true)} 
+                        variant="strike" 
+                      />
+                    </section>
+                  )}
+
+                  {hasGeneratedKSC && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-[var(--sys-color-inkGold-base)]/10 p-6 rounded-[28px] border border-[var(--sys-color-inkGold-base)]/30"
+                    >
+                      <h4 className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-2">Teach the AI your voice</h4>
+                      <p className="text-xs text-[var(--sys-color-worker-ash-base)] mb-4">Your KSC responses have been generated. To make them sound more like you, set up your Voice Profile in Settings.</p>
+                      <button className="text-xs font-bold text-[var(--sys-color-inkGold-base)] uppercase hover:underline">Go to Voice Profile →</button>
+                    </motion.div>
+                  )}
 
                   <div className="flex flex-col sm:flex-row gap-4 pt-8">
                     <PrimaryButton 

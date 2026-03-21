@@ -11,6 +11,8 @@ import { ProfileView } from './src/pages/ProfileView';
 import { PastApplicationsReference } from './src/pages/PastApplicationsReference';
 import { LibraryReferencePage } from './src/pages/LibraryReferencePage';
 import { OptimisePage } from './src/pages/ImageStudioPage';
+import { OnboardingPathBifurcation } from './src/pages/OnboardingPathBifurcation';
+import { useUserStore } from './src/hooks/useUserStore';
 import { JobInputPanel } from './src/components/feature/JobInputPanel';
 import { auth, signIn, logout } from './services/firebase';
 import { User, onAuthStateChanged } from 'firebase/auth';
@@ -20,9 +22,17 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isGuest, setIsGuest] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const { hasCompletedOnboarding, onboardingPath } = useUserStore();
+  
   // Prototype-only activeTab state. Canonical routing belongs to the main repo.
-  const [activeTab, setActiveTab] = useState<'WORKSPACE' | 'PROFILE' | 'PAST' | 'OPTIMISE' | 'LIBRARY'>('WORKSPACE');
+  const [activeTab, setActiveTab] = useState<'WORKSPACE' | 'PROFILE' | 'PAST' | 'OPTIMISE' | 'LIBRARY' | 'LOOKOUT' | 'PREP'>('WORKSPACE');
   const [initialJobData, setInitialJobData] = useState<{title: string, company: string, text: string} | null>(null);
+
+  useEffect(() => {
+    if (hasCompletedOnboarding && onboardingPath) {
+      setActiveTab(onboardingPath);
+    }
+  }, [hasCompletedOnboarding, onboardingPath]);
   const { isExtension } = useChromeExtension();
 
   // Auth Listener
@@ -173,6 +183,10 @@ const App: React.FC = () => {
     );
   }
 
+  if (user && !hasCompletedOnboarding) {
+    return <OnboardingPathBifurcation />;
+  }
+
   return (
     <AppShell onLogout={handleLogout} activeTab={activeTab} onTabChange={setActiveTab}>
       {/* Canonical routing is owned by the main repo router. */}
@@ -181,6 +195,8 @@ const App: React.FC = () => {
       {activeTab === 'PAST' && <PastApplicationsReference user={user} />}
       {activeTab === 'LIBRARY' && <LibraryReferencePage user={user} />}
       {activeTab === 'OPTIMISE' && <OptimisePage user={user} />}
+      {activeTab === 'LOOKOUT' && <div className="p-8 text-center text-[var(--sys-color-worker-ash-base)]">Lookout Feed (Coming Soon)</div>}
+      {activeTab === 'PREP' && <div className="p-8 text-center text-[var(--sys-color-worker-ash-base)]">Interview Prep (Coming Soon)</div>}
     </AppShell>
   );
 };

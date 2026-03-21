@@ -4,8 +4,8 @@ import { SidebarNav } from "./SidebarNav";
 type Props = {
   children: React.ReactNode;
   onLogout: () => void;
-  activeTab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'OPTIMISE' | 'LIBRARY';
-  onTabChange: (tab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'OPTIMISE' | 'LIBRARY') => void;
+  activeTab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'OPTIMISE' | 'LIBRARY' | 'LOOKOUT' | 'PREP';
+  onTabChange: (tab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'OPTIMISE' | 'LIBRARY' | 'LOOKOUT' | 'PREP') => void;
 };
 
 export function AppShell({ children, onLogout, activeTab, onTabChange }: Props) {
