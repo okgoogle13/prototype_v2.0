@@ -1,147 +1,103 @@
-/**
- * CLASSIFICATION: Support-Reference Page
- * Prototype-only reference page.
- */
 import React, { useState } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";
 import { SolidarityPageLayout } from "../components/layout/SolidarityPageLayout";
-import { LayeredHero } from "../components/layout/LayeredHero";
-import { SectionHeader } from "../components/ui/SectionHeader";
-import { PrimaryButton } from "../components/ui/PrimaryButton";
-import { TextInput } from "../components/ui/TextInput";
-import { Textarea } from "../components/ui/Textarea";
 import { Card } from "../components/ui/Card";
-import { Badge } from "../components/ui/Badge";
-import { Checkbox } from "../components/ui/Checkbox";
-import { Loader } from "../components/ui/Loader";
-import { Modal } from "../components/ui/Modal";
-
-import { AiOutputsTabs } from "../components/feature/AiOutputsTabs";
 
 export function LibraryReferencePage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+  const [activeTab, setActiveTab] = useState("resume");
+
+  const tabs = [
+    { id: "resume", label: "Resume Builder", icon: "FileText" },
+    { id: "cover", label: "Cover Letter", icon: "Mail" },
+    { id: "ksc", label: "KSC Responses", icon: "CheckSquare" },
+    { id: "interview", label: "Interview Prep", icon: "MessageSquare" },
+    { id: "network", label: "Networking", icon: "Users" },
+  ];
 
   return (
-    <SolidarityPageLayout
-      heroNode={
-        <LayeredHero 
-          imageUrl="https://picsum.photos/seed/components/1920/1080?blur=2" 
-          altText="Components Hero" 
-        />
-      }
-    >
+    <SolidarityPageLayout>
       <WorkspaceLayout>
-        <motion.div 
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.15
-              }
-            }
-          }}
-          className="space-y-16"
-        >
-          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="mb-12">
-            <h1 className="text-7xl type-extremeVariableContrast text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none mb-4">
-              Component <br/><span className="text-[var(--sys-color-solidarityRed-base)]">Library</span>
-            </h1>
-            <p className="text-xl type-laborExploitationPressure text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest">
-              THE BUILDING BLOCKS OF THE REVOLUTION.
-            </p>
-          </motion.div>
+        <div className="flex flex-col md:flex-row w-full h-full overflow-hidden">
+          {/* LEFT PANE: Navigation */}
+          <div className="w-full md:w-[260px] flex-shrink-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] flex flex-col gap-8 overflow-y-auto rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none md:rounded-br-none">
+            <h2 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">Library</h2>
+            
+            <nav className="flex flex-col gap-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-full text-left transition-all ${
+                    activeTab === tab.id
+                      ? "bg-[var(--sys-color-charcoalBackground-steps-3)] text-[var(--sys-color-paperWhite-base)] font-bold"
+                      : "text-[var(--sys-color-worker-ash-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-3)]/50"
+                  }`}
+                >
+                  <span className="uppercase tracking-wider text-sm">{tab.label}</span>
+                </button>
+              ))}
+            </nav>
 
-          {/* AI Outputs Tabs Prototype */}
-          <motion.section variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-            <SectionHeader title="AI Outputs Tabs" subtitle="Prototype for displaying generated content." />
-            <AiOutputsTabs />
-          </motion.section>
-
-          {/* Buttons */}
-          <motion.section variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-            <SectionHeader title="Buttons" subtitle="Primary actions and secondary alternatives." />
-            <div className="flex flex-wrap gap-8">
-              <PrimaryButton label="Strike Action" onClick={() => {}} variant="strike" />
-              <PrimaryButton label="March Forward" onClick={() => {}} variant="march" />
-              <PrimaryButton label="Disabled State" onClick={() => {}} disabled />
-            </div>
-          </motion.section>
-
-          {/* Inputs */}
-          <motion.section variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-            <SectionHeader title="Inputs" subtitle="Text fields and textareas." />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <TextInput label="Target Role" placeholder="e.g. Senior Frontend Engineer" />
-              <TextInput label="Company Name" placeholder="e.g. TechCorp Inc." />
-              <div className="md:col-span-2">
-                <Textarea label="Job Description" placeholder="Paste the full job description here..." />
+            <div className="mt-auto pt-6 border-t border-[var(--sys-color-outline-variant)]">
+              <div className="p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-2xl border border-[var(--sys-color-inkGold-base)]/20">
+                <p className="text-[10px] text-[var(--sys-color-inkGold-base)] font-bold uppercase tracking-widest mb-2">Pro Tip</p>
+                <p className="text-xs text-[var(--sys-color-worker-ash-base)] leading-relaxed">AI-powered career tools help you stand out in the competitive job market.</p>
               </div>
             </div>
-          </motion.section>
-
-          {/* Cards & Badges */}
-          <motion.section variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-            <SectionHeader title="Cards & Badges" subtitle="Containers and status indicators." />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Card hoverEffect>
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-2xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase">Placard Card</h3>
-                  <Badge label="New" variant="warning" />
-                </div>
-                <p className="type-melancholyLonging text-[var(--sys-color-worker-ash-base)]">
-                  This is a standard card component with a hover effect. It uses the placard torn shape.
-                </p>
-                <div className="mt-6 flex gap-2 flex-wrap">
-                  <Badge label="Default" />
-                  <Badge label="Success" variant="success" />
-                  <Badge label="Danger" variant="danger" />
-                </div>
-              </Card>
-              <Card>
-                <h3 className="text-2xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-4">Static Card</h3>
-                <p className="type-melancholyLonging text-[var(--sys-color-worker-ash-base)]">
-                  This card does not have a hover effect. Useful for static content display.
-                </p>
-              </Card>
-            </div>
-          </motion.section>
-
-          {/* Controls */}
-          <motion.section variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-            <SectionHeader title="Controls & Modals" subtitle="Interactive elements and overlays." />
-            <div className="flex flex-col gap-8 items-start">
-              <Checkbox 
-                label="I agree to the terms of the revolution" 
-                checked={isChecked} 
-                onChange={setIsChecked} 
-              />
-              <PrimaryButton label="Open Modal" onClick={() => setIsModalOpen(true)} variant="march" />
-            </div>
-          </motion.section>
-
-          {/* Loader */}
-          <motion.section variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-            <SectionHeader title="Loader" subtitle="Processing state indicator." />
-            <Card className="flex justify-center">
-              <Loader message="Analyzing Data..." />
-            </Card>
-          </motion.section>
-
-        </motion.div>
-
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="System Alert">
-          <p className="type-melancholyLonging text-lg text-[var(--sys-color-worker-ash-base)]">
-            This is a modal dialog. It uses a spring animation to enter and exit the screen, and features a backdrop blur.
-          </p>
-          <div className="flex justify-end mt-8">
-            <PrimaryButton label="Acknowledge" onClick={() => setIsModalOpen(false)} variant="strike" />
           </div>
-        </Modal>
+
+          {/* RIGHT PANE: Content */}
+          <div className="flex-1 min-width-0 bg-[var(--sys-color-charcoalBackground-steps-1)] flex flex-col overflow-hidden rounded-b-[28px] md:rounded-r-[28px] md:rounded-tl-none md:rounded-bl-none">
+            <div className="flex-1 overflow-y-auto p-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="max-w-4xl mx-auto"
+                >
+                  <h1 className="text-4xl font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter mb-8">
+                    {tabs.find(t => t.id === activeTab)?.label}
+                  </h1>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <Card className="p-8">
+                      <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-4">Template Gallery</h3>
+                      <p className="text-[var(--sys-color-worker-ash-base)] mb-6">Choose from our curated collection of professional templates designed for maximum impact.</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[1, 2, 3, 4].map(i => (
+                          <div key={i} className="aspect-[3/4] bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-lg border border-[var(--sys-color-outline-variant)] hover:border-[var(--sys-color-inkGold-base)] transition-colors cursor-pointer" />
+                        ))}
+                      </div>
+                    </Card>
+
+                    <Card className="p-8">
+                      <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-4">AI Optimization</h3>
+                      <p className="text-[var(--sys-color-worker-ash-base)] mb-6">Let our AI analyze your content and suggest improvements based on industry standards.</p>
+                      <div className="space-y-4">
+                        {[
+                          "Keyword Optimization",
+                          "Action Verb Enhancement",
+                          "Quantifiable Results",
+                          "Formatting Check"
+                        ].map(item => (
+                          <div key={item} className="flex items-center gap-3 text-sm text-[var(--sys-color-worker-ash-base)] font-bold uppercase tracking-wider">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--sys-color-signalGreen-base)]">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
       </WorkspaceLayout>
     </SolidarityPageLayout>
   );

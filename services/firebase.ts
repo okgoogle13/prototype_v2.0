@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { CareerDatabase } from '../types';
 import firebaseConfig from '../firebase-applet-config.json';
 
@@ -63,6 +63,26 @@ export const signIn = async () => {
   const provider = new GoogleAuthProvider();
   try {
     const result = await signInWithPopup(auth, provider);
+    
+    // Ensure user document exists
+    const userRef = doc(db, 'users', result.user.uid);
+    const userSnap = await getDoc(userRef);
+    
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        uid: result.user.uid,
+        email: result.user.email || '',
+        displayName: result.user.displayName || '',
+        photoURL: result.user.photoURL || '',
+        createdAt: serverTimestamp(),
+        lastLoginAt: serverTimestamp()
+      });
+    } else {
+      await setDoc(userRef, {
+        lastLoginAt: serverTimestamp()
+      }, { merge: true });
+    }
+    
     return result.user;
   } catch (error) {
     console.error("Sign in error:", error);
@@ -75,24 +95,24 @@ export const logout = async () => {
 };
 
 export const saveUserCareerData = async (userId: string, data: CareerDatabase) => {
-  const path = `users/${userId}`;
+  const path = `users/${userId}/careerDatabase/main`;
   try {
-    await setDoc(doc(db, 'users', userId), { 
-      career_data: data, 
-      updated_at: new Date().toISOString(),
-      uid: userId 
-    }, { merge: true });
+    await setDoc(doc(db, 'users', userId, 'careerDatabase', 'main'), { 
+      ...data,
+      uid: userId,
+      updatedAt: serverTimestamp()
+    });
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, path);
   }
 };
 
 export const getUserCareerData = async (userId: string): Promise<CareerDatabase | null> => {
-  const path = `users/${userId}`;
+  const path = `users/${userId}/careerDatabase/main`;
   try {
-    const docSnap = await getDoc(doc(db, 'users', userId));
+    const docSnap = await getDoc(doc(db, 'users', userId, 'careerDatabase', 'main'));
     if (docSnap.exists()) {
-      return docSnap.data().career_data as CareerDatabase;
+      return docSnap.data() as CareerDatabase;
     }
     return null;
   } catch (error) {
@@ -102,9 +122,9 @@ export const getUserCareerData = async (userId: string): Promise<CareerDatabase 
 };
 
 export const deleteUserCareerData = async (userId: string) => {
-  const path = `users/${userId}`;
+  const path = `users/${userId}/careerDatabase/main`;
   try {
-    await deleteDoc(doc(db, 'users', userId));
+    await deleteDoc(doc(db, 'users', userId, 'careerDatabase', 'main'));
   } catch (error) {
     handleFirestoreError(error, OperationType.DELETE, path);
   }

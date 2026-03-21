@@ -1,11 +1,11 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Briefcase, User, History, LogOut, Library, Image } from "lucide-react";
+import { Briefcase, User, History, LogOut, Library, Sparkles } from "lucide-react";
 
 type Props = {
   onLogout: () => void;
-  activeTab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'STUDIO' | 'LIBRARY';
-  onTabChange: (tab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'STUDIO' | 'LIBRARY') => void;
+  activeTab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'OPTIMISE' | 'LIBRARY';
+  onTabChange: (tab: 'WORKSPACE' | 'PROFILE' | 'PAST' | 'OPTIMISE' | 'LIBRARY') => void;
 };
 
 export function SidebarNav({ onLogout, activeTab, onTabChange }: Props) {
@@ -20,10 +20,10 @@ export function SidebarNav({ onLogout, activeTab, onTabChange }: Props) {
     >
       <div className="flex-1 flex min-[600px]:flex-col p-0 min-[600px]:py-4 min-[1200px]:py-6 gap-0 min-[600px]:gap-2 overflow-x-auto min-[600px]:overflow-y-auto min-[600px]:overflow-x-hidden justify-around min-[600px]:justify-start items-center min-[1200px]:items-stretch w-full">
         {/* Prototype-only labels. Canonical runtime routing lives in the main CareerCopilot repo App.tsx and route matrix. */}
-        <NavItem icon={<Briefcase size={24} />} label="WORKSPACE" active={activeTab === 'WORKSPACE'} onClick={() => onTabChange('WORKSPACE')} />
+        <NavItem icon={<Sparkles size={24} />} label="OPTIMISE" active={activeTab === 'OPTIMISE'} onClick={() => onTabChange('OPTIMISE')} />
         <NavItem icon={<User size={24} />} label="PROFILE" active={activeTab === 'PROFILE'} onClick={() => onTabChange('PROFILE')} />
+        <NavItem icon={<Briefcase size={24} />} label="WORKSPACE" active={activeTab === 'WORKSPACE'} onClick={() => onTabChange('WORKSPACE')} />
         <NavItem icon={<History size={24} />} label="PAST" active={activeTab === 'PAST'} onClick={() => onTabChange('PAST')} />
-        <NavItem icon={<Image size={24} />} label="STUDIO" active={activeTab === 'STUDIO'} onClick={() => onTabChange('STUDIO')} />
         <NavItem icon={<Library size={24} />} label="LIBRARY" active={activeTab === 'LIBRARY'} onClick={() => onTabChange('LIBRARY')} />
       </div>
 

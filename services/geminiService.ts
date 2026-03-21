@@ -211,7 +211,7 @@ export const processCareerDocuments = async (fileParts: { inlineData: { data: st
         responseSchema: careerDatabaseSchema,
         temperature: 0.1,
         thinkingConfig: {
-          thinkingBudget: 32768,
+          thinkingLevel: ThinkingLevel.HIGH,
         },
       }
     });
@@ -407,13 +407,58 @@ export const analyzeFitAndGenerateDrafts = async (
     return JSON.parse(jsonString) as MatchAnalysis;
 };
 
-export const extractJobOpportunity = async (inputType: 'url' | 'text', content: string, careerData?: CareerDatabase): Promise<JobOpportunity> => {
+export const extractBasicJobDetails = async (urlOrText: string, isBase64: boolean = false): Promise<{ Job_Title: string; Company_Name: string }> => {
+  const isUrl = !isBase64 && (urlOrText.trim().startsWith('http://') || urlOrText.trim().startsWith('https://'));
+  
+  const prompt = `
+    You are an expert technical recruiter and data analyst.
+    Analyze the following job posting and extract the official Job Title and Company Name into a structured JSON format.
+    
+    ${isUrl ? `Source URL: ${urlOrText}\nPlease extract the job details from this URL.` : `Job Posting Content:\n${isBase64 ? 'Provided as a file part.' : urlOrText.substring(0, 30000)}`}
+  `;
+
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      Job_Title: { type: Type.STRING },
+      Company_Name: { type: Type.STRING },
+    },
+    required: ["Job_Title", "Company_Name"]
+  };
+
+  const contents: any = isBase64 
+    ? { parts: [{ text: prompt }, { inlineData: { data: urlOrText, mimeType: 'application/pdf' } }] } // Defaulting to pdf for extraction if base64
+    : prompt;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: contents,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: schema,
+      temperature: 0.1,
+      tools: isUrl ? [{ urlContext: {} }] : undefined
+    },
+  });
+
+  const text = response.text;
+  if (!text) {
+    throw new Error("Failed to extract basic job details.");
+  }
+
+  return JSON.parse(text);
+};
+
+export const extractJobOpportunity = async (inputType: 'url' | 'text', content: string, careerData?: CareerDatabase, jobTitle?: string, companyName?: string): Promise<JobOpportunity> => {
     const prompt = `
       You are an expert technical recruiter and data analyst.
       Analyze the following job posting and extract the key particulars into a structured JSON format.
       
       ${inputType === 'url' ? `Source URL: ${content}\nPlease extract the job details from this URL.` : `Job Posting Text:\n${content.substring(0, 30000)}`}
       
+      ${jobTitle ? `Note: The user has confirmed the Job Title is "${jobTitle}". Please use this exact title.` : ''}
+      ${companyName ? `Note: The user has confirmed the Company Name is "${companyName}". Please use this exact company name.` : ''}
+
       ${careerData ? `
       Additionally, you have access to the user's Career Database:
       ${JSON.stringify(careerData.Master_Skills_Inventory)}

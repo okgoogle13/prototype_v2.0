@@ -1,20 +1,45 @@
 import { useState, useEffect } from 'react';
 import { JobOpportunity, CareerDatabase } from '../../types';
 import { extractJobOpportunity } from '../../services/geminiService';
+import { getUserCareerData, saveUserCareerData } from '../../services/firebase';
 import { mockCareerData } from '../utils/mockData';
+import { User } from 'firebase/auth';
 
 interface UseApplyWorkspaceProps {
   initialJobData?: { title: string; company: string; text: string } | null;
+  user?: User | null;
 }
 
-export function useApplyWorkspace({ initialJobData }: UseApplyWorkspaceProps) {
+export function useApplyWorkspace({ initialJobData, user }: UseApplyWorkspaceProps) {
   const [careerData, setCareerData] = useState<CareerDatabase | null>(null);
   const [job, setJob] = useState<JobOpportunity | null>(null);
   const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+
+  // Load user profile on mount
+  useEffect(() => {
+    if (user) {
+      setIsLoadingProfile(true);
+      getUserCareerData(user.uid)
+        .then(data => {
+          if (data) {
+            setCareerData(data);
+          } else {
+            // If no data exists, we could initialize an empty one or use mock for prototype
+            setCareerData(mockCareerData);
+          }
+        })
+        .catch(err => {
+          console.error("Failed to load profile:", err);
+          setCareerData(mockCareerData);
+        })
+        .finally(() => setIsLoadingProfile(false));
+    }
+  }, [user]);
 
   // Automatically process initial job data
   useEffect(() => {
-    if (initialJobData && !job && !isAnalyzingJob) {
+    if (initialJobData && !job && !isAnalyzingJob && !isLoadingProfile) {
       // Load sample profile automatically if none exists
       const dataToUse = careerData || mockCareerData;
       if (!careerData) {
@@ -22,7 +47,11 @@ export function useApplyWorkspace({ initialJobData }: UseApplyWorkspaceProps) {
       }
       
       setIsAnalyzingJob(true);
-      extractJobOpportunity('text', `Title: ${initialJobData.title}\nCompany: ${initialJobData.company}\n\n${initialJobData.text}`, dataToUse)
+      const isUrl = initialJobData.text.trim().startsWith('http://') || initialJobData.text.trim().startsWith('https://');
+      const inputType = isUrl ? 'url' : 'text';
+      const content = initialJobData.text;
+      
+      extractJobOpportunity(inputType, content, dataToUse, initialJobData.title, initialJobData.company)
         .then(extractedJob => setJob(extractedJob))
         .catch(err => {
           console.error("Failed to analyze initial job:", err);
@@ -30,7 +59,7 @@ export function useApplyWorkspace({ initialJobData }: UseApplyWorkspaceProps) {
         })
         .finally(() => setIsAnalyzingJob(false));
     }
-  }, [initialJobData, job, isAnalyzingJob, careerData]);
+  }, [initialJobData, job, isAnalyzingJob, careerData, isLoadingProfile]);
 
   const handleLoadSampleProfile = () => {
     setCareerData(mockCareerData);
@@ -40,15 +69,21 @@ export function useApplyWorkspace({ initialJobData }: UseApplyWorkspaceProps) {
   const handleAnalyzeJob = async (jobTitle: string, companyName: string, rawText: string) => {
     if (!careerData) {
       alert("Please load a profile first.");
-      return;
+      return null;
     }
     setIsAnalyzingJob(true);
     try {
-      const extractedJob = await extractJobOpportunity('text', `Title: ${jobTitle}\nCompany: ${companyName}\n\n${rawText}`, careerData);
+      const isUrl = rawText.trim().startsWith('http://') || rawText.trim().startsWith('https://');
+      const inputType = isUrl ? 'url' : 'text';
+      const content = rawText;
+      
+      const extractedJob = await extractJobOpportunity(inputType, content, careerData, jobTitle, companyName);
       setJob(extractedJob);
+      return extractedJob;
     } catch (err) {
       console.error("Failed to analyze job:", err);
       alert("Failed to analyze job. See console for details.");
+      return null;
     } finally {
       setIsAnalyzingJob(false);
     }
@@ -56,11 +91,18 @@ export function useApplyWorkspace({ initialJobData }: UseApplyWorkspaceProps) {
 
   const handleUpdateCareerData = (data: CareerDatabase) => {
     setCareerData(data);
+    if (user) {
+      saveUserCareerData(user.uid, data).catch(err => {
+        console.error("Failed to auto-save career data:", err);
+      });
+    }
   };
 
   const handleSave = async (userId: string, data: CareerDatabase) => {
     console.log("Saving data for user", userId, data);
-    // Mock save
+    if (user) {
+      await saveUserCareerData(user.uid, data);
+    }
   };
 
   return {
@@ -69,6 +111,7 @@ export function useApplyWorkspace({ initialJobData }: UseApplyWorkspaceProps) {
     job,
     setJob,
     isAnalyzingJob,
+    isLoadingProfile,
     handleLoadSampleProfile,
     handleAnalyzeJob,
     handleUpdateCareerData,

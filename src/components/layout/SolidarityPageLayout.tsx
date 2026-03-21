@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 
 export interface SolidarityPageLayoutProps {
-  heroNode: React.ReactNode;
+  heroNode?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }
@@ -21,7 +21,7 @@ export function SolidarityPageLayout({
   const opacity = useTransform(scrollY, [0, 500], [1, 0]);
 
   return (
-    <div className={`relative min-h-screen w-full ${className}`}>
+    <div className={`relative h-full w-full ${className}`}>
       {/* Absolute inset-0 -z-10 container logic */}
       <motion.div
         style={{ y, opacity }}
@@ -39,7 +39,7 @@ export function SolidarityPageLayout({
       </motion.div>
 
       {/* Page Content */}
-      <div className="relative z-10">
+      <div className="relative z-10 h-full flex flex-col">
         {children}
       </div>
     </div>

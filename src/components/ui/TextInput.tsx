@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
 
 type Props = {
@@ -13,32 +13,44 @@ type Props = {
 };
 
 export function TextInput({ label, placeholder, value, onChange, onFocus, onBlur, onKeyDown, type = "text" }: Props) {
+  const [isFocused, setIsFocused] = useState(false);
+  const hasValue = value !== undefined && value.length > 0;
+  const isFloating = isFocused || hasValue;
+
   return (
-    <div className="flex flex-col gap-3">
-      <label className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">
+    <div className="relative pt-6">
+      <motion.label 
+        initial={false}
+        animate={{
+          y: isFloating ? -28 : 16,
+          scale: isFloating ? 0.85 : 1,
+          color: isFocused ? 'var(--sys-color-solidarityRed-base)' : 'var(--sys-color-worker-ash-base)'
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className="absolute left-4 origin-top-left font-bold uppercase tracking-widest pointer-events-none z-10"
+      >
         {label}
-      </label>
+      </motion.label>
       <motion.input
         type={type}
         whileFocus={{ scale: 1.01, x: 2 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        placeholder={placeholder}
+        placeholder={isFocused ? placeholder : ""}
         value={value}
         onChange={onChange}
         onFocus={(e) => {
-          e.currentTarget.style.borderColor = 'var(--sys-color-solidarityRed-base)';
+          setIsFocused(true);
           onFocus?.(e);
         }}
         onBlur={(e) => {
-          e.currentTarget.style.borderColor = 'var(--sys-color-outline-variant)';
+          setIsFocused(false);
           onBlur?.(e);
         }}
         onKeyDown={onKeyDown}
-        className="w-full p-4 border text-lg type-melancholyLonging focus:outline-none focus:shadow-[var(--sys-shadow-elevation2Placard)] text-[var(--sys-color-paperWhite-base)] transition-colors"
+        className={`w-full p-4 border-2 text-lg type-melancholyLonging focus:outline-none focus:shadow-[var(--sys-shadow-elevation2Placard)] text-[var(--sys-color-paperWhite-base)] transition-colors ${isFocused ? 'border-[var(--sys-color-solidarityRed-base)]' : 'border-[var(--sys-color-outline-variant)]'}`}
         style={{ 
           borderRadius: 'var(--sys-shape-blockRiot01)',
           background: 'var(--sys-color-charcoalBackground-steps-0)',
-          borderColor: 'var(--sys-color-outline-variant)'
         }}
       />
     </div>

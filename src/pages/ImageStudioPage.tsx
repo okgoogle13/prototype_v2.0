@@ -1,52 +1,351 @@
 /**
  * CLASSIFICATION: Support-Reference Page
- * Prototype-only reference page.
+ * ATS Resume Optimiser Page
  */
-import React from "react";
-import { motion } from "motion/react";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";
 import { SolidarityPageLayout } from "../components/layout/SolidarityPageLayout";
-import { LayeredHero } from "../components/layout/LayeredHero";
-import { ImageStudio } from "../components/ImageStudio";
+import { PrimaryButton } from "../components/ui/PrimaryButton";
+import { Card } from "../components/ui/Card";
+import { Badge } from "../components/ui/Badge";
+import { Search, Target, Zap, ShieldCheck, CheckCircle2, XCircle, AlertCircle, ArrowRight, Download, FileText, Loader2 } from "lucide-react";
+import { GoogleGenAI, Type } from "@google/genai";
 
-export function ImageStudioPage() {
-  return (
-    <SolidarityPageLayout
-      heroNode={
-        <LayeredHero 
-          imageUrl="https://picsum.photos/seed/imagestudio/1920/1080?blur=2" 
-          altText="Image Studio Hero" 
-        />
-      }
-    >
-      <WorkspaceLayout>
-        <motion.div 
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.15
-              }
-            }
-          }}
-        >
-          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="mb-12">
-            <h1 className="text-7xl type-extremeVariableContrast text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none mb-4">
-              Image <br/><span className="text-[var(--sys-color-solidarityRed-base)]">Studio</span>
-            </h1>
-            <p className="text-xl type-laborExploitationPressure text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest">
-              GENERATE AND EDIT IMAGES
-            </p>
-          </motion.div>
+import { User } from 'firebase/auth';
+
+interface Props {
+  user?: User | null;
+}
+
+export function OptimisePage({ user }: Props) {
+  const [isScanned, setIsScanned] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [jobDescription, setJobDescription] = useState("");
+  const [selectedResume, setSelectedResume] = useState("Software Engineer Resume");
+  const [recommendations, setRecommendations] = useState<string[]>([
+    "Add \"React Testing Library\" to your skills section to match the job requirement.",
+    "Quantify your impact in your Senior Frontend Engineer role with metrics.",
+    "Ensure your resume is in PDF format for optimal ATS parsing."
+  ]);
+
+  const handleScan = async () => {
+    if (!jobDescription) return;
+    
+    setIsAnalyzing(true);
+    
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: `
+          Analyze this job description and provide 3 specific, actionable recommendations to optimize a resume for it.
           
-          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-            <ImageStudio />
-          </motion.div>
+          RESUME CONTEXT:
+          Name: Alex Johnson
+          Title: Senior Frontend Engineer
+          Skills: React, TypeScript, Node.js, GraphQL, Tailwind CSS, AWS
+          
+          JOB DESCRIPTION:
+          ${jobDescription}
+          
+          Return exactly 3 recommendations as a JSON array of strings.
+        `,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING },
+            description: "An array of 3 strings containing resume optimization recommendations."
+          },
+          tools: [{ googleSearch: {} }]
+        }
+      });
+
+      const result = JSON.parse(response.text);
+      if (Array.isArray(result) && result.length > 0) {
+        setRecommendations(result.slice(0, 3));
+      }
+      
+      setIsScanned(true);
+    } catch (error) {
+      console.error("Analysis failed:", error);
+      // Fallback to defaults if AI fails
+      setIsScanned(true);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  return (
+    <SolidarityPageLayout>
+      <div className="w-full p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border-b border-[var(--sys-color-outline-variant)]">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-7xl mx-auto"
+        >
+          <h1 className="text-7xl font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none mb-2">
+            OPTIMISE
+          </h1>
+          <p className="text-4xl font-bold text-[var(--sys-color-inkGold-base)] uppercase tracking-tight mb-4">
+            BEAT THE BOTS.
+          </p>
+          <p className="text-xl text-[var(--sys-color-worker-ash-base)] font-medium">
+            Match your resume to the job. See your score, fix the gaps.
+          </p>
         </motion.div>
+      </div>
+
+      <WorkspaceLayout>
+        <div className="flex flex-col md:flex-row w-full h-[calc(100vh-280px)] overflow-hidden">
+          {/* LEFT PANE: Inputs */}
+          <div className="w-full md:w-[400px] flex-shrink-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] flex flex-col gap-6 overflow-y-auto rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none md:rounded-br-none border-r border-[var(--sys-color-outline-variant)]">
+            <div>
+              <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] mb-4">Your Resume</h2>
+              <select 
+                value={selectedResume}
+                onChange={(e) => setSelectedResume(e.target.value)}
+                className="w-full p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-xl focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors mb-4"
+              >
+                <option>Software Engineer Resume</option>
+                <option>Full Stack Resume</option>
+                <option>Current Profile Resume</option>
+              </select>
+
+              <div className="p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-xl border border-[var(--sys-color-outline-variant)]">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-[var(--sys-color-solidarityRed-base)] flex items-center justify-center text-white font-bold">AJ</div>
+                  <div>
+                    <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)]">Alex Johnson</p>
+                    <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] uppercase font-bold">Senior Frontend Engineer</p>
+                  </div>
+                </div>
+                <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] leading-relaxed">
+                  <span className="font-bold text-[var(--sys-color-inkGold-base)]">SKILLS:</span> React, TypeScript, Node.js, GraphQL, Tailwind CSS, AWS...
+                </p>
+              </div>
+            </div>
+
+            <div className="h-px bg-[var(--sys-color-outline-variant)] w-full" />
+
+            <div className="flex-1 flex flex-col">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] mb-4">Target Job</h2>
+              <textarea
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+                placeholder="Paste job description here or load from Workspace..."
+                className="flex-1 w-full p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-xl focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors resize-none mb-6 min-h-[200px]"
+              />
+              
+              <PrimaryButton 
+                label={isAnalyzing ? "ANALYZING..." : "SCAN & SCORE →"} 
+                onClick={handleScan}
+                variant="strike"
+                disabled={isAnalyzing || !jobDescription}
+              />
+            </div>
+          </div>
+
+          {/* RIGHT PANE: Results */}
+          <div className="flex-1 min-width-0 bg-[var(--sys-color-charcoalBackground-steps-1)] flex flex-col overflow-y-auto rounded-b-[28px] md:rounded-r-[28px] md:rounded-tl-none md:rounded-bl-none p-8">
+            <AnimatePresence mode="wait">
+              {!isScanned ? (
+                <motion.div 
+                  key="pre-scan"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex-1 flex flex-col items-center justify-center text-center"
+                >
+                  <div className="relative w-[120px] h-[120px] mb-6">
+                    <svg className="w-full h-full" viewBox="0 0 100 100">
+                      <circle 
+                        cx="50" cy="50" r="45" 
+                        fill="none" 
+                        stroke="var(--sys-color-outline-variant)" 
+                        strokeWidth="8" 
+                        strokeDasharray="10 5"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center text-4xl font-bold text-[var(--sys-color-worker-ash-base)]">
+                      --
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-12">Run a scan to see your match score</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl">
+                    <FeatureCard 
+                      icon={<Target className="text-[var(--sys-color-inkGold-base)]" />}
+                      title="Keyword Match"
+                      desc="Identify critical missing industry terms."
+                    />
+                    <FeatureCard 
+                      icon={<Zap className="text-[var(--sys-color-solidarityRed-base)]" />}
+                      title="Skills Gap"
+                      desc="Bridge the divide between you and the role."
+                    />
+                    <FeatureCard 
+                      icon={<ShieldCheck className="text-[var(--sys-color-signalGreen-base)]" />}
+                      title="ATS Check"
+                      desc="Ensure your formatting is readable by bots."
+                    />
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="post-scan"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="space-y-12"
+                >
+                  <div className="flex flex-col md:flex-row items-center gap-12 bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
+                    <div className="relative w-[140px] h-[140px]">
+                      <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                        <circle 
+                          cx="50" cy="50" r="45" 
+                          fill="none" 
+                          stroke="var(--sys-color-outline-variant)" 
+                          strokeWidth="8" 
+                        />
+                        <circle 
+                          cx="50" cy="50" r="45" 
+                          fill="none" 
+                          stroke="var(--sys-color-signalGreen-base)" 
+                          strokeWidth="8" 
+                          strokeDasharray="282.7"
+                          strokeDashoffset={282.7 * (1 - 0.73)}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center text-5xl font-bold text-[var(--sys-color-paperWhite-base)]">
+                        73
+                      </div>
+                    </div>
+                    <div className="flex-1 text-center md:text-left">
+                      <p className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest mb-2">Match Score</p>
+                      <h2 className="text-6xl font-bold text-[var(--sys-color-paperWhite-base)] mb-6">73 <span className="text-2xl text-[var(--sys-color-worker-ash-base)]">/ 100</span></h2>
+                      <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                        <StatChip label="12 Keywords Found" color="green" />
+                        <StatChip label="8 Missing" color="orange" />
+                        <StatChip label="ATS Friendly ✓" color="green" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <section>
+                    <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider mb-6 border-l-4 border-[var(--sys-color-solidarityRed-base)] pl-4">Missing Keywords</h3>
+                    <div className="flex flex-wrap gap-3">
+                      <KeywordChip label="React Testing Library" status="missing" />
+                      <KeywordChip label="CI/CD" status="missing" />
+                      <KeywordChip label="Agile" status="missing" />
+                      <KeywordChip label="TypeScript" status="missing" />
+                      <KeywordChip label="React" status="found" />
+                      <KeywordChip label="Node.js" status="found" />
+                      <KeywordChip label="REST API" status="found" />
+                      <KeywordChip label="Git" status="found" />
+                    </div>
+                  </section>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <section>
+                      <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider mb-6">Skills Gap</h3>
+                      <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] rounded-2xl border border-[var(--sys-color-outline-variant)] overflow-hidden">
+                        <div className="grid grid-cols-2 bg-[var(--sys-color-charcoalBackground-steps-3)] p-3 border-b border-[var(--sys-color-outline-variant)]">
+                          <span className="text-[10px] font-bold uppercase text-[var(--sys-color-worker-ash-base)]">Your Skills</span>
+                          <span className="text-[10px] font-bold uppercase text-[var(--sys-color-worker-ash-base)]">Required</span>
+                        </div>
+                        <div className="p-4 space-y-3">
+                          <SkillRow label="React" has={true} />
+                          <SkillRow label="TypeScript" has={false} />
+                          <SkillRow label="Node.js" has={true} />
+                          <SkillRow label="GraphQL" has={true} />
+                          <SkillRow label="CI/CD" has={false} />
+                        </div>
+                      </div>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider mb-6">AI Recommendations</h3>
+                      <Card className="p-6 border-[var(--sys-color-inkGold-base)]/30">
+                        <ul className="space-y-4">
+                          {recommendations.map((rec, idx) => (
+                            <li key={idx} className="flex gap-3">
+                              <AlertCircle size={18} className="text-[var(--sys-color-inkGold-base)] flex-shrink-0 mt-0.5" />
+                              <p className="text-sm text-[var(--sys-color-worker-ash-base)]">
+                                {rec}
+                              </p>
+                            </li>
+                          ))}
+                        </ul>
+                      </Card>
+                    </section>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-4 pt-8">
+                    <PrimaryButton 
+                      label="APPLY SUGGESTIONS →" 
+                      onClick={() => {}} 
+                      variant="strike" 
+                    />
+                    <button className="flex-1 px-8 py-4 border border-[var(--sys-color-outline-variant)] rounded-xl font-bold uppercase tracking-widest text-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors flex items-center justify-center gap-2">
+                      <Download size={20} />
+                      Export Resume
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </WorkspaceLayout>
     </SolidarityPageLayout>
+  );
+}
+
+function FeatureCard({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) {
+  return (
+    <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] rounded-2xl border border-[var(--sys-color-outline-variant)] text-left hover:border-[var(--sys-color-worker-ash-base)] transition-colors">
+      <div className="mb-4">{icon}</div>
+      <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-2">{title}</h4>
+      <p className="text-xs text-[var(--sys-color-worker-ash-base)] leading-relaxed">{desc}</p>
+    </div>
+  );
+}
+
+function StatChip({ label, color }: { label: string, color: 'green' | 'orange' }) {
+  return (
+    <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
+      color === 'green' 
+        ? 'bg-[var(--sys-color-signalGreen-base)]/10 border-[var(--sys-color-signalGreen-base)] text-[var(--sys-color-signalGreen-base)]'
+        : 'bg-[var(--sys-color-inkGold-base)]/10 border-[var(--sys-color-inkGold-base)] text-[var(--sys-color-inkGold-base)]'
+    }`}>
+      {label}
+    </div>
+  );
+}
+
+function KeywordChip({ label, status }: { label: string, status: 'found' | 'missing' }) {
+  return (
+    <div className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider border transition-all ${
+      status === 'found'
+        ? 'bg-[var(--sys-color-signalGreen-base)]/20 border-[var(--sys-color-signalGreen-base)] text-[var(--sys-color-signalGreen-base)]'
+        : 'bg-transparent border-[var(--sys-color-inkGold-base)] text-[var(--sys-color-inkGold-base)] hover:bg-[var(--sys-color-inkGold-base)]/10'
+    }`}>
+      {label}
+    </div>
+  );
+}
+
+function SkillRow({ label, has }: { label: string, has: boolean }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm font-bold text-[var(--sys-color-paperWhite-base)]">{label}</span>
+      {has ? (
+        <CheckCircle2 size={18} className="text-[var(--sys-color-signalGreen-base)]" />
+      ) : (
+        <XCircle size={18} className="text-[var(--sys-color-solidarityRed-base)]" />
+      )}
+    </div>
   );
 }

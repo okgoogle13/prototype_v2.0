@@ -10,7 +10,7 @@ import { ApplyQuickWorkspaceReference } from './src/pages/ApplyQuickWorkspaceRef
 import { ProfileView } from './src/pages/ProfileView';
 import { PastApplicationsReference } from './src/pages/PastApplicationsReference';
 import { LibraryReferencePage } from './src/pages/LibraryReferencePage';
-import { ImageStudioPage } from './src/pages/ImageStudioPage';
+import { OptimisePage } from './src/pages/ImageStudioPage';
 import { JobInputPanel } from './src/components/feature/JobInputPanel';
 import { auth, signIn, logout } from './services/firebase';
 import { User, onAuthStateChanged } from 'firebase/auth';
@@ -21,7 +21,7 @@ const App: React.FC = () => {
   const [isGuest, setIsGuest] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   // Prototype-only activeTab state. Canonical routing belongs to the main repo.
-  const [activeTab, setActiveTab] = useState<'WORKSPACE' | 'PROFILE' | 'PAST' | 'STUDIO' | 'LIBRARY'>('WORKSPACE');
+  const [activeTab, setActiveTab] = useState<'WORKSPACE' | 'PROFILE' | 'PAST' | 'OPTIMISE' | 'LIBRARY'>('WORKSPACE');
   const [initialJobData, setInitialJobData] = useState<{title: string, company: string, text: string} | null>(null);
   const { isExtension } = useChromeExtension();
 
@@ -96,7 +96,7 @@ const App: React.FC = () => {
               Career<br/><span className="text-[var(--sys-color-solidarityRed-base)]">Copilot</span>
             </h1>
             <p className="text-xl type-melancholyLonging text-[var(--sys-color-worker-ash-base)] mb-12 max-w-xl">
-              A living manifesto for your career. No neutral canvas. Tailor your response.
+              Your career. Precisely targeted.
             </p>
             
             <div className="w-full mb-12">
@@ -104,6 +104,7 @@ const App: React.FC = () => {
                 onAnalyze={(title, company, text) => {
                   setInitialJobData({ title, company, text });
                   handleGuestLogin();
+                  return Promise.resolve();
                 }} 
                 isAnalyzing={false} 
               />
@@ -148,24 +149,23 @@ const App: React.FC = () => {
           </div>
           <div className="flex-1 w-full">
             <div 
-              className="w-full aspect-square md:aspect-video border flex flex-col items-center justify-center p-8 text-center relative overflow-hidden"
+              className="w-full aspect-square md:aspect-video flex items-center justify-center relative overflow-hidden"
               style={{ 
-                borderRadius: 'var(--sys-shape-blockRiot03)',
+                borderRadius: '24px',
                 background: 'var(--sys-color-charcoalBackground-steps-2)',
-                borderColor: 'var(--sys-color-outline-variant)'
               }}
             >
-              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
-              <h3 className="text-2xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-widest mb-4 relative z-10">
-                Hero Illustration Placeholder
-              </h3>
-              <p className="text-sm type-melancholyLonging text-[var(--sys-color-worker-ash-base)] max-w-md relative z-10">
-                Archetype: Placard / Scaffold. Hard architectural lines. Asymmetric radii.
-                <br/><br/>
-                <strong className="text-[var(--sys-color-solidarityRed-base)] uppercase tracking-widest">CRITICAL RULE: Zero-Flora lockdown.</strong>
-                <br/>
-                Absolutely NO Australian flora, eucalyptus, or wattle concepts permitted in the ultimate imagery.
-              </p>
+              <svg width="100%" height="100%" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="var(--sys-color-outline-variant)" strokeWidth="1" opacity="0.3"/>
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+                <circle cx="100" cy="150" r="60" fill="var(--sys-color-solidarityRed-base)" opacity="0.1" />
+                <rect x="200" y="80" width="120" height="120" rx="24" fill="var(--sys-color-inkGold-base)" opacity="0.05" transform="rotate(15 260 140)" />
+                <path d="M 50 250 Q 200 100 350 250" fill="none" stroke="var(--sys-color-metalBlue-base)" strokeWidth="2" opacity="0.2" />
+              </svg>
             </div>
           </div>
         </div>
@@ -176,11 +176,11 @@ const App: React.FC = () => {
   return (
     <AppShell onLogout={handleLogout} activeTab={activeTab} onTabChange={setActiveTab}>
       {/* Canonical routing is owned by the main repo router. */}
-      {activeTab === 'WORKSPACE' && <ApplyQuickWorkspaceReference initialJobData={initialJobData} />}
-      {activeTab === 'PROFILE' && <ProfileView />}
-      {activeTab === 'PAST' && <PastApplicationsReference />}
-      {activeTab === 'LIBRARY' && <LibraryReferencePage />}
-      {activeTab === 'STUDIO' && <ImageStudioPage />}
+      {activeTab === 'WORKSPACE' && <ApplyQuickWorkspaceReference initialJobData={initialJobData} user={user} />}
+      {activeTab === 'PROFILE' && <ProfileView user={user} />}
+      {activeTab === 'PAST' && <PastApplicationsReference user={user} />}
+      {activeTab === 'LIBRARY' && <LibraryReferencePage user={user} />}
+      {activeTab === 'OPTIMISE' && <OptimisePage user={user} />}
     </AppShell>
   );
 };

@@ -3,115 +3,145 @@
  * Prototype-only reference page.
  */
 import React from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";
 import { SolidarityPageLayout } from "../components/layout/SolidarityPageLayout";
-import { LayeredHero } from "../components/layout/LayeredHero";
 import { JobInputPanel } from "../components/feature/JobInputPanel";
 import { StudioMatchPanel } from "../../components/StudioMatchPanel";
 import { SaveApplicationBar } from "../components/feature/SaveApplicationBar";
-import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { generateMatchAnalysis } from "../../services/geminiService";
 import { useApplyWorkspace } from "../hooks/useApplyWorkspace";
+import { Link, Target, Sparkles } from "lucide-react";
+
+import { User } from 'firebase/auth';
 
 interface Props {
   initialJobData?: { title: string; company: string; text: string } | null;
+  user?: User | null;
 }
 
-export function ApplyQuickWorkspaceReference({ initialJobData }: Props) {
+const StepCard = ({ number, icon: Icon, label, desc }: any) => (
+  <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] flex items-start gap-4" style={{ borderRadius: 'var(--sys-shape-radius-lg)' }}>
+    <div className="w-10 h-10 rounded-full bg-[var(--sys-color-solidarityRed-base)] flex items-center justify-center text-[var(--sys-color-paperWhite-base)] font-bold shrink-0">
+      {number}
+    </div>
+    <div>
+      <div className="flex items-center gap-2 mb-1">
+        <Icon size={18} className="text-[var(--sys-color-inkGold-base)]" />
+        <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wide">{label}</h4>
+      </div>
+      <p className="text-sm text-[var(--sys-color-worker-ash-base)]">{desc}</p>
+    </div>
+  </div>
+);
+
+export function ApplyQuickWorkspaceReference({ initialJobData, user }: Props) {
   const {
     careerData,
     job,
     isAnalyzingJob,
-    handleLoadSampleProfile,
+    isLoadingProfile,
     handleAnalyzeJob,
     handleUpdateCareerData,
     handleSave
-  } = useApplyWorkspace({ initialJobData });
+  } = useApplyWorkspace({ initialJobData, user });
+
+  if (isLoadingProfile) {
+    return (
+      <SolidarityPageLayout>
+        <WorkspaceLayout>
+          <div className="flex justify-center items-center py-20">
+            <div className="w-12 h-12 border-4 border-t-transparent animate-spin" style={{ borderColor: 'var(--sys-color-solidarityRed-base) transparent var(--sys-color-solidarityRed-base) var(--sys-color-solidarityRed-base)', borderRadius: 'var(--sys-shape-cutoutRiot01)' }} />
+          </div>
+        </WorkspaceLayout>
+      </SolidarityPageLayout>
+    );
+  }
 
   return (
-    <SolidarityPageLayout
-      heroNode={
-        <LayeredHero 
-          imageUrl="https://picsum.photos/seed/workspace/1920/1080?blur=2" 
-          altText="Workspace Hero" 
-        />
-      }
-    >
+    <SolidarityPageLayout>
       <WorkspaceLayout>
-        <motion.div 
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.15
-              }
-            }
-          }}
-        >
-          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="mb-16">
-            <div className="flex flex-col md:flex-row gap-12 items-center">
-              <div className="flex-1">
-                <h1 className="text-7xl md:text-8xl type-extremeVariableContrast text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none mb-6">
-                  Application <br/><span className="text-[var(--sys-color-solidarityRed-base)]">Workspace</span>
-                </h1>
-                <p className="text-xl type-laborExploitationPressure text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest mb-8">
-                  NO NEUTRAL CANVAS. TAILOR YOUR RESPONSE.
-                </p>
-                <PrimaryButton label="Load Sample Profile" onClick={handleLoadSampleProfile} variant="tonal" />
-              </div>
-              <div className="flex-1 w-full">
-                <div 
-                  className="w-full aspect-video border flex flex-col items-center justify-center p-8 text-center relative overflow-hidden"
-                  style={{ 
-                    borderRadius: 'var(--sys-shape-blockRiot03)',
-                    background: 'var(--sys-color-charcoalBackground-steps-2)',
-                    borderColor: 'var(--sys-color-outline-variant)'
-                  }}
-                >
-                  <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
-                  <h3 className="text-2xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-widest mb-4 relative z-10">
-                    Hero Illustration Placeholder
-                  </h3>
-                  <p className="text-sm type-melancholyLonging text-[var(--sys-color-worker-ash-base)] max-w-md relative z-10">
-                    Archetype: Placard / Scaffold. Hard architectural lines. Asymmetric radii.
-                    <br/><br/>
-                    <strong className="text-[var(--sys-color-solidarityRed-base)] uppercase tracking-widest">CRITICAL RULE: Zero-Flora lockdown.</strong>
-                    <br/>
-                    Absolutely NO Australian flora, eucalyptus, or wattle concepts permitted in the ultimate imagery.
-                  </p>
-                </div>
-              </div>
+        <div className="flex flex-col md:flex-row w-full h-full overflow-hidden">
+          {/* LEFT PANE: Target Job Input */}
+          <div 
+            className="w-full md:w-[440px] flex-shrink-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] flex flex-col gap-4 overflow-y-auto rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none md:rounded-br-none"
+          >
+            <div className="mb-2">
+              <h1 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">
+                Target <span className="text-[var(--sys-color-solidarityRed-base)]">Job</span>
+              </h1>
+              <p className="text-[clamp(20px,5vw,28px)] leading-[clamp(28px,6vw,36px)] type-laborExploitationPressure text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest">
+                NO NEUTRAL CANVAS.
+              </p>
             </div>
-          </motion.div>
-          
-          <div className="space-y-12">
-            {!job ? (
-              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-                <JobInputPanel onAnalyze={handleAnalyzeJob} isAnalyzing={isAnalyzingJob} />
-              </motion.div>
-            ) : (
-              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-                {careerData && (
-                  <StudioMatchPanel 
-                    careerData={careerData} 
-                    job={job} 
-                    onUpdate={handleUpdateCareerData}
-                    userId="prototype-user"
-                    onAnalyze={generateMatchAnalysis}
-                    onSave={handleSave}
-                  />
-                )}
-              </motion.div>
-            )}
-            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+
+            <JobInputPanel onAnalyze={handleAnalyzeJob} isAnalyzing={isAnalyzingJob} />
+            
+            <div className="mt-auto pt-4">
               <SaveApplicationBar />
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
+
+          {/* RIGHT PANE: Analysis / How It Works */}
+          <div 
+            className="flex-1 min-width-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-1)] flex flex-col overflow-y-auto rounded-b-[28px] md:rounded-r-[28px] md:rounded-tl-none md:rounded-bl-none"
+          >
+            <AnimatePresence mode="wait">
+              {!job ? (
+                <motion.div 
+                  key="how-it-works"
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -16 }}
+                  transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+                  className="w-full max-w-2xl mx-auto flex flex-col justify-center h-full"
+                >
+                  <h2 className="text-[clamp(22px,6vw,28px)] leading-[clamp(30px,7vw,36px)] type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-6 text-center">How It Works</h2>
+                  <div className="grid grid-cols-1 gap-4">
+                    <StepCard 
+                      number="1" 
+                      icon={Link} 
+                      label="Drop a URL" 
+                      desc="AI reads the job posting and extracts key requirements automatically." 
+                    />
+                    <StepCard 
+                      number="2" 
+                      icon={Target} 
+                      label="Match Scored" 
+                      desc="See exactly where you fit and identify critical skill gaps instantly." 
+                    />
+                    <StepCard 
+                      number="3" 
+                      icon={Sparkles} 
+                      label="Tailored Response" 
+                      desc="Resume + cover letter generated in seconds, optimized for this specific role." 
+                    />
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="analysis-result"
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -16 }}
+                  transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+                  className="w-full"
+                >
+                  {careerData && (
+                    <StudioMatchPanel 
+                      careerData={careerData} 
+                      job={job} 
+                      onUpdate={handleUpdateCareerData}
+                      userId={user?.uid || "prototype-user"}
+                      onAnalyze={generateMatchAnalysis}
+                      onSave={handleSave}
+                    />
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </WorkspaceLayout>
     </SolidarityPageLayout>
   );
