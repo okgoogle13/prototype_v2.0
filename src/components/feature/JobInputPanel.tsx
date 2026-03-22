@@ -21,6 +21,7 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
   const {
     jobUrl,
     setJobUrl,
+    rawText,
     setRawText,
     isManualExpanded,
     setIsManualExpanded,
@@ -51,12 +52,22 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
       
       <div className="relative z-10">
         {isAnalyzing ? (
-          <StatusSpecificLoadingState />
+          <div className="flex flex-col items-center justify-center py-12 gap-6">
+            <StatusSpecificLoadingState />
+            <div className="text-center">
+              <p className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] animate-pulse">
+                Analysing job…
+              </p>
+              <p className="text-sm text-[var(--sys-color-worker-ash-base)] opacity-60">
+                Tailoring your application workspace...
+              </p>
+            </div>
+          </div>
         ) : (
           <div className="flex flex-col gap-6">
             <SectionHeader 
-              title="Target Job" 
-              subtitle="Drop in a URL. We'll handle the rest."
+              title="Apply Now" 
+              subtitle="Drop in a job URL and we'll prep your full application in seconds."
             />
             <div className="flex flex-col gap-4">
               <TextInput 
@@ -116,7 +127,7 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                   onClick={() => setIsManualExpanded(true)}
                   className="text-left text-sm text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors mt-2"
                 >
-                  Don't have a URL? Add description manually →
+                  No URL? Describe the role instead →
                 </button>
               )}
 
@@ -139,6 +150,8 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                       <DocumentInput 
                         onProcess={handleFileProcess} 
                         isLoading={isExtracting} 
+                        onRawTextChange={setRawText}
+                        initialRawText={rawText}
                       />
                     </div>
                   </motion.div>
@@ -152,8 +165,8 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                     <div>
-                      <h4 className="font-bold text-[var(--sys-color-protestMetalBlue-steps-5)]">One click import.</h4>
-                      <p className="text-sm text-[var(--sys-color-protestMetalBlue-steps-4)] opacity-80">Install our extension to import jobs in one click.</p>
+                      <h4 className="font-bold text-[var(--sys-color-protestMetalBlue-steps-5)]">Apply faster.</h4>
+                      <p className="text-sm text-[var(--sys-color-protestMetalBlue-steps-4)] opacity-80">Import directly from job boards.</p>
                     </div>
                   </div>
                   <button className="bg-[var(--sys-color-charcoalBackground-steps-3)] hover:opacity-90 text-[var(--sys-color-worker-ash-base)] px-4 py-2 rounded font-bold text-sm transition-colors">
@@ -164,7 +177,7 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
               
               <div className="flex justify-end mt-4">
                 <motion.div whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-                  <PrimaryButton label="Analyze Requirements" onClick={handleAnalyze} variant="strike" />
+                  <PrimaryButton label="Start My Application" onClick={handleAnalyze} variant="strike" />
                 </motion.div>
               </div>
             </div>

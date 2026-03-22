@@ -12,19 +12,29 @@ interface DocumentInputProps {
   onProcess: (files: File[], rawText?: string, fileData?: { data: string; mimeType: string }[]) => void;
   isLoading: boolean;
   hideTitle?: boolean;
+  onRawTextChange?: (text: string) => void;
+  initialRawText?: string;
 }
 
 const MAX_FILES = 10; // Reduced for prototype stability
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
 const ALLOWED_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
 
-export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoading, hideTitle }) => {
+export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoading, hideTitle, onRawTextChange, initialRawText = '' }) => {
   const [files, setFiles] = useState<File[]>([]);
-  const [rawText, setRawText] = useState('');
+  const [rawText, setRawText] = useState(initialRawText);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isReading, setIsReading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newText = e.target.value;
+    setRawText(newText);
+    if (onRawTextChange) {
+      onRawTextChange(newText);
+    }
+  };
 
   const readFileAsBase64 = (file: File): Promise<{ data: string; mimeType: string }> => {
     return new Promise((resolve, reject) => {
@@ -156,7 +166,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoadi
             <textarea
               id="rawText"
               value={rawText}
-              onChange={(e) => setRawText(e.target.value)}
+              onChange={handleTextChange}
               placeholder="If your PDF fails to upload, paste your unformatted resume or job description here..."
               className="flex-grow p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] focus:border-[var(--sys-color-primary-base)] focus:outline-none focus:shadow-[var(--sys-shadow-elevation2Placard)] transition-all resize-y"
               style={{ borderRadius: 'var(--sys-shape-blockRiot01)', minHeight: '200px' }}
