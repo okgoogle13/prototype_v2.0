@@ -58,6 +58,12 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
     isGeneratingKSC,
     coverLetterInstructions,
     setCoverLetterInstructions,
+    coverLetterTone,
+    setCoverLetterTone,
+    coverLetterKeyPoints,
+    setCoverLetterKeyPoints,
+    useAuthenticVoice,
+    setUseAuthenticVoice,
     kscInstructions,
     setKscInstructions,
     handleAnalyze,
@@ -74,6 +80,10 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
     onAnalyze,
     onSave
   });
+
+  const handleAddSuggestion = (suggestion: string) => {
+    setCoverLetterKeyPoints(prev => prev ? `${prev}\n${suggestion}` : suggestion);
+  };
 
   if (!analysis && !isLoading) {
     return (
@@ -213,32 +223,107 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
                 onChange={(e) => setCoverLetterContent(e.target.value)}
               />
             </div>
+
+            {analysis?.Cover_Letter_Suggestions && analysis.Cover_Letter_Suggestions.length > 0 && (
+              <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-[var(--sys-shape-radius-xl)] border border-[var(--sys-color-concreteGrey-steps-0)] shadow-lg">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles size={18} className="text-[var(--sys-color-inkGold-base)]" />
+                  <h3 style={{ ...M3Type.titleMedium, color: 'var(--sys-color-paperWhite-base)' }}>Smart Suggestions</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {analysis.Cover_Letter_Suggestions.map((suggestion, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleAddSuggestion(suggestion)}
+                      className="px-4 py-2 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-concreteGrey-steps-0)] rounded-full text-xs font-medium text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] hover:border-cyan-500/50 transition-all flex items-center gap-2"
+                    >
+                      <span>{suggestion}</span>
+                      <span className="text-cyan-500">+</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             
-            <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-[var(--sys-shape-radius-xl)] border border-[var(--sys-color-concreteGrey-steps-0)] shadow-lg">
-              <label className="block text-sm font-medium text-[var(--sys-color-worker-ash-base)] mb-3">
-                Not quite right? Tell the AI what to change (e.g., 'Make it more formal' or 'Focus more on leadership').
-              </label>
-              <div className="flex gap-4">
-                <input
-                  type="text"
-                  value={coverLetterInstructions}
-                  onChange={(e) => setCoverLetterInstructions(e.target.value)}
-                  placeholder="Enter instructions for regeneration..."
-                  className="flex-1 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-concreteGrey-steps-0)] rounded-[var(--sys-shape-radius-lg)] px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none focus:border-cyan-500/50"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && coverLetterInstructions.trim() && !isGeneratingCoverLetter) {
-                      handleGenerateCoverLetter();
-                    }
-                  }}
-                />
-                <M3Button
-                  variant="outlined"
-                  onClick={handleGenerateCoverLetter}
-                  disabled={isGeneratingCoverLetter || !coverLetterInstructions.trim()}
-                  className="px-6 py-3 flex items-center gap-2"
-                >
-                  {isGeneratingCoverLetter ? 'Regenerating...' : 'Regenerate'}
-                </M3Button>
+            <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-[var(--sys-shape-radius-xl)] border border-[var(--sys-color-concreteGrey-steps-0)] shadow-lg space-y-6">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-bold text-[var(--sys-color-paperWhite-base)]">
+                  Tailoring & Instructions
+                </label>
+                {careerData.Voice_Profiles && careerData.Voice_Profiles.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      id="useVoice" 
+                      checked={useAuthenticVoice} 
+                      onChange={(e) => setUseAuthenticVoice(e.target.checked)}
+                      className="w-4 h-4 accent-cyan-500"
+                    />
+                    <label htmlFor="useVoice" className="text-xs font-medium text-[var(--sys-color-worker-ash-base)] cursor-pointer">
+                      Use Authentic Voice Profile
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Tone</label>
+                  <select 
+                    value={coverLetterTone}
+                    onChange={(e) => setCoverLetterTone(e.target.value)}
+                    className="w-full bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-concreteGrey-steps-0)] rounded-[var(--sys-shape-radius-lg)] px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none focus:border-cyan-500/50"
+                  >
+                    <option value="Professional">Professional (Default)</option>
+                    <option value="Enthusiastic">Enthusiastic</option>
+                    <option value="Analytical">Analytical</option>
+                    <option value="Executive">Executive</option>
+                    <option value="Creative">Creative</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Key Points to Emphasize</label>
+                  <input
+                    type="text"
+                    value={coverLetterKeyPoints}
+                    onChange={(e) => setCoverLetterKeyPoints(e.target.value)}
+                    placeholder="e.g. 'My 5 years in AWS', 'Led team of 20'..."
+                    className="w-full bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-concreteGrey-steps-0)] rounded-[var(--sys-shape-radius-lg)] px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none focus:border-cyan-500/50"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Specific Revision Instructions</label>
+                <div className="flex gap-4">
+                  <input
+                    type="text"
+                    value={coverLetterInstructions}
+                    onChange={(e) => setCoverLetterInstructions(e.target.value)}
+                    placeholder="e.g. 'Mention my interest in their recent sustainability report'..."
+                    className="flex-1 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-concreteGrey-steps-0)] rounded-[var(--sys-shape-radius-lg)] px-4 py-3 text-[var(--sys-color-paperWhite-base)] focus:outline-none focus:border-cyan-500/50"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && (coverLetterInstructions.trim() || coverLetterKeyPoints.trim()) && !isGeneratingCoverLetter) {
+                        handleGenerateCoverLetter();
+                      }
+                    }}
+                  />
+                  <M3Button
+                    variant="filled"
+                    onClick={handleGenerateCoverLetter}
+                    disabled={isGeneratingCoverLetter || (!coverLetterInstructions.trim() && !coverLetterKeyPoints.trim() && coverLetterTone === 'Professional' && useAuthenticVoice)}
+                    className="px-6 py-3 flex items-center gap-2"
+                  >
+                    {isGeneratingCoverLetter ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Regenerating...
+                      </>
+                    ) : (
+                      'Regenerate'
+                    )}
+                  </M3Button>
+                </div>
               </div>
             </div>
 

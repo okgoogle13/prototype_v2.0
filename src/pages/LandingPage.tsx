@@ -60,12 +60,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onGuestLogin 
                   Explore as guest
                 </M3Button>
                 
-                <M3Button 
-                  variant="text"
-                  onClick={() => {}}
-                >
-                  Create account / register
-                </M3Button>
+                <div className="flex items-center gap-2 mt-2">
+                  <span style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>New here?</span>
+                  <M3Button 
+                    variant="text"
+                    onClick={onLogin}
+                    style={{ padding: '0 8px', minHeight: 'auto', color: 'var(--sys-color-solidarityRed-base)' }}
+                  >
+                    Create account
+                  </M3Button>
+                </div>
               </div>
             </div>
           </motion.div>

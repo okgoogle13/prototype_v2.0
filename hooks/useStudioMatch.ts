@@ -60,6 +60,9 @@ export function useStudioMatch({
   const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
   const [isGeneratingKSC, setIsGeneratingKSC] = useState(false);
   const [coverLetterInstructions, setCoverLetterInstructions] = useState('');
+  const [coverLetterTone, setCoverLetterTone] = useState('Professional');
+  const [coverLetterKeyPoints, setCoverLetterKeyPoints] = useState('');
+  const [useAuthenticVoice, setUseAuthenticVoice] = useState(true);
   const [kscInstructions, setKscInstructions] = useState('');
 
   const unlockStep = (step: string) => {
@@ -95,11 +98,21 @@ export function useStudioMatch({
   const handleGenerateCoverLetter = async () => {
     setIsGeneratingCoverLetter(true);
     try {
-      const result = await generateCoverLetter(careerData, job, coverLetterInstructions);
+      const activeVoiceProfile = useAuthenticVoice && careerData.Voice_Profiles && careerData.Voice_Profiles.length > 0 
+        ? careerData.Voice_Profiles[0] 
+        : undefined;
+
+      const result = await generateCoverLetter(careerData, job, {
+        instructions: coverLetterInstructions,
+        tone: coverLetterTone,
+        keyPoints: coverLetterKeyPoints,
+        voiceProfile: activeVoiceProfile
+      });
       setAnalysis(prev => prev ? { ...prev, Cover_Letter_Draft: result.Cover_Letter_Draft, Cover_Letter_Audit: result.Cover_Letter_Audit } : null);
       setCoverLetterContent(result.Cover_Letter_Draft);
       unlockStep('coverLetter');
       setCoverLetterInstructions('');
+      setCoverLetterKeyPoints('');
     } catch (err) {
       console.error("Failed to generate cover letter:", err);
     } finally {
@@ -191,6 +204,12 @@ export function useStudioMatch({
     isGeneratingKSC,
     coverLetterInstructions,
     setCoverLetterInstructions,
+    coverLetterTone,
+    setCoverLetterTone,
+    coverLetterKeyPoints,
+    setCoverLetterKeyPoints,
+    useAuthenticVoice,
+    setUseAuthenticVoice,
     kscInstructions,
     setKscInstructions,
     handleAnalyze,

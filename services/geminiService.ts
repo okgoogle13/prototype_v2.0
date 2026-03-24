@@ -565,6 +565,7 @@ export const generateMatchAnalysis = async (careerData: CareerDatabase, job: Job
          - HEADLINE: Provide a short, punchy Resume Headline (e.g., "Senior Software Engineer | React Specialist") that positions the candidate perfectly for this role.
       4. Select the top 5-7 most relevant Achievement_IDs from the candidate's Structured_Achievements that should be highlighted in the resume. Choose achievements that demonstrate impact related to the job's core responsibilities.
       5. Perform a "Best Practices" Audit for the Resume based on the Resume Knowledge Library (RKL) rules below.
+      6. Provide 3-4 Cover_Letter_Suggestions (brief sentences) that the user could use to tailor their cover letter, specifically based on their unique profile (e.g., "Highlight your recent AWS certification", "Focus on your leadership at [Company]").
 
       RESUME KNOWLEDGE LIBRARY (RKL) RULES:
       - [L1.L1.001] Single-column layout preferred (universally safer).
@@ -609,6 +610,7 @@ export const generateMatchAnalysis = async (careerData: CareerDatabase, job: Job
             Headline_Suggestion: { type: Type.STRING },
             Tailored_Summary: { type: Type.STRING },
             Recommended_Achievement_IDs: { type: Type.ARRAY, items: { type: Type.STRING } },
+            Cover_Letter_Suggestions: { type: Type.ARRAY, items: { type: Type.STRING } },
             Resume_Audit: {
                 type: Type.OBJECT,
                 properties: {
@@ -632,7 +634,7 @@ export const generateMatchAnalysis = async (careerData: CareerDatabase, job: Job
                 required: ["overallScore", "scanSimulation", "violations", "recommendations"]
             }
         },
-        required: ["Overall_Fit_Score", "Skill_Gaps", "Headline_Suggestion", "Tailored_Summary", "Recommended_Achievement_IDs", "Resume_Audit"]
+        required: ["Overall_Fit_Score", "Skill_Gaps", "Headline_Suggestion", "Tailored_Summary", "Recommended_Achievement_IDs", "Resume_Audit", "Cover_Letter_Suggestions"]
     };
 
     const response = await ai.models.generateContent({
@@ -652,7 +654,18 @@ export const generateMatchAnalysis = async (careerData: CareerDatabase, job: Job
     return JSON.parse(jsonString) as MatchAnalysis;
 };
 
-export const generateCoverLetter = async (careerData: CareerDatabase, job: JobOpportunity, instructions?: string): Promise<{ Cover_Letter_Draft: string, Cover_Letter_Audit: any }> => {
+export const generateCoverLetter = async (
+  careerData: CareerDatabase, 
+  job: JobOpportunity, 
+  options?: { 
+    instructions?: string;
+    tone?: string;
+    keyPoints?: string;
+    voiceProfile?: VoiceProfile;
+  }
+): Promise<{ Cover_Letter_Draft: string, Cover_Letter_Audit: any }> => {
+    const { instructions, tone, keyPoints, voiceProfile } = options || {};
+    
     const prompt = `
       You are an elite executive career coach and expert resume writer.
       Draft a compelling, modern Cover Letter tailored to this company and role, drawing specific metrics and examples from the candidate's achievements.
@@ -664,6 +677,17 @@ export const generateCoverLetter = async (careerData: CareerDatabase, job: JobOp
       
       Candidate Career Database:
       ${JSON.stringify(careerData)}
+
+      ${tone ? `DESIRED TONE: ${tone}` : ''}
+      ${keyPoints ? `KEY POINTS TO EMPHASIZE: ${keyPoints}` : ''}
+      ${voiceProfile ? `
+      AUTHENTIC VOICE PROFILE (Mirror this style):
+      - Tone: ${voiceProfile.tone}
+      - Formality: ${voiceProfile.formality}
+      - Common Phrases: ${voiceProfile.commonPhrases.join(", ")}
+      - Structural Patterns: ${voiceProfile.structuralPatterns}
+      - Constraints: ${voiceProfile.constraints.join(", ")}
+      ` : ''}
 
       ${instructions ? `USER INSTRUCTIONS FOR REVISION:\nThe user has requested the following changes to the cover letter: "${instructions}". Please incorporate these instructions into your draft.` : ''}
 

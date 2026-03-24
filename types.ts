@@ -185,6 +185,7 @@ export interface MatchAnalysis {
   Tailored_Summary: string;
   Recommended_Achievement_IDs: string[];
   Cover_Letter_Draft?: string;
+  Cover_Letter_Suggestions?: string[];
   KSC_Responses_Drafts?: {
     KSC_Prompt: string;
     Response: string;
