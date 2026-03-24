@@ -31,7 +31,7 @@ export const AppNavDrawer: React.FC<AppNavDrawerProps> = ({ user, activeTab, onT
     { id: 'QUICK_APPLY' as TabType, label: 'Apply Now', icon: <Zap size={24} className="text-[var(--sys-color-solidarityRed-base)]" /> },
     { id: 'LOOKOUT' as TabType, label: 'Lookout', icon: <Binoculars size={24} /> },
     { id: 'PREP' as TabType, label: 'Prep', icon: <MessageSquareQuote size={24} /> },
-    { id: 'PROFILE' as TabType, label: 'Resume', icon: <FileUser size={24} /> },
+    { id: 'PROFILE' as TabType, label: 'Master Profile', icon: <FileUser size={24} /> },
     { id: 'PAST' as TabType, label: 'Applications', icon: <History size={24} /> },
   ];
 

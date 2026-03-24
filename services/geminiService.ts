@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type, ThinkingLevel } from "@google/genai";
-import { CareerDatabase, KSCResponse, CareerEntry, StructuredAchievement, JobOpportunity, MatchAnalysis } from '../types';
+import { CareerDatabase, KSCResponse, CareerEntry, StructuredAchievement, JobOpportunity, MatchAnalysis, VoiceProfile } from '../types';
 
 // Initialize the Google GenAI client with the API key from environment variables.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
@@ -204,7 +204,7 @@ export const processCareerDocuments = async (fileParts: { inlineData: { data: st
   try {
     // 1. Generate Structured Text Data
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
+      model: 'gemini-3.1-pro-preview',
       contents: { parts: contentParts },
       config: {
         responseMimeType: "application/json",
@@ -787,3 +787,71 @@ export const generateKSCResponses = async (careerData: CareerDatabase, job: JobO
     if (!jsonString) throw new Error("Empty response from Gemini");
     return JSON.parse(jsonString);
 };
+
+/**
+ * Analyzes documents to generate an "Authentic Voice" profile.
+ */
+export async function generateVoiceProfile(documents: { inlineData: { data: string; mimeType: string } }[]): Promise<Partial<VoiceProfile>> {
+  const prompt = `
+    Analyze the provided documents to extract a "Voice Profile" that captures the author's unique writing style.
+    Focus on:
+    1. Tone (e.g., confident, humble, analytical, visionary).
+    2. Formality (Casual, Professional, Academic, Executive).
+    3. Common Phrases or vocabulary preferences.
+    4. Structural Patterns (e.g., sentence length, use of bullets vs. paragraphs, active vs. passive voice).
+    5. Constraints (e.g., "avoid buzzwords", "prefer short bullets").
+
+    Return the result as a JSON object matching the VoiceProfile interface (excluding id, name, and isDefault).
+  `;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3.1-pro-preview',
+    contents: [
+      { parts: [{ text: prompt }, ...documents.map(doc => ({ inlineData: doc.inlineData }))] }
+    ],
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          tone: { type: Type.STRING },
+          formality: { type: Type.STRING, enum: ["Casual", "Professional", "Academic", "Executive"] },
+          commonPhrases: { type: Type.ARRAY, items: { type: Type.STRING } },
+          structuralPatterns: { type: Type.STRING },
+          constraints: { type: Type.ARRAY, items: { type: Type.STRING } },
+        },
+        required: ["tone", "formality", "commonPhrases", "structuralPatterns", "constraints"]
+      }
+    }
+  });
+
+  return JSON.parse(response.text || "{}");
+}
+
+/**
+ * Tests a voice profile by rewriting a sample text.
+ */
+export async function testVoiceProfile(sampleText: string, profile: VoiceProfile): Promise<string> {
+  const prompt = `
+    Rewrite the following text using the specified "Voice Profile":
+    
+    VOICE PROFILE:
+    - Tone: ${profile.tone}
+    - Formality: ${profile.formality}
+    - Common Phrases: ${profile.commonPhrases.join(", ")}
+    - Structural Patterns: ${profile.structuralPatterns}
+    - Constraints: ${profile.constraints.join(", ")}
+
+    TEXT TO REWRITE:
+    "${sampleText}"
+
+    Return ONLY the rewritten text.
+  `;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: [{ parts: [{ text: prompt }] }]
+  });
+
+  return response.text || "";
+}

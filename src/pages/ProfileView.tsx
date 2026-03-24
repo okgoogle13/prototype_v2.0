@@ -15,7 +15,7 @@ import { commonIndustrySkills } from "../utils/skills";
 
 import { User } from 'firebase/auth';
 import { processCareerDocuments } from "../../services/geminiService";
-import { CareerDatabase } from "../../types";
+import { CareerDatabase, IngestedDocument } from "../../types";
 import { saveUserCareerData, getUserCareerData } from "../../services/firebase";
 
 interface Props {
@@ -33,16 +33,36 @@ export function ProfileView({ user }: Props) {
   const [skills, setSkills] = useState<string[]>([]);
   const [suggestedSkills, setSuggestedSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
+  const [ingestedDocuments, setIngestedDocuments] = useState<IngestedDocument[]>([]);
   const [docCount, setDocCount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [processError, setProcessError] = useState<string | null>(null);
 
+  // Stubbed Voice Profile State (MIG-202-B)
+  const [stubSavedProfile, setStubSavedProfile] = useState<{ sample: string; savedAt: Date } | null>(null);
+  const [stubIsLoading, setStubIsLoading] = useState(false);
+  const [stubError, setStubError] = useState<string | null>(null);
+
+  const handleStubSaveVoice = async (sample: string) => {
+    setStubIsLoading(true);
+    setStubError(null);
+    
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    setStubSavedProfile({
+      sample,
+      savedAt: new Date()
+    });
+    setStubIsLoading(false);
+  };
+
   const [activeSection, setActiveSection] = useState("identity");
 
   const sections = [
     { id: "identity", label: "Identity", icon: "User" },
-    { id: "documents", label: "Career Documents", icon: "FileText" },
+    { id: "documents", label: "Master Resume Profile", icon: "FileText" },
+    { id: "voice", label: "Authentic Voice", icon: "Mic" },
     { id: "skills", label: "Skills", icon: "Zap" },
     { id: "integrations", label: "Integrations", icon: "Link" },
     { id: "settings", label: "Settings", icon: "Settings" },
@@ -59,14 +79,15 @@ export function ProfileView({ user }: Props) {
           setLocation(data.Personal_Information.Location || "");
           setPortfolioUrls(data.Personal_Information.Portfolio_Website_URLs || []);
           setSkills(data.Master_Skills_Inventory.map(s => s.Skill_Name) || []);
-          setDocCount(data.Saved_Documents?.length || 0);
+          setIngestedDocuments(data.Ingested_Documents || []);
+          setDocCount(data.Ingested_Documents?.length || 0);
           
           // Calculate completeness based on data
           let score = 25;
           if (data.Personal_Information.FullName) score += 15;
           if (data.Personal_Information.Email) score += 10;
           if (data.Master_Skills_Inventory.length > 0) score += 25;
-          if (data.Saved_Documents && data.Saved_Documents.length > 0) score += 25;
+          if (data.Ingested_Documents && data.Ingested_Documents.length > 0) score += 25;
           setCompleteness(Math.min(100, score));
         } else {
           // Auto-populate from Google account if no Firestore data exists
@@ -81,7 +102,7 @@ export function ProfileView({ user }: Props) {
     if (!user?.uid) return;
     setIsSaving(true);
     try {
-      const data: any = {
+      const data: CareerDatabase = {
         Personal_Information: {
           FullName: fullName,
           Email: email,
@@ -100,7 +121,9 @@ export function ProfileView({ user }: Props) {
         },
         Career_Entries: [],
         Structured_Achievements: [],
-        KSC_Responses: []
+        KSC_Responses: [],
+        Ingested_Documents: ingestedDocuments,
+        Voice_Profiles: []
       };
       await saveUserCareerData(user.uid, data);
     } catch (err) {
@@ -136,10 +159,26 @@ export function ProfileView({ user }: Props) {
     try {
       let data: CareerDatabase | null = null;
       
+      const newIngestedDocs: IngestedDocument[] = [];
       if (fileData && fileData.length > 0) {
-        data = await processCareerDocuments(fileData.map(fd => ({ inlineData: fd })));
+        data = await processCareerDocuments(fileData.map((fd, i) => {
+          newIngestedDocs.push({
+            id: crypto.randomUUID(),
+            name: files[i]?.name || `Document ${i+1}`,
+            mimeType: fd.mimeType,
+            content: fd.data,
+            dateIngested: new Date().toISOString()
+          });
+          return { inlineData: fd };
+        }));
       } else if (rawText) {
-        // If only text, we could still use processCareerDocuments by wrapping it
+        newIngestedDocs.push({
+          id: crypto.randomUUID(),
+          name: "Raw Text Input",
+          mimeType: 'text/plain',
+          content: btoa(rawText),
+          dateIngested: new Date().toISOString()
+        });
         data = await processCareerDocuments([{ inlineData: { data: btoa(rawText), mimeType: 'text/plain' } }]);
       }
 
@@ -157,7 +196,9 @@ export function ProfileView({ user }: Props) {
         const newSuggestions = extractedSkills.filter(s => !skills.includes(s));
         setSuggestedSkills(prev => Array.from(new Set([...prev, ...newSuggestions])));
         
-        setDocCount(files.length + (rawText ? 1 : 0));
+        const updatedIngestedDocs = [...ingestedDocuments, ...newIngestedDocs];
+        setIngestedDocuments(updatedIngestedDocs);
+        setDocCount(updatedIngestedDocs.length);
         setCompleteness(Math.min(100, completeness + 40));
         
         // Switch to skills section to show suggestions
@@ -166,6 +207,36 @@ export function ProfileView({ user }: Props) {
     } catch (err) {
       console.error("Processing documents failed:", err);
       setProcessError("Failed to process documents. Please check your files and try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRemoveDocument = (id: string) => {
+    const updated = ingestedDocuments.filter(d => d.id !== id);
+    setIngestedDocuments(updated);
+    setDocCount(updated.length);
+  };
+
+  const handleReanalyze = async () => {
+    if (ingestedDocuments.length === 0) return;
+    setIsProcessing(true);
+    setProcessError(null);
+    try {
+      const data = await processCareerDocuments(ingestedDocuments.map(doc => ({
+        inlineData: { data: doc.content, mimeType: doc.mimeType }
+      })));
+      
+      if (data) {
+        // Update profile with extracted data
+        const extractedSkills = data.Master_Skills_Inventory.map(s => s.Skill_Name);
+        const newSuggestions = extractedSkills.filter(s => !skills.includes(s));
+        setSuggestedSkills(prev => Array.from(new Set([...prev, ...newSuggestions])));
+        setActiveSection("skills");
+      }
+    } catch (err) {
+      console.error("Re-analysis failed:", err);
+      setProcessError("Failed to re-analyze profile. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -296,15 +367,96 @@ export function ProfileView({ user }: Props) {
 
                   {activeSection === "documents" && (
                     <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
-                      <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-6">Career Documents</h3>
-                      <p className="text-[var(--sys-color-worker-ash-base)] mb-6">Upload your resume or paste raw text. We will use this to tailor your applications.</p>
-                      {processError && (
-                        <div className="mb-6 p-4 bg-[var(--sys-color-kr-charcoalRed-base)]/10 border border-[var(--sys-color-kr-charcoalRed-base)] text-[var(--sys-color-kr-charcoalRed-base)] font-bold uppercase tracking-wider text-sm rounded-lg">
-                          {processError}
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase">Master Resume Profile</h3>
+                        {ingestedDocuments.length > 0 && (
+                          <button 
+                            onClick={handleReanalyze}
+                            disabled={isProcessing}
+                            className="text-xs font-bold uppercase tracking-widest text-[var(--sys-color-inkGold-base)] hover:underline flex items-center gap-2 disabled:opacity-50"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M23 4v6h-6"></path>
+                              <path d="M1 20v-6h6"></path>
+                              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
+                            {isProcessing ? 'Analyzing...' : 'Re-analyze Profile'}
+                          </button>
+                        )}
+                      </div>
+
+                      {ingestedDocuments.length === 0 && !isProcessing ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                          <div className="w-20 h-20 bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-full flex items-center justify-center mb-6 border-2 border-dashed border-[var(--sys-color-outline-variant)]">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--sys-color-worker-ash-base)]">
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                              <polyline points="14 2 14 8 20 8"></polyline>
+                              <line x1="12" y1="18" x2="12" y2="12"></line>
+                              <line x1="9" y1="15" x2="15" y2="15"></line>
+                            </svg>
+                          </div>
+                          <h4 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-2">Build Your Foundation</h4>
+                          <p className="text-[var(--sys-color-worker-ash-base)] mb-8 max-w-sm">Upload your resume, cover letters, and other career documents to build your vectorized Master Resume Profile.</p>
+                          <DocumentInput 
+                            onProcess={handleProcessDocuments} 
+                            isLoading={isProcessing} 
+                            hideTitle={true} 
+                            submitLabel="Upload documents to build your Master Resume Profile"
+                          />
+                        </div>
+                      ) : (
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-1 gap-4">
+                            {ingestedDocuments.map((doc) => (
+                              <div key={doc.id} className="flex items-center justify-between p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl group">
+                                <div className="flex items-center gap-4 min-w-0">
+                                  <div className="w-10 h-10 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded-xl flex items-center justify-center text-[var(--sys-color-worker-ash-base)]">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                      <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] truncate uppercase tracking-tight">{doc.name}</p>
+                                    <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 uppercase tracking-widest">
+                                      Ingested on {new Date(doc.dateIngested).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                </div>
+                                <button 
+                                  onClick={() => handleRemoveDocument(doc.id)}
+                                  className="p-2 text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-solidarityRed-base)] transition-colors"
+                                >
+                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                  </svg>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="pt-6 border-t border-[var(--sys-color-outline-variant)]">
+                            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--sys-color-worker-ash-base)] mb-4">Add More Documents</h4>
+                            <DocumentInput 
+                              onProcess={handleProcessDocuments} 
+                              isLoading={isProcessing} 
+                              hideTitle={true}
+                              submitLabel="Add to Master Profile"
+                            />
+                          </div>
                         </div>
                       )}
-                      <DocumentInput onProcess={handleProcessDocuments} isLoading={isProcessing} hideTitle={true} />
                     </div>
+                  )}
+
+                  {activeSection === "voice" && (
+                    <VoiceProfileManagementSection 
+                      savedProfile={stubSavedProfile}
+                      onSave={handleStubSaveVoice}
+                      isLoading={stubIsLoading}
+                      error={stubError}
+                    />
                   )}
 
                   {activeSection === "skills" && (
@@ -449,25 +601,174 @@ export function ProfileView({ user }: Props) {
 function IntegrationCard({ name, desc, status, lastSync, icon }: any) {
   const isConnected = status === "Connected";
   return (
-    <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl flex items-start gap-6">
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isConnected ? 'bg-[var(--sys-color-inkGold-base)]/10 text-[var(--sys-color-inkGold-base)]' : 'bg-[var(--sys-color-charcoalBackground-steps-2)] text-[var(--sys-color-worker-ash-base)]'}`}>
-        {icon}
-      </div>
-      <div className="flex-1">
-        <div className="flex items-center justify-between mb-1">
-          <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider">{name}</h4>
-          <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded ${isConnected ? 'bg-[var(--sys-color-kr-activistSmokeGreen-base)]/20 text-[var(--sys-color-kr-activistSmokeGreen-base)]' : 'bg-[var(--sys-color-charcoalBackground-steps-2)] text-[var(--sys-color-worker-ash-base)]'}`}>
-            {status}
-          </span>
+    <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl flex items-center justify-between group hover:border-[var(--sys-color-worker-ash-base)] transition-all">
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded-xl flex items-center justify-center text-[var(--sys-color-worker-ash-base)] group-hover:text-[var(--sys-color-paperWhite-base)] transition-colors">
+          {icon}
         </div>
-        <p className="text-xs text-[var(--sys-color-worker-ash-base)] mb-3">{desc}</p>
-        {lastSync && (
-          <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] italic">Last sync: {lastSync}</p>
+        <div>
+          <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">{name}</h4>
+          <p className="text-xs text-[var(--sys-color-worker-ash-base)]">{desc}</p>
+          {lastSync && <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 uppercase tracking-widest mt-1">Last sync: {lastSync}</p>}
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded ${isConnected ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+          {status}
+        </span>
+        <button className="text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+interface VoiceProfileStatusCardProps {
+  profile: { sample: string; savedAt: Date };
+  onReplace: () => void;
+}
+
+function VoiceProfileStatusCard({ profile, onReplace }: VoiceProfileStatusCardProps) {
+  return (
+    <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-inkGold-base)]/30 rounded-2xl">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--sys-color-inkGold-base)]">Verified Authentic Voice</h4>
+        <span className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 uppercase font-bold tracking-widest">
+          Calibrated {profile.savedAt.toLocaleDateString()}
+        </span>
+      </div>
+      <div className="p-4 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded-xl mb-6 border border-[var(--sys-color-outline-variant)]">
+        <p className="text-sm text-[var(--sys-color-paperWhite-base)] italic leading-relaxed opacity-90">
+          "{profile.sample.length > 200 ? profile.sample.substring(0, 200) + '...' : profile.sample}"
+        </p>
+      </div>
+      <div className="flex gap-4">
+        <PrimaryButton label="Refine Sample" onClick={onReplace} variant="tonal" />
+        <PrimaryButton label="Reset Voice" onClick={onReplace} variant="march" />
+      </div>
+    </div>
+  );
+}
+
+interface VoiceSampleSubmissionFormProps {
+  onSubmit: (sample: string) => void;
+  isLoading: boolean;
+  initialValue?: string;
+}
+
+function VoiceSampleSubmissionForm({ onSubmit, isLoading, initialValue = "" }: VoiceSampleSubmissionFormProps) {
+  const [inputValue, setInputValue] = useState(initialValue);
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="text-[10px] uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] opacity-60 mb-2 block font-bold">
+          Source Writing Sample
+        </label>
+        <textarea 
+          value={inputValue} 
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Paste a cover letter, professional summary, or a few paragraphs of your best work. This sample will define your AI-generated tone."
+          className="w-full bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] p-4 rounded-xl font-bold uppercase tracking-wider text-sm focus:outline-none focus:border-[var(--sys-color-solidarityRed-base)] transition-all min-h-[150px]"
+        />
+      </div>
+      <PrimaryButton 
+        label={isLoading ? "Analyzing Patterns..." : "Calibrate Voice"} 
+        onClick={() => onSubmit(inputValue)} 
+        disabled={isLoading || !inputValue.trim()}
+        variant="strike"
+      />
+    </div>
+  );
+}
+
+interface VoiceProfileCreationPanelProps {
+  onSave: (sample: string) => void;
+  isLoading: boolean;
+  error: string | null;
+  initialValue?: string;
+}
+
+function VoiceProfileCreationPanel({ onSave, isLoading, error, initialValue }: VoiceProfileCreationPanelProps) {
+  return (
+    <div className="space-y-8">
+      <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--sys-color-worker-ash-base)]">Voice Calibration</h4>
+        </div>
+        <p className="text-xs text-[var(--sys-color-worker-ash-base)] mb-6 leading-relaxed">
+          Your authentic voice is the foundation of your career narrative. Provide a sample of your writing to ensure every generated document reflects your unique professional identity.
+        </p>
+        
+        <VoiceSampleSubmissionForm onSubmit={onSave} isLoading={isLoading} initialValue={initialValue} />
+        
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 p-4 bg-[var(--sys-color-kr-charcoalRed-base)]/20 border border-[var(--sys-color-solidarityRed-base)]/30 rounded-xl"
+          >
+            <p className="text-xs text-[var(--sys-color-solidarityRed-base)] font-bold uppercase tracking-wider">
+              {error}
+            </p>
+          </motion.div>
         )}
       </div>
-      <button className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${isConnected ? 'border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] hover:bg-[var(--sys-color-kr-charcoalRed-base)] hover:text-[var(--sys-color-paperWhite-base)]' : 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)]'}`}>
-        {isConnected ? "Disconnect" : "Connect"}
-      </button>
+    </div>
+  );
+}
+
+interface VoiceProfileManagementSectionProps {
+  savedProfile: { sample: string; savedAt: Date } | null;
+  onSave: (sample: string) => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+}
+
+function VoiceProfileManagementSection({
+  savedProfile,
+  onSave,
+  isLoading,
+  error
+}: VoiceProfileManagementSectionProps) {
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleReplace = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveWrapper = async (sample: string) => {
+    await onSave(sample);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
+      <div className="mb-8">
+        <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-2">Authentic Voice</h3>
+        <p className="text-[var(--sys-color-worker-ash-base)]">
+          {savedProfile && !isEditing
+            ? "Your voice profile is active and being used to calibrate generated documents." 
+            : "Calibrate the AI to mirror your natural writing style, ensuring consistency across all career documents."}
+        </p>
+      </div>
+
+      {savedProfile && !isEditing ? (
+        <VoiceProfileStatusCard 
+          profile={savedProfile} 
+          onReplace={handleReplace} 
+        />
+      ) : (
+        <VoiceProfileCreationPanel 
+          onSave={handleSaveWrapper}
+          isLoading={isLoading}
+          error={error}
+          initialValue={savedProfile?.sample}
+        />
+      )}
     </div>
   );
 }

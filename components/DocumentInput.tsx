@@ -14,13 +14,14 @@ interface DocumentInputProps {
   hideTitle?: boolean;
   onRawTextChange?: (text: string) => void;
   initialRawText?: string;
+  submitLabel?: string;
 }
 
 const MAX_FILES = 10; // Reduced for prototype stability
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
 const ALLOWED_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
 
-export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoading, hideTitle, onRawTextChange, initialRawText = '' }) => {
+export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoading, hideTitle, onRawTextChange, initialRawText = '', submitLabel }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [rawText, setRawText] = useState(initialRawText);
   const [isDragging, setIsDragging] = useState(false);
@@ -212,7 +213,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoadi
                 className="px-8 py-4 bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] font-bold text-lg uppercase tracking-wider disabled:bg-[var(--sys-color-concreteGrey-steps-0)] disabled:cursor-not-allowed transition-all hover:-translate-y-1 hover:shadow-[var(--sys-shadow-elevation3HoverLift)]"
                 style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
               >
-                {isLoading || isReading ? 'Processing...' : `Process ${files.length > 0 ? `${files.length} File(s)` : 'Text'}`}
+                {isLoading || isReading ? 'Processing...' : submitLabel || `Process ${files.length > 0 ? `${files.length} File(s)` : 'Text'}`}
               </motion.button>
             )}
           </AnimatePresence>

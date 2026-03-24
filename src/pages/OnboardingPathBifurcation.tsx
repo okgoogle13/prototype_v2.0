@@ -50,10 +50,10 @@ export function OnboardingPathBifurcation() {
                 <FileText size={24} className="text-[var(--sys-color-paperWhite-base)]" />
               </div>
               <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight mb-4">
-                Induction & <br/>Ingestion
+                Master Resume <br/>Profile
               </h2>
               <p className="text-[var(--sys-color-worker-ash-base)] mb-8">
-                Build your foundation. Upload your master resume and vectorize your career data for maximum AI precision.
+                Build your foundation. Upload your resume, cover letters, and documents to create a vectorized Master Resume Profile for maximum AI precision.
               </p>
               <div className="flex items-center gap-2 text-[var(--sys-color-solidarityRed-base)] font-bold uppercase tracking-widest text-sm">
                 <span>Start Setup</span>

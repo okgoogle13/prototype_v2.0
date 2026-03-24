@@ -109,6 +109,25 @@ export interface SavedDocument {
   tailoredSummary: string;
 }
 
+export interface IngestedDocument {
+  id: string;
+  name: string;
+  mimeType: string;
+  content: string; // Base64 or raw text
+  dateIngested: string;
+}
+
+export interface VoiceProfile {
+  id: string;
+  name: string;
+  tone: string;
+  formality: "Casual" | "Professional" | "Academic" | "Executive";
+  commonPhrases: string[];
+  structuralPatterns: string;
+  constraints: string[];
+  isDefault: boolean;
+}
+
 export interface CareerDatabase {
   Personal_Information: PersonalInformation;
   Career_Profile: CareerProfile;
@@ -117,6 +136,8 @@ export interface CareerDatabase {
   Structured_Achievements: StructuredAchievement[];
   KSC_Responses: KSCResponse[];
   Saved_Documents?: SavedDocument[];
+  Ingested_Documents?: IngestedDocument[];
+  Voice_Profiles?: VoiceProfile[];
 }
 
 export interface JobOpportunity {
