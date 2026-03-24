@@ -95,7 +95,7 @@ export function AutocompleteInput({ label, placeholder, value, onChange, onEnter
                   key={suggestion}
                   onClick={() => handleSelect(suggestion)}
                   onMouseEnter={() => setActiveIndex(index)}
-                  className={`p-4 cursor-pointer transition-colors uppercase tracking-wider text-sm font-bold ${
+                  className={`p-4 cursor-pointer transition-colors text-sm font-bold ${
                     index === activeIndex 
                       ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)]' 
                       : 'text-[var(--sys-color-worker-ash-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-3)]'
@@ -105,8 +105,8 @@ export function AutocompleteInput({ label, placeholder, value, onChange, onEnter
                 </li>
               ))
             ) : (
-              <li className="p-4 text-[var(--sys-color-worker-ash-base)] italic text-sm uppercase tracking-wider">
-                No matching skills found. Press Enter to add.
+              <li className="p-4 text-[var(--sys-color-worker-ash-base)] italic text-sm">
+                No matching skills found. Press enter to add.
               </li>
             )}
           </motion.ul>

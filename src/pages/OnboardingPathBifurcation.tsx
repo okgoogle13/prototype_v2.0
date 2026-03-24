@@ -25,8 +25,8 @@ export function OnboardingPathBifurcation() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="text-5xl md:text-6xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter mb-4">
-            Choose Your <span className="text-[var(--sys-color-solidarityRed-base)]">Path</span>
+          <h1 className="text-5xl md:text-6xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-4">
+            Choose your <span className="text-[var(--sys-color-solidarityRed-base)]">path</span>
           </h1>
           <p className="text-xl type-melancholyLonging text-[var(--sys-color-worker-ash-base)]">
             How do you want to start your asymmetric journey?
@@ -49,14 +49,14 @@ export function OnboardingPathBifurcation() {
               <div className="w-12 h-12 bg-[var(--sys-color-solidarityRed-base)] rounded-full flex items-center justify-center mb-6">
                 <FileText size={24} className="text-[var(--sys-color-paperWhite-base)]" />
               </div>
-              <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight mb-4">
-                Master Resume <br/>Profile
+              <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight mb-4">
+                Master resume <br/>profile
               </h2>
               <p className="text-[var(--sys-color-worker-ash-base)] mb-8">
                 Build your foundation. Upload your resume, cover letters, and documents to create a vectorized Master Resume Profile for maximum AI precision.
               </p>
-              <div className="flex items-center gap-2 text-[var(--sys-color-solidarityRed-base)] font-bold uppercase tracking-widest text-sm">
-                <span>Start Setup</span>
+              <div className="flex items-center gap-2 text-[var(--sys-color-solidarityRed-base)] font-bold text-sm">
+                <span>Start setup</span>
                 <Zap size={16} />
               </div>
             </div>
@@ -77,14 +77,14 @@ export function OnboardingPathBifurcation() {
               <div className="w-12 h-12 bg-[var(--sys-color-inkGold-base)] rounded-full flex items-center justify-center mb-6">
                 <Zap size={24} className="text-[var(--sys-color-charcoalBackground-base)]" />
               </div>
-              <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight mb-4">
-                Quick <br/>Application
+              <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight mb-4">
+                Quick <br/>application
               </h2>
               <p className="text-[var(--sys-color-worker-ash-base)] mb-8">
                 No time to waste. Jump straight into a job analysis and generate tailored documents in seconds.
               </p>
-              <div className="flex items-center gap-2 text-[var(--sys-color-inkGold-base)] font-bold uppercase tracking-widest text-sm">
-                <span>Jump In</span>
+              <div className="flex items-center gap-2 text-[var(--sys-color-inkGold-base)] font-bold text-sm">
+                <span>Jump in</span>
                 <Sparkles size={16} />
               </div>
             </div>

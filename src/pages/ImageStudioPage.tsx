@@ -73,11 +73,11 @@ export function OptimisePage({ user }: Props) {
           className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-8"
         >
           <div>
-            <h1 className="text-7xl font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none mb-2">
-              {activeSubTab === 'ANALYSIS' ? 'Analysis' : 'Image Studio'}
+            <h1 className="text-7xl font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] leading-none mb-2">
+              {activeSubTab === 'ANALYSIS' ? 'Analysis' : 'Image studio'}
             </h1>
-            <p className="text-4xl font-bold text-[var(--sys-color-inkGold-base)] uppercase tracking-tight mb-4">
-              {activeSubTab === 'ANALYSIS' ? 'BEAT THE BOTS.' : 'VISUAL AUTHORITY.'}
+            <p className="text-4xl font-bold text-[var(--sys-color-inkGold-base)] tracking-tight mb-4">
+              {activeSubTab === 'ANALYSIS' ? 'Beat the bots.' : 'Visual authority.'}
             </p>
             <p className="text-xl text-[var(--sys-color-worker-ash-base)] font-medium">
               {activeSubTab === 'ANALYSIS' 
@@ -89,15 +89,15 @@ export function OptimisePage({ user }: Props) {
           <div className="flex bg-[var(--sys-color-charcoalBackground-steps-2)] p-1 rounded-2xl border border-[var(--sys-color-outline-variant)]">
             <button 
               onClick={() => setActiveSubTab('ANALYSIS')}
-              className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${activeSubTab === 'ANALYSIS' ? 'bg-[var(--sys-color-inkGold-base)] text-[var(--sys-color-charcoalBackground-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
+              className={`px-6 py-2 rounded-xl text-[10px] font-bold transition-all ${activeSubTab === 'ANALYSIS' ? 'bg-[var(--sys-color-inkGold-base)] text-[var(--sys-color-charcoalBackground-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
             >
-              ATS Analysis
+              ATS analysis
             </button>
             <button 
               onClick={() => setActiveSubTab('IMAGE_STUDIO')}
-              className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${activeSubTab === 'IMAGE_STUDIO' ? 'bg-[var(--sys-color-inkGold-base)] text-[var(--sys-color-charcoalBackground-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
+              className={`px-6 py-2 rounded-xl text-[10px] font-bold transition-all ${activeSubTab === 'IMAGE_STUDIO' ? 'bg-[var(--sys-color-inkGold-base)] text-[var(--sys-color-charcoalBackground-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
             >
-              Image Studio
+              Image studio
             </button>
           </div>
         </motion.div>
@@ -116,15 +116,15 @@ export function OptimisePage({ user }: Props) {
           {/* LEFT PANE: Inputs */}
           <div className="w-full md:w-[400px] flex-shrink-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] flex flex-col gap-6 overflow-y-auto rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none md:rounded-br-none border-r border-[var(--sys-color-outline-variant)]">
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] mb-4">Your Resume</h2>
+              <h2 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] mb-4">Your resume</h2>
               <select 
                 value={selectedResume}
                 onChange={(e) => setSelectedResume(e.target.value)}
                 className="w-full p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-xl focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors mb-4"
               >
-                <option>Software Engineer Resume</option>
-                <option>Full Stack Resume</option>
-                <option>Current Profile Resume</option>
+                <option>Software engineer resume</option>
+                <option>Full stack resume</option>
+                <option>Current profile resume</option>
               </select>
 
               <div className="p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-xl border border-[var(--sys-color-outline-variant)]">
@@ -132,11 +132,11 @@ export function OptimisePage({ user }: Props) {
                   <div className="w-10 h-10 rounded-full bg-[var(--sys-color-solidarityRed-base)] flex items-center justify-center text-white font-bold">AJ</div>
                   <div>
                     <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)]">Alex Johnson</p>
-                    <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] uppercase font-bold">Senior Frontend Engineer</p>
+                    <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-bold">Senior frontend engineer</p>
                   </div>
                 </div>
                 <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] leading-relaxed">
-                  <span className="font-bold text-[var(--sys-color-inkGold-base)]">SKILLS:</span> React, TypeScript, Node.js, GraphQL, Tailwind CSS, AWS...
+                  <span className="font-bold text-[var(--sys-color-inkGold-base)]">Skills:</span> React, TypeScript, Node.js, GraphQL, Tailwind CSS, AWS...
                 </p>
               </div>
             </div>
@@ -144,7 +144,7 @@ export function OptimisePage({ user }: Props) {
             <div className="h-px bg-[var(--sys-color-outline-variant)] w-full" />
 
             <div className="flex-1 flex flex-col">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] mb-4">Target Job</h2>
+              <h2 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] mb-4">Target job</h2>
               <textarea
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
@@ -153,9 +153,9 @@ export function OptimisePage({ user }: Props) {
               />
               
               <PrimaryButton 
-                label={isAnalyzing ? "ANALYZING..." : "SCAN & SCORE →"} 
+                label={isAnalyzing ? "Analyzing..." : "Scan & score →"} 
                 onClick={handleScan}
-                variant="strike"
+                variant="filled"
                 disabled={isAnalyzing || !jobDescription}
               />
             </div>
@@ -186,22 +186,22 @@ export function OptimisePage({ user }: Props) {
                       --
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-12">Run a scan to see your match score</h3>
+                  <h3 className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] mb-12">Run a scan to see your match score</h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl">
                     <FeatureCard 
                       icon={<Target className="text-[var(--sys-color-inkGold-base)]" />}
-                      title="Keyword Match"
+                      title="Keyword match"
                       desc="Identify critical missing industry terms."
                     />
                     <FeatureCard 
                       icon={<Zap className="text-[var(--sys-color-solidarityRed-base)]" />}
-                      title="Skills Gap"
+                      title="Skills gap"
                       desc="Bridge the divide between you and the role."
                     />
                     <FeatureCard 
                       icon={<ShieldCheck className="text-[var(--sys-color-signalGreen-base)]" />}
-                      title="ATS Check"
+                      title="ATS check"
                       desc="Ensure your formatting is readable by bots."
                     />
                   </div>
@@ -237,12 +237,12 @@ export function OptimisePage({ user }: Props) {
                       </div>
                     </div>
                     <div className="flex-1 text-center md:text-left">
-                      <p className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest mb-2">Match Score</p>
+                      <p className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] mb-2">Match score</p>
                       <h2 className="text-6xl font-bold text-[var(--sys-color-paperWhite-base)] mb-6">73 <span className="text-2xl text-[var(--sys-color-worker-ash-base)]">/ 100</span></h2>
                       <div className="flex flex-wrap justify-center md:justify-start gap-3">
-                        <StatChip label="12 Keywords Found" color="green" />
-                        <StatChip label="8 Missing" color="orange" />
-                        <StatChip label="ATS Friendly ✓" color="green" />
+                        <StatChip label="12 keywords found" color="green" />
+                        <StatChip label="8 missing" color="orange" />
+                        <StatChip label="ATS friendly ✓" color="green" />
                       </div>
                     </div>
                   </div>
@@ -250,7 +250,7 @@ export function OptimisePage({ user }: Props) {
                   {isGovernmentJob && (
                     <section className="bg-[var(--sys-color-solidarityRed-base)]/10 p-6 rounded-[28px] border border-[var(--sys-color-solidarityRed-base)]/30">
                       <div className="flex items-center gap-2 mb-4">
-                        <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider">Key Selection Criteria (KSC) — Government Applications</h3>
+                        <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)]">Key selection criteria (KSC) — Government applications</h3>
                         <div className="group relative">
                           <Info size={16} className="text-[var(--sys-color-worker-ash-base)] cursor-help" />
                           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-[var(--sys-color-charcoalBackground-steps-3)] text-[10px] text-[var(--sys-color-worker-ash-base)] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-[var(--sys-color-outline-variant)] shadow-xl z-50">
@@ -260,9 +260,9 @@ export function OptimisePage({ user }: Props) {
                       </div>
                       <p className="text-sm text-[var(--sys-color-worker-ash-base)] mb-6">We've detected that this is a government role. Would you like to generate draft responses for the selection criteria?</p>
                       <PrimaryButton 
-                        label="GENERATE KSC RESPONSES →" 
+                        label="Generate KSC responses →" 
                         onClick={() => setHasGeneratedKSC(true)} 
-                        variant="strike" 
+                        variant="filled" 
                       />
                     </section>
                   )}
@@ -299,7 +299,7 @@ export function OptimisePage({ user }: Props) {
                   </div>
 
                   <section>
-                    <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider mb-6">AI Recommendations</h3>
+                    <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] mb-6">AI recommendations</h3>
                     <Card className="p-6 border-[var(--sys-color-inkGold-base)]/30">
                       <ul className="space-y-4">
                         {recommendations.map((rec, idx) => (
@@ -320,21 +320,21 @@ export function OptimisePage({ user }: Props) {
                       animate={{ opacity: 1, y: 0 }}
                       className="bg-[var(--sys-color-inkGold-base)]/10 p-6 rounded-[28px] border border-[var(--sys-color-inkGold-base)]/30"
                     >
-                      <h4 className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-2">Teach the AI your voice</h4>
+                      <h4 className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] mb-2">Teach the AI your voice</h4>
                       <p className="text-xs text-[var(--sys-color-worker-ash-base)] mb-4">Your KSC responses have been generated. To make them sound more like you, set up your Voice Profile in Settings.</p>
-                      <button className="text-xs font-bold text-[var(--sys-color-inkGold-base)] uppercase hover:underline">Go to Voice Profile →</button>
+                      <button className="text-xs font-bold text-[var(--sys-color-inkGold-base)] hover:underline">Go to voice profile →</button>
                     </motion.div>
                   )}
 
                   <div className="flex flex-col sm:flex-row gap-4 pt-8">
                     <PrimaryButton 
-                      label="APPLY SUGGESTIONS →" 
+                      label="Apply suggestions →" 
                       onClick={() => {}} 
-                      variant="strike" 
+                      variant="filled" 
                     />
-                    <button className="flex-1 px-8 py-4 border border-[var(--sys-color-outline-variant)] rounded-xl font-bold uppercase tracking-widest text-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors flex items-center justify-center gap-2">
+                    <button className="flex-1 px-8 py-4 border border-[var(--sys-color-outline-variant)] rounded-xl font-bold text-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors flex items-center justify-center gap-2">
                       <Download size={20} />
-                      Export Resume
+                      Export resume
                     </button>
                   </div>
                 </motion.div>
@@ -354,19 +354,19 @@ export function OptimisePage({ user }: Props) {
                 <div className="w-32 h-32 bg-[var(--sys-color-charcoalBackground-steps-2)] rounded-[40px] border-2 border-dashed border-[var(--sys-color-outline-variant)] flex items-center justify-center mx-auto mb-8">
                   <Zap size={48} className="text-[var(--sys-color-worker-ash-base)] opacity-20" />
                 </div>
-                <h2 className="text-4xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">Image Studio Sandbox</h2>
+                <h2 className="text-4xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">Image studio sandbox</h2>
                 <p className="text-xl text-[var(--sys-color-worker-ash-base)] leading-relaxed">
                   The Image Studio is currently in development. Soon you'll be able to generate professional headshots, LinkedIn banners, and personal branding assets using your Voice Profile as a stylistic guide.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-8">
                   <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] rounded-2xl text-left">
-                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-[var(--sys-color-inkGold-base)] mb-2">Coming Soon</h4>
-                    <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-1">AI Headshot Gen</p>
+                    <h4 className="text-[10px] font-bold text-[var(--sys-color-inkGold-base)] mb-2">Coming soon</h4>
+                    <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] mb-1">AI headshot gen</p>
                     <p className="text-[10px] text-[var(--sys-color-worker-ash-base)]">Professional studio-quality photos from casual selfies.</p>
                   </div>
                   <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] rounded-2xl text-left">
-                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-[var(--sys-color-inkGold-base)] mb-2">Coming Soon</h4>
-                    <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-1">Brand Kit Builder</p>
+                    <h4 className="text-[10px] font-bold text-[var(--sys-color-inkGold-base)] mb-2">Coming soon</h4>
+                    <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] mb-1">Brand kit builder</p>
                     <p className="text-[10px] text-[var(--sys-color-worker-ash-base)]">Consistent visual identity across all your professional platforms.</p>
                   </div>
                 </div>
@@ -385,7 +385,7 @@ function AnalysisCard({ title, score, icon, children }: { title: string, score: 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="text-[var(--sys-color-inkGold-base)]">{icon}</div>
-          <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">{title}</h4>
+          <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">{title}</h4>
         </div>
         <div className={`text-sm font-bold ${score > 80 ? 'text-[var(--sys-color-signalGreen-base)]' : score > 50 ? 'text-[var(--sys-color-inkGold-base)]' : 'text-[var(--sys-color-solidarityRed-base)]'}`}>
           {score}%
@@ -404,7 +404,7 @@ function FeatureCard({ icon, title, desc }: { icon: React.ReactNode, title: stri
   return (
     <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] rounded-2xl border border-[var(--sys-color-outline-variant)] text-left hover:border-[var(--sys-color-worker-ash-base)] transition-colors">
       <div className="mb-4">{icon}</div>
-      <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-2">{title}</h4>
+      <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] mb-2">{title}</h4>
       <p className="text-xs text-[var(--sys-color-worker-ash-base)] leading-relaxed">{desc}</p>
     </div>
   );
@@ -412,7 +412,7 @@ function FeatureCard({ icon, title, desc }: { icon: React.ReactNode, title: stri
 
 function StatChip({ label, color }: { label: string, color: 'green' | 'orange' }) {
   return (
-    <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
+    <div className={`px-3 py-1 rounded-full text-[10px] font-bold border ${
       color === 'green' 
         ? 'bg-[var(--sys-color-signalGreen-base)]/10 border-[var(--sys-color-signalGreen-base)] text-[var(--sys-color-signalGreen-base)]'
         : 'bg-[var(--sys-color-inkGold-base)]/10 border-[var(--sys-color-inkGold-base)] text-[var(--sys-color-inkGold-base)]'
@@ -424,7 +424,7 @@ function StatChip({ label, color }: { label: string, color: 'green' | 'orange' }
 
 function KeywordChip({ label, status }: { label: string, status: 'found' | 'missing' }) {
   return (
-    <div className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider border transition-all ${
+    <div className={`px-4 py-2 rounded-lg text-xs font-bold border transition-all ${
       status === 'found'
         ? 'bg-[var(--sys-color-signalGreen-base)]/20 border-[var(--sys-color-signalGreen-base)] text-[var(--sys-color-signalGreen-base)]'
         : 'bg-transparent border-[var(--sys-color-inkGold-base)] text-[var(--sys-color-inkGold-base)] hover:bg-[var(--sys-color-inkGold-base)]/10'

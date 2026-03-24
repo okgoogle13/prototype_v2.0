@@ -18,7 +18,7 @@ export function MetricCard({ label, value, tooltip, color, desc }: MetricCardPro
     >
       <AuditDial score={value} size={100} strokeWidth={10} color={color} />
       <div>
-        <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-widest text-xs mb-1">
+        <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] text-xs mb-1">
           {label}
         </h4>
         {desc && (

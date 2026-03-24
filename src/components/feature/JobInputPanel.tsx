@@ -56,7 +56,7 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
             <StatusSpecificLoadingState />
             <div className="text-center">
               <p className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] animate-pulse">
-                Analysing job…
+                Analyzing job...
               </p>
               <p className="text-sm text-[var(--sys-color-worker-ash-base)] opacity-60">
                 Tailoring your application workspace...
@@ -66,7 +66,7 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
         ) : (
           <div className="flex flex-col gap-6">
             <SectionHeader 
-              title="Apply Now" 
+              title="Apply now" 
               subtitle="Drop in a job URL and we'll prep your full application in seconds."
             />
             <div className="flex flex-col gap-4">
@@ -92,14 +92,14 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                         className="bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] px-3 py-1 rounded text-sm focus:outline-none focus:border-[var(--sys-color-solidarityRed-base)]"
                         value={extractedRole}
                         onChange={(e) => setExtractedRole(e.target.value)}
-                        placeholder="Role Title"
+                        placeholder="Role title"
                       />
                       <span className="text-[var(--sys-color-worker-ash-base)]">·</span>
                       <input 
                         className="bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] px-3 py-1 rounded text-sm focus:outline-none focus:border-[var(--sys-color-solidarityRed-base)]"
                         value={extractedCompany}
                         onChange={(e) => setExtractedCompany(e.target.value)}
-                        placeholder="Company Name"
+                        placeholder="Company name"
                       />
                       <button 
                         onClick={() => setIsEditingChips(false)}
@@ -114,9 +114,9 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                       onClick={() => setIsEditingChips(true)}
                     >
                       <span className="text-[var(--sys-color-solidarityRed-base)]">✓</span>
-                      <span className="font-medium">{extractedRole || 'Unknown Role'}</span>
+                      <span className="font-medium">{extractedRole || 'Unknown role'}</span>
                       <span className="text-[var(--sys-color-worker-ash-base)]">·</span>
-                      <span className="text-[var(--sys-color-worker-ash-base)]">{extractedCompany || 'Unknown Company'}</span>
+                      <span className="text-[var(--sys-color-worker-ash-base)]">{extractedCompany || 'Unknown company'}</span>
                     </div>
                   )}
                 </div>
@@ -127,7 +127,7 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                   onClick={() => setIsManualExpanded(true)}
                   className="text-left text-sm text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors mt-2"
                 >
-                  No URL? Describe the role instead →
+                  No URL? Describe the role instead
                 </button>
               )}
 
@@ -145,7 +145,7 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                         onClick={() => setIsManualExpanded(false)}
                         className="text-sm text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors mb-4"
                       >
-                        ← Back
+                        Back
                       </button>
                       <DocumentInput 
                         onProcess={handleFileProcess} 
@@ -165,19 +165,17 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                     <div>
-                      <h4 className="font-bold text-[var(--sys-color-protestMetalBlue-steps-5)]">Apply faster.</h4>
+                      <h4 className="font-bold text-[var(--sys-color-protestMetalBlue-steps-5)]">Apply faster</h4>
                       <p className="text-sm text-[var(--sys-color-protestMetalBlue-steps-4)] opacity-80">Import directly from job boards.</p>
                     </div>
                   </div>
-                  <button className="bg-[var(--sys-color-charcoalBackground-steps-3)] hover:opacity-90 text-[var(--sys-color-worker-ash-base)] px-4 py-2 rounded font-bold text-sm transition-colors">
-                    Install Extension
-                  </button>
+                  <PrimaryButton variant="outlined" label="Install extension" onClick={() => {}} className="h-10" />
                 </div>
               )}
               
               <div className="flex justify-end mt-4">
                 <motion.div whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-                  <PrimaryButton label="Start My Application" onClick={handleAnalyze} variant="strike" />
+                  <PrimaryButton label="Start my application" onClick={handleAnalyze} variant="filled" />
                 </motion.div>
               </div>
             </div>

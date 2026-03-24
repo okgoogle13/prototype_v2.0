@@ -14,10 +14,10 @@ interface ChecklistItem {
 export function GettingStartedChecklist() {
   const [isVisible, setIsVisible] = useState(true);
   const [items, setItems] = useState<ChecklistItem[]>([
-    { id: 'resume', label: 'Upload Master Resume', desc: 'Unlock ATS scoring and AI tailoring.', icon: <FileText size={16} />, completed: false },
-    { id: 'profile', label: 'Complete Identity', desc: 'Ensure your contact info is accurate.', icon: <User size={16} />, completed: true },
-    { id: 'integrations', label: 'Connect Integrations', desc: 'Sync Gmail and LinkedIn data.', icon: <Link size={16} />, completed: false },
-    { id: 'extension', label: 'Install Extension', desc: 'Clip jobs directly from job boards.', icon: <Chrome size={16} />, completed: false },
+    { id: 'resume', label: 'Upload master resume', desc: 'Unlock ATS scoring and AI tailoring.', icon: <FileText size={16} />, completed: false },
+    { id: 'profile', label: 'Complete identity', desc: 'Ensure your contact info is accurate.', icon: <User size={16} />, completed: true },
+    { id: 'integrations', label: 'Connect integrations', desc: 'Sync Gmail and LinkedIn data.', icon: <Link size={16} />, completed: false },
+    { id: 'extension', label: 'Install extension', desc: 'Clip jobs directly from job boards.', icon: <Chrome size={16} />, completed: false },
   ]);
 
   if (!isVisible) return null;
@@ -44,8 +44,8 @@ export function GettingStartedChecklist() {
 
           <div className="flex flex-col md:flex-row gap-8 items-start">
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight mb-2">
-                Getting <span className="text-[var(--sys-color-solidarityRed-base)]">Started</span>
+              <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">
+                Getting <span className="text-[var(--sys-color-solidarityRed-base)]">started</span>
               </h3>
               <p className="text-sm text-[var(--sys-color-worker-ash-base)] mb-6">
                 Complete these steps to unlock the full asymmetric power of CareerCopilot.
@@ -73,7 +73,7 @@ export function GettingStartedChecklist() {
                       {item.completed ? <CheckCircle2 size={20} /> : <Circle size={20} />}
                     </div>
                     <div>
-                      <h4 className={`text-sm font-bold uppercase tracking-wide ${item.completed ? 'text-[var(--sys-color-paperWhite-base)]' : 'text-[var(--sys-color-worker-ash-base)]'}`}>
+                      <h4 className={`text-sm font-bold ${item.completed ? 'text-[var(--sys-color-paperWhite-base)]' : 'text-[var(--sys-color-worker-ash-base)]'}`}>
                         {item.label}
                       </h4>
                       <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] leading-tight">
@@ -89,8 +89,8 @@ export function GettingStartedChecklist() {
               <div className="w-16 h-16 bg-[var(--sys-color-solidarityRed-base)]/10 rounded-full flex items-center justify-center mb-4">
                 <FileText size={32} className="text-[var(--sys-color-solidarityRed-base)]" />
               </div>
-              <p className="text-[10px] font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-widest mb-2">Asymmetric Advantage</p>
-              <p className="text-[8px] text-[var(--sys-color-worker-ash-base)] uppercase">Upload your resume to unlock 4-Quadrant analysis.</p>
+              <p className="text-[10px] font-bold text-[var(--sys-color-paperWhite-base)] mb-2">Asymmetric advantage</p>
+              <p className="text-[8px] text-[var(--sys-color-worker-ash-base)]">Upload your resume to unlock 4-quadrant analysis.</p>
             </div>
           </div>
         </Card>

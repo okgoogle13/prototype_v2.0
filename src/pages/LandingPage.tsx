@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
+import { PrimaryButton } from '../components/ui/PrimaryButton';
+
 interface LandingPageProps {
   onLogin: () => void;
   onGuestLogin: () => void;
@@ -23,7 +25,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onGuestLogin 
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
           >
-            <h1 className="text-7xl md:text-9xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none mb-4">
+            <h1 className="text-7xl md:text-9xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] leading-none mb-4">
               Career<br/><span className="text-[var(--sys-color-solidarityRed-base)]">Copilot</span>
             </h1>
             <p className="text-2xl md:text-3xl type-melancholyLonging text-[var(--sys-color-worker-ash-base)] mb-6">
@@ -38,47 +40,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onGuestLogin 
             </div>
 
             <div className="flex flex-col gap-6 w-full max-w-md">
-              <button 
+              <PrimaryButton 
+                label="Sign in with Google"
                 onClick={onLogin}
-                className="w-full px-8 py-5 text-[var(--sys-color-paperWhite-base)] font-bold uppercase tracking-widest text-xl hover:text-[var(--sys-color-solidarityRed-base)] border transition-all shadow-2xl"
-                style={{ 
-                  borderRadius: 'var(--sys-shape-blockRiot01)',
-                  background: 'var(--sys-color-solidarityRed-base)',
-                  borderColor: 'var(--sys-color-solidarityRed-base)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--sys-color-charcoalBackground-steps-1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--sys-color-solidarityRed-base)';
-                }}
-              >
-                Sign In with Google
-              </button>
+                variant="filled"
+                className="w-full py-7 text-xl shadow-2xl"
+              />
 
               <div className="flex flex-col items-center gap-4">
-                <button 
+                <PrimaryButton 
+                  label="Explore as guest"
                   onClick={onGuestLogin}
-                  className="w-full px-8 py-4 text-[var(--sys-color-paperWhite-base)] font-bold uppercase tracking-widest text-lg hover:text-[var(--sys-color-solidarityRed-base)] border transition-all"
-                  style={{ 
-                    borderRadius: 'var(--sys-shape-blockRiot01)',
-                    background: 'transparent',
-                    borderColor: 'var(--sys-color-outline-variant)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--sys-color-paperWhite-base)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--sys-color-outline-variant)';
-                  }}
-                >
-                  Explore as Guest
-                </button>
+                  variant="outlined"
+                  className="w-full py-6 text-lg"
+                />
                 
                 <button 
-                  className="text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] text-sm font-bold uppercase tracking-widest transition-colors"
+                  className="text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] text-sm font-bold transition-colors"
                 >
-                  Create Account / Register
+                  Create account / register
                 </button>
               </div>
             </div>

@@ -33,20 +33,20 @@ export function DashboardOverview({ onTabChange }: DashboardOverviewProps) {
       <GettingStartedChecklist />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard label="Total Applications" value="42" change="+12% this month" />
-        <StatCard label="Interview Rate" value="24%" change="+5% from last month" />
-        <StatCard label="Avg. ATS Score" value="88" change="+3 pts improvement" />
+        <StatCard label="Total applications" value="42" change="+12% this month" />
+        <StatCard label="Interview rate" value="24%" change="+5% from last month" />
+        <StatCard label="Avg. ATS score" value="88" change="+3 pts improvement" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-8 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)]">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">ATS Score Trend</h3>
+              <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)]">ATS score trend</h3>
               <p className="text-sm text-[var(--sys-color-worker-ash-base)]">Performance across your last 5 applications</p>
             </div>
             <div className="px-4 py-1 bg-[var(--sys-color-solidarityRed-base)]/10 border border-[var(--sys-color-solidarityRed-base)]/30 rounded-full">
-              <span className="text-[10px] font-bold text-[var(--sys-color-solidarityRed-base)] uppercase tracking-widest">Live Tracking</span>
+              <span className="text-[10px] font-bold text-[var(--sys-color-solidarityRed-base)]">Live tracking</span>
             </div>
           </div>
 
@@ -97,7 +97,7 @@ export function DashboardOverview({ onTabChange }: DashboardOverviewProps) {
           <Card className="p-8 bg-[var(--sys-color-charcoalBackground-steps-2)] border-2 border-[var(--sys-color-inkGold-base)]/30 relative overflow-hidden">
             <div className="flex items-center gap-3 mb-4">
               <Link className="text-[var(--sys-color-inkGold-base)]" size={24} />
-              <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">Paste Job URL</h3>
+              <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)]">Paste job URL</h3>
             </div>
             <p className="text-sm text-[var(--sys-color-worker-ash-base)] mb-6">
               Ready to analyze a new role? Drop the link here to start the asymmetric pre-processor.
@@ -132,13 +132,13 @@ function YourDocumentsWidget() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <FileText className="text-[var(--sys-color-solidarityRed-base)]" size={24} />
-          <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">Your Documents</h3>
+          <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)]">Your documents</h3>
         </div>
-        <button className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest hover:text-[var(--sys-color-paperWhite-base)] transition-colors">View All</button>
+        <button className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors">View all</button>
       </div>
       <div className="space-y-3">
         <DocumentItem name="Master_Resume_2026.pdf" type="Resume" date="Mar 20" />
-        <DocumentItem name="Cover_Letter_Generic.docx" type="Cover Letter" date="Mar 18" />
+        <DocumentItem name="Cover_Letter_Generic.docx" type="Cover letter" date="Mar 18" />
         <DocumentItem name="Portfolio_Case_Studies.pdf" type="Portfolio" date="Mar 15" />
       </div>
     </Card>
@@ -154,10 +154,10 @@ function DocumentItem({ name, type, date }: { name: string, type: string, date: 
         </div>
         <div>
           <p className="text-xs font-bold text-[var(--sys-color-paperWhite-base)] truncate max-w-[140px]">{name}</p>
-          <p className="text-[8px] text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">{type}</p>
+          <p className="text-[8px] text-[var(--sys-color-worker-ash-base)]">{type}</p>
         </div>
       </div>
-      <div className="text-[8px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">{date}</div>
+      <div className="text-[8px] font-bold text-[var(--sys-color-worker-ash-base)]">{date}</div>
     </div>
   );
 }
@@ -165,9 +165,9 @@ function DocumentItem({ name, type, date }: { name: string, type: string, date: 
 function StatCard({ label, value, change }: { label: string, value: string, change: string }) {
   return (
     <Card className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)]" style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}>
-      <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-[0.2em] mb-2">{label}</p>
+      <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] mb-2">{label}</p>
       <h4 className="text-4xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">{value}</h4>
-      <p className="text-[10px] text-[var(--sys-color-kr-activistSmokeGreen-base)] font-bold uppercase tracking-widest">{change}</p>
+      <p className="text-[10px] text-[var(--sys-color-kr-activistSmokeGreen-base)] font-bold">{change}</p>
     </Card>
   );
 }

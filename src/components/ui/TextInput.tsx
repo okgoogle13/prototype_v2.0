@@ -27,7 +27,7 @@ export function TextInput({ label, placeholder, value, onChange, onFocus, onBlur
           color: isFocused ? 'var(--sys-color-solidarityRed-base)' : 'var(--sys-color-worker-ash-base)'
         }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="absolute left-4 origin-top-left font-bold uppercase tracking-widest pointer-events-none z-10"
+        className="absolute left-4 origin-top-left font-bold pointer-events-none z-10"
       >
         {label}
       </motion.label>

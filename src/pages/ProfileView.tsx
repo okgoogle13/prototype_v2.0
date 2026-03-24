@@ -12,7 +12,35 @@ import { DocumentInput } from "../../components/DocumentInput";
 import { Modal } from "../components/ui/Modal";
 import { AutocompleteInput } from "../components/ui/AutocompleteInput";
 import { commonIndustrySkills } from "../utils/skills";
-import { Zap } from "lucide-react";
+import { 
+  Zap, 
+  User as LucideUser, 
+  FileText, 
+  Mic, 
+  Link, 
+  Settings, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Globe, 
+  Plus, 
+  Trash2, 
+  CheckCircle2, 
+  Database, 
+  Shield, 
+  CreditCard, 
+  Bell, 
+  LogOut, 
+  ChevronRight, 
+  ExternalLink, 
+  Lock, 
+  Smartphone,
+  RefreshCw,
+  Sparkles,
+  ArrowRight,
+  Info,
+  AlertCircle
+} from "lucide-react";
 
 import { User } from 'firebase/auth';
 import { processCareerDocuments } from "../../services/geminiService";
@@ -69,8 +97,8 @@ export function ProfileView({ user }: Props) {
 
   const sections = [
     { id: "identity", label: "Identity", icon: "User" },
-    { id: "documents", label: "Master Resume Profile", icon: "FileText" },
-    { id: "voice", label: "Authentic Voice", icon: "Mic" },
+    { id: "documents", label: "Master resume profile", icon: "FileText" },
+    { id: "voice", label: "Authentic voice", icon: "Mic" },
     { id: "skills", label: "Skills", icon: "Zap" },
     { id: "integrations", label: "Integrations", icon: "Link" },
     { id: "settings", label: "Settings", icon: "Settings" },
@@ -257,7 +285,7 @@ export function ProfileView({ user }: Props) {
           {/* LEFT PANE: User Profile & Nav */}
           <div className="w-full md:w-[280px] flex-shrink-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] flex flex-col gap-8 overflow-y-auto rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none md:rounded-br-none">
             <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-24 h-24 rounded-full bg-[var(--sys-color-charcoalBackground-steps-3)] overflow-hidden flex items-center justify-center border-4 border-[var(--sys-color-outline-variant)]">
+              <div className="w-24 h-24 rounded-3xl bg-[var(--sys-color-charcoalBackground-steps-3)] overflow-hidden flex items-center justify-center border-4 border-[var(--sys-color-outline-variant)] shadow-sm">
                 {user?.photoURL ? (
                   <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
@@ -265,7 +293,7 @@ export function ProfileView({ user }: Props) {
                 )}
               </div>
               <div>
-                <h2 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)]">{fullName || "Anonymous User"}</h2>
+                <h2 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">{fullName || "Anonymous user"}</h2>
                 <p className="text-sm text-[var(--sys-color-worker-ash-base)] truncate w-full max-w-[240px]">{email}</p>
               </div>
 
@@ -294,8 +322,8 @@ export function ProfileView({ user }: Props) {
                   </div>
                 </div>
                 <div className="text-left">
-                  <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest font-bold">Profile</p>
-                  <p className="text-xs text-[var(--sys-color-paperWhite-base)] font-bold uppercase">Complete</p>
+                  <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-bold">Profile</p>
+                  <p className="text-xs text-[var(--sys-color-paperWhite-base)] font-bold">Complete</p>
                 </div>
               </div>
             </div>
@@ -311,7 +339,7 @@ export function ProfileView({ user }: Props) {
                       : "text-[var(--sys-color-worker-ash-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-3)]/50"
                   }`}
                 >
-                  <span className="uppercase tracking-wider text-sm">{section.label}</span>
+                  <span className="text-sm">{section.label}</span>
                 </button>
               ))}
             </nav>
@@ -321,13 +349,13 @@ export function ProfileView({ user }: Props) {
           <div className="flex-1 min-width-0 bg-[var(--sys-color-charcoalBackground-steps-1)] flex flex-col overflow-hidden rounded-b-[28px] md:rounded-r-[28px] md:rounded-tl-none md:rounded-bl-none">
             {/* Sticky Save Header */}
             <div className="sticky top-0 z-10 bg-[var(--sys-color-charcoalBackground-steps-1)]/80 backdrop-blur-md border-b border-[var(--sys-color-outline-variant)] py-4 px-8 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">
+              <h2 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">
                 {sections.find(s => s.id === activeSection)?.label}
               </h2>
               <PrimaryButton 
-                label={isSaving ? "Saving..." : "Save Changes"} 
+                label={isSaving ? "Saving..." : "Save changes"} 
                 onClick={handleSave} 
-                variant="strike" 
+                variant="filled" 
                 disabled={isSaving}
               />
             </div>
@@ -343,18 +371,18 @@ export function ProfileView({ user }: Props) {
                   className="max-w-3xl"
                 >
                   {activeSection === "identity" && (
-                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
-                      <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-6">Identity</h3>
+                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[32px] border border-[var(--sys-color-outline-variant)] shadow-sm">
+                      <h3 className="text-[22px] leading-[28px] font-bold text-[var(--sys-color-paperWhite-base)] mb-6">Identity</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <TextInput label="Full Name" placeholder="e.g. Jane Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-                        <TextInput label="Email Address" placeholder="e.g. jane@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                        <TextInput label="Phone Number" placeholder="e.g. +1 234 567 890" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                        <TextInput label="Full name" placeholder="e.g. Jane Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                        <TextInput label="Email address" placeholder="e.g. jane@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <TextInput label="Phone number" placeholder="e.g. +1 234 567 890" value={phone} onChange={(e) => setPhone(e.target.value)} />
                         <TextInput label="Location" placeholder="e.g. New York, NY" value={location} onChange={(e) => setLocation(e.target.value)} />
                       </div>
                       
                       {portfolioUrls.length > 0 && (
                         <div className="mt-8">
-                          <label className="block text-sm font-bold uppercase tracking-wider text-[var(--sys-color-worker-ash-base)] mb-4">Portfolio & Social Links</label>
+                          <label className="block text-sm font-bold text-[var(--sys-color-worker-ash-base)] mb-4">Portfolio and social links</label>
                           <div className="flex flex-wrap gap-3">
                             {portfolioUrls.map((url, i) => (
                               <div key={i} className="px-4 py-2 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] text-xs truncate max-w-[240px] rounded-full">
@@ -367,28 +395,28 @@ export function ProfileView({ user }: Props) {
 
                       <div className="mt-6 text-right">
                         <button onClick={handleLoadSampleProfile} className="text-sm text-[var(--sys-color-primary-base)] hover:underline">
-                          Load Sample Profile
+                          Load sample profile
                         </button>
                       </div>
                     </div>
                   )}
 
                   {activeSection === "documents" && (
-                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
+                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[32px] border border-[var(--sys-color-outline-variant)] shadow-sm">
                       <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase">Master Resume Profile</h3>
+                         <h3 className="text-[22px] leading-[28px] font-bold text-[var(--sys-color-paperWhite-base)]">Master resume profile</h3>
                         {ingestedDocuments.length > 0 && (
                           <button 
                             onClick={handleReanalyze}
                             disabled={isProcessing}
-                            className="text-xs font-bold uppercase tracking-widest text-[var(--sys-color-inkGold-base)] hover:underline flex items-center gap-2 disabled:opacity-50"
+                            className="text-xs font-bold text-[var(--sys-color-inkGold-base)] hover:underline flex items-center gap-2 disabled:opacity-50"
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M23 4v6h-6"></path>
                               <path d="M1 20v-6h6"></path>
                               <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                             </svg>
-                            {isProcessing ? 'Analyzing...' : 'Re-analyze Profile'}
+                            {isProcessing ? 'Analyzing...' : 'Re-analyze profile'}
                           </button>
                         )}
                       </div>
@@ -403,20 +431,20 @@ export function ProfileView({ user }: Props) {
                               <line x1="9" y1="15" x2="15" y2="15"></line>
                             </svg>
                           </div>
-                          <h4 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-2">Build Your Foundation</h4>
-                          <p className="text-[var(--sys-color-worker-ash-base)] mb-8 max-w-sm">Upload your resume, cover letters, and other career documents to build your vectorized Master Resume Profile.</p>
+                          <h4 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">Build your foundation</h4>
+                          <p className="text-[var(--sys-color-worker-ash-base)] mb-8 max-w-sm">Upload your resume, cover letters, and other career documents to build your vectorized master resume profile.</p>
                           <DocumentInput 
                             onProcess={handleProcessDocuments} 
                             isLoading={isProcessing} 
                             hideTitle={true} 
-                            submitLabel="Upload documents to build your Master Resume Profile"
+                            submitLabel="Upload documents to build your master resume profile"
                           />
                         </div>
                       ) : (
                         <div className="space-y-6">
                           <div className="grid grid-cols-1 gap-4">
                             {ingestedDocuments.map((doc) => (
-                              <div key={doc.id} className="flex items-center justify-between p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl group">
+                              <div key={doc.id} className="flex items-center justify-between p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-[20px] group hover:bg-[var(--sys-color-charcoalBackground-steps-4)] transition-all">
                                 <div className="flex items-center gap-4 min-w-0">
                                   <div className="w-10 h-10 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded-xl flex items-center justify-center text-[var(--sys-color-worker-ash-base)]">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -425,8 +453,8 @@ export function ProfileView({ user }: Props) {
                                     </svg>
                                   </div>
                                   <div className="min-w-0">
-                                    <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] truncate uppercase tracking-tight">{doc.name}</p>
-                                    <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 uppercase tracking-widest">
+                                    <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] truncate tracking-tight">{doc.name}</p>
+                                    <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 font-bold">
                                       Ingested on {new Date(doc.dateIngested).toLocaleDateString()}
                                     </p>
                                   </div>
@@ -445,12 +473,12 @@ export function ProfileView({ user }: Props) {
                           </div>
 
                           <div className="pt-6 border-t border-[var(--sys-color-outline-variant)]">
-                            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--sys-color-worker-ash-base)] mb-4">Add More Documents</h4>
+                            <h4 className="text-xs font-bold text-[var(--sys-color-worker-ash-base)] mb-4">Add more documents</h4>
                             <DocumentInput 
                               onProcess={handleProcessDocuments} 
                               isLoading={isProcessing} 
                               hideTitle={true}
-                              submitLabel="Add to Master Profile"
+                              submitLabel="Add to master profile"
                             />
                           </div>
                         </div>
@@ -470,8 +498,8 @@ export function ProfileView({ user }: Props) {
                   )}
 
                   {activeSection === "skills" && (
-                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
-                      <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-6">Skills</h3>
+                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[32px] border border-[var(--sys-color-outline-variant)] shadow-sm">
+                      <h3 className="text-[22px] leading-[28px] font-bold text-[var(--sys-color-paperWhite-base)] mb-6">Skills</h3>
                       <p className="text-[var(--sys-color-worker-ash-base)] mb-6">Add your technical and soft skills. These will be used to match you with job opportunities.</p>
                       <div className="flex flex-wrap gap-3 mb-8">
                         {skills.map(skill => (
@@ -479,7 +507,7 @@ export function ProfileView({ user }: Props) {
                             key={skill}
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="flex items-center gap-2 px-4 py-2 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold uppercase tracking-wider text-sm rounded-full"
+                            className="flex items-center gap-2 px-4 py-2 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold text-sm rounded-full"
                           >
                             {skill}
                             <button 
@@ -494,11 +522,11 @@ export function ProfileView({ user }: Props) {
 
                       {suggestedSkills.length > 0 && (
                         <div className="mb-8 p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-inkGold-base)]/30 rounded-2xl">
-                          <h4 className="text-sm font-bold uppercase tracking-widest text-[var(--sys-color-inkGold-base)] mb-4 flex items-center gap-2">
+                          <h4 className="text-sm font-bold text-[var(--sys-color-inkGold-base)] mb-4 flex items-center gap-2">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                             </svg>
-                            Suggested from Documents
+                            Suggested from documents
                           </h4>
                           <div className="flex flex-wrap gap-2">
                             {suggestedSkills.map(skill => (
@@ -508,7 +536,7 @@ export function ProfileView({ user }: Props) {
                                   addSkill(skill);
                                   setSuggestedSkills(prev => prev.filter(s => s !== skill));
                                 }}
-                                className="px-3 py-1.5 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] text-xs font-bold uppercase tracking-wider hover:border-[var(--sys-color-inkGold-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-all flex items-center gap-2 rounded-full"
+                                className="px-3 py-1.5 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] text-xs font-bold hover:border-[var(--sys-color-inkGold-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-all flex items-center gap-2 rounded-full"
                               >
                                 + {skill}
                               </button>
@@ -520,7 +548,7 @@ export function ProfileView({ user }: Props) {
                       <div className="flex gap-4 items-end">
                         <div className="flex-1">
                           <AutocompleteInput 
-                            label="Add Skill" 
+                            label="Add skill" 
                             placeholder="e.g. React, Project Management..." 
                             value={newSkill} 
                             onChange={setNewSkill}
@@ -538,8 +566,8 @@ export function ProfileView({ user }: Props) {
                   )}
 
                   {activeSection === "integrations" && (
-                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
-                      <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-6">Integrations</h3>
+                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[32px] border border-[var(--sys-color-outline-variant)] shadow-sm">
+                      <h3 className="text-[22px] leading-[28px] font-bold text-[var(--sys-color-paperWhite-base)] mb-6">Integrations</h3>
                       <p className="text-[var(--sys-color-worker-ash-base)] mb-8">Connect your external tools to automate your job search and sync your career assets.</p>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -574,31 +602,31 @@ export function ProfileView({ user }: Props) {
                   )}
 
                   {activeSection === "settings" && (
-                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
-                      <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-8">Settings</h3>
+                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[32px] border border-[var(--sys-color-outline-variant)] shadow-sm">
+                      <h3 className="text-[22px] leading-[28px] font-bold text-[var(--sys-color-paperWhite-base)] mb-8">Settings</h3>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <div className="space-y-6">
-                          <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--sys-color-worker-ash-base)]">Account Config</h4>
+                          <h4 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">Account configuration</h4>
                           <div className="space-y-4">
-                            <TextInput label="Display Name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-                            <TextInput label="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} />
+                            <TextInput label="Display name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                            <TextInput label="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
                           </div>
                         </div>
 
                         <div className="space-y-6">
-                          <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--sys-color-worker-ash-base)]">Locale & Preferences</h4>
+                          <h4 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">Locale and preferences</h4>
                           <div className="space-y-4">
                             <div className="space-y-2">
-                              <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--sys-color-worker-ash-base)]">System Language</label>
+                              <label className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">System language</label>
                               <select className="w-full p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-xl focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors">
-                                <option value="en-AU">AUS English (Default)</option>
+                                <option value="en-AU">AUS English (default)</option>
                                 <option value="en-US">US English</option>
                                 <option value="en-GB">UK English</option>
                               </select>
                             </div>
                             <div className="flex items-center justify-between p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-xl">
-                              <span className="text-xs font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">Dark Mode</span>
+                              <span className="text-xs font-bold text-[var(--sys-color-paperWhite-base)]">Dark mode</span>
                               <div className="w-10 h-5 bg-[var(--sys-color-inkGold-base)] rounded-full relative">
                                 <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full" />
                               </div>
@@ -609,18 +637,18 @@ export function ProfileView({ user }: Props) {
 
                       <div className="mt-12 pt-8 border-t border-[var(--sys-color-outline-variant)] flex flex-col sm:flex-row items-center justify-between gap-6">
                         <div className="space-y-1">
-                          <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] uppercase">Data Privacy</p>
-                          <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">Manage your information and account status</p>
+                          <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)]">Data privacy</p>
+                          <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-bold">Manage your information and account status</p>
                         </div>
                         <div className="flex gap-4">
                           <button 
                             onClick={() => setShowDeleteModal(true)}
-                            className="px-6 py-3 bg-[var(--sys-color-kr-charcoalRed-base)]/10 border border-[var(--sys-color-solidarityRed-base)]/30 text-[var(--sys-color-solidarityRed-base)] font-bold uppercase tracking-widest text-[10px] rounded-xl hover:bg-[var(--sys-color-solidarityRed-base)] hover:text-white transition-all"
+                            className="px-6 py-3 bg-[var(--sys-color-kr-charcoalRed-base)]/10 border border-[var(--sys-color-solidarityRed-base)]/30 text-[var(--sys-color-solidarityRed-base)] font-bold text-[10px] rounded-xl hover:bg-[var(--sys-color-solidarityRed-base)] hover:text-white transition-all"
                           >
-                            Delete My Data
+                            Delete my data
                           </button>
-                          <button className="px-6 py-3 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] font-bold uppercase tracking-widest text-[10px] rounded-xl hover:text-[var(--sys-color-paperWhite-base)] transition-colors">
-                            Export Data
+                          <button className="px-6 py-3 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] font-bold text-[10px] rounded-xl hover:text-[var(--sys-color-paperWhite-base)] transition-colors">
+                            Export data
                           </button>
                         </div>
                       </div>
@@ -636,8 +664,8 @@ export function ProfileView({ user }: Props) {
         <div className="p-8">
           <p className="text-[var(--sys-color-worker-ash-base)] mb-8">Are you sure you want to delete all your data? This action cannot be undone.</p>
           <div className="flex justify-end gap-4">
-            <PrimaryButton label="Cancel" onClick={() => setShowDeleteModal(false)} variant="march" />
-            <PrimaryButton label="Delete" onClick={() => { setShowDeleteModal(false); console.log("Data deleted"); }} variant="strike" />
+            <PrimaryButton label="Cancel" onClick={() => setShowDeleteModal(false)} variant="outlined" />
+            <PrimaryButton label="Delete" onClick={() => { setShowDeleteModal(false); console.log("Data deleted"); }} variant="filled" />
           </div>
         </div>
       </Modal>
@@ -654,13 +682,13 @@ function IntegrationCard({ name, desc, status, lastSync, icon }: any) {
           {icon}
         </div>
         <div>
-          <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">{name}</h4>
+          <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">{name}</h4>
           <p className="text-xs text-[var(--sys-color-worker-ash-base)]">{desc}</p>
-          {lastSync && <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 uppercase tracking-widest mt-1">Last sync: {lastSync}</p>}
+          {lastSync && <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 font-bold mt-1">Last sync: {lastSync}</p>}
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded ${isConnected ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+        <span className={`text-[10px] font-bold px-2 py-1 rounded ${isConnected ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
           {status}
         </span>
         <button className="text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]">
@@ -681,10 +709,10 @@ interface VoiceProfileStatusCardProps {
 
 function VoiceProfileStatusCard({ profile, onReplace, onReset }: VoiceProfileStatusCardProps) {
   return (
-    <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-inkGold-base)]/30 rounded-2xl">
+    <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-inkGold-base)]/30 rounded-[24px] shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--sys-color-inkGold-base)]">Verified Authentic Voice</h4>
-        <span className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 uppercase font-bold tracking-widest">
+        <h4 className="text-xs font-bold text-[var(--sys-color-inkGold-base)]">Verified authentic voice</h4>
+        <span className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 font-bold">
           Calibrated {profile.savedAt.toLocaleDateString()}
         </span>
       </div>
@@ -694,8 +722,8 @@ function VoiceProfileStatusCard({ profile, onReplace, onReset }: VoiceProfileSta
         </p>
       </div>
       <div className="flex gap-4">
-        <PrimaryButton label="Refine Sample" onClick={onReplace} variant="tonal" />
-        <PrimaryButton label="Reset Voice" onClick={onReset} variant="march" />
+        <PrimaryButton label="Refine sample" onClick={onReplace} variant="tonal" />
+        <PrimaryButton label="Reset voice" onClick={onReset} variant="outlined" />
       </div>
     </div>
   );
@@ -713,21 +741,21 @@ function VoiceSampleSubmissionForm({ onSubmit, isLoading, initialValue = "" }: V
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-[10px] uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] opacity-60 mb-2 block font-bold">
-          Source Writing Sample
+        <label className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 mb-2 block font-bold">
+          Source writing sample
         </label>
         <textarea 
           value={inputValue} 
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Paste a cover letter, professional summary, or a few paragraphs of your best work. This sample will define your AI-generated tone."
-          className="w-full bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] p-4 rounded-xl font-bold uppercase tracking-wider text-sm focus:outline-none focus:border-[var(--sys-color-solidarityRed-base)] transition-all min-h-[150px]"
+          className="w-full bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] p-4 rounded-xl font-bold text-sm focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-all min-h-[150px]"
         />
       </div>
       <PrimaryButton 
-        label={isLoading ? "Analyzing Patterns..." : "Calibrate Voice"} 
+        label={isLoading ? "Analyzing patterns..." : "Calibrate voice"} 
         onClick={() => onSubmit(inputValue)} 
         disabled={isLoading || !inputValue.trim()}
-        variant="strike"
+        variant="filled"
       />
     </div>
   );
@@ -745,7 +773,7 @@ function VoiceProfileCreationPanel({ onSave, isLoading, error, initialValue }: V
     <div className="space-y-8">
       <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl">
         <div className="flex items-center justify-between mb-4">
-          <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--sys-color-worker-ash-base)]">Voice Calibration</h4>
+          <h4 className="text-xs font-bold text-[var(--sys-color-worker-ash-base)]">Voice calibration</h4>
         </div>
         <p className="text-xs text-[var(--sys-color-worker-ash-base)] mb-6 leading-relaxed">
           Your authentic voice is the foundation of your career narrative. Provide a sample of your writing to ensure every generated document reflects your unique professional identity.
@@ -759,7 +787,7 @@ function VoiceProfileCreationPanel({ onSave, isLoading, error, initialValue }: V
             animate={{ opacity: 1, y: 0 }}
             className="mt-4 p-4 bg-[var(--sys-color-kr-charcoalRed-base)]/20 border border-[var(--sys-color-solidarityRed-base)]/30 rounded-xl"
           >
-            <p className="text-xs text-[var(--sys-color-solidarityRed-base)] font-bold uppercase tracking-wider">
+            <p className="text-xs text-[var(--sys-color-solidarityRed-base)] font-bold">
               {error}
             </p>
           </motion.div>
@@ -800,10 +828,10 @@ function VoiceProfileManagementSection({
   };
 
   return (
-    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
+    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[32px] border border-[var(--sys-color-outline-variant)] shadow-sm">
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-2">Authentic Voice</h3>
+          <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-2">Authentic voice</h3>
           <p className="text-[var(--sys-color-worker-ash-base)]">
             {savedProfile && !isEditing
               ? "Your voice profile is active and being used to calibrate generated documents." 
@@ -833,12 +861,25 @@ function VoiceProfileManagementSection({
           }}
         />
       ) : (
-        <VoiceProfileCreationPanel 
-          onSave={handleSaveWrapper}
-          isLoading={isLoading}
-          error={error}
-          initialValue={savedProfile?.sample}
-        />
+        <div className="space-y-8">
+          {!savedProfile && !isEditing && (
+            <div className="p-10 flex flex-col items-center justify-center text-center bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-[24px] border border-dashed border-[var(--sys-color-outline-variant)]">
+              <div className="w-16 h-16 rounded-full bg-[var(--sys-color-charcoalBackground-steps-4)] flex items-center justify-center mb-6">
+                <Mic size={32} className="text-[var(--sys-color-worker-ash-base)] opacity-20" />
+              </div>
+              <h4 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">No voice profile</h4>
+              <p className="text-sm text-[var(--sys-color-worker-ash-base)] max-w-xs mx-auto mb-8">
+                Record your voice to generate personalized cover letters and interview responses that sound like you.
+              </p>
+            </div>
+          )}
+          <VoiceProfileCreationPanel 
+            onSave={handleSaveWrapper}
+            isLoading={isLoading}
+            error={error}
+            initialValue={savedProfile?.sample}
+          />
+        </div>
       )}
     </div>
   );

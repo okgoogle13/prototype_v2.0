@@ -39,17 +39,17 @@ export function AiOutputsTabs() {
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                   <div>
-                    <h3 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">Key Selection Criteria</h3>
+                    <h3 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] tracking-tight">Key selection criteria</h3>
                     <p className="type-melancholyLonging text-lg text-[var(--sys-color-worker-ash-base)]">
                       The following criteria were extracted from the job description.
                     </p>
                   </div>
                   <button 
                     onClick={() => handleCopy(criteria.map(c => c.title).join('\n'))}
-                    className="px-6 py-3 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold uppercase tracking-wider text-sm hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors whitespace-nowrap"
+                    className="px-6 py-3 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold text-sm hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors whitespace-nowrap"
                     style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
                   >
-                    Copy to Clipboard for ATS
+                    Copy to clipboard for ATS
                   </button>
                 </div>
                 {criteria.map(c => (
@@ -60,7 +60,7 @@ export function AiOutputsTabs() {
                     style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
                   >
                     <div className="flex justify-between items-center mb-4">
-                      <p className="font-mono text-sm text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest">Criteria 0{c.id}</p>
+                      <p className="font-mono text-sm text-[var(--sys-color-stencilYellow-base)]">Criteria 0{c.id}</p>
                       <div className="flex items-center gap-4">
                         <Badge label={c.required ? "Required" : "Nice to have"} variant={c.required ? "danger" : "success"} />
                         <div 
@@ -83,13 +83,13 @@ export function AiOutputsTabs() {
             {activeTab === 'resume' && (
               <div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                  <h3 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">Resume Tailoring</h3>
+                  <h3 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] tracking-tight">Resume tailoring</h3>
                   <button 
                     onClick={() => handleCopy("React & TypeScript\nGraphQL")}
-                    className="px-6 py-3 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold uppercase tracking-wider text-sm hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors whitespace-nowrap"
+                    className="px-6 py-3 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold text-sm hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors whitespace-nowrap"
                     style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
                   >
-                    Copy to Clipboard for ATS
+                    Copy to clipboard for ATS
                   </button>
                 </div>
                 <div className="space-y-4">
@@ -107,13 +107,13 @@ export function AiOutputsTabs() {
             {activeTab === 'cover' && (
               <div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                  <h3 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">Cover Letter Draft</h3>
+                  <h3 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] tracking-tight">Cover letter draft</h3>
                   <button 
                     onClick={() => handleCopy("Dear Hiring Manager...")}
-                    className="px-6 py-3 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold uppercase tracking-wider text-sm hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors whitespace-nowrap"
+                    className="px-6 py-3 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold text-sm hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors whitespace-nowrap"
                     style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
                   >
-                    Copy to Clipboard for ATS
+                    Copy to clipboard for ATS
                   </button>
                 </div>
                 <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)]" style={{ borderRadius: 'var(--sys-shape-blockRiot03)' }}>
@@ -142,7 +142,7 @@ function TabButton({ label, active, onClick, id }: { label: string, active: bool
   return (
     <button
       onClick={onClick}
-      className={`relative px-6 py-3 font-bold uppercase tracking-wider text-sm transition-colors z-10 ${
+      className={`relative px-6 py-3 font-bold text-sm transition-colors z-10 ${
         active 
           ? 'text-[var(--sys-color-paperWhite-base)]' 
           : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'

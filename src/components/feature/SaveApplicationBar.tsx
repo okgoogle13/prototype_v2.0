@@ -16,12 +16,12 @@ export function SaveApplicationBar() {
       style={{ borderRadius: 'var(--sys-shape-alertShard01)' }}
     >
       <div>
-        <h4 className="text-2xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">Ready to Submit?</h4>
+        <h4 className="text-2xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] tracking-tight">Ready to submit?</h4>
         <p className="type-melancholyLonging text-[var(--sys-color-worker-ash-base)] mt-2">Save this application to your history to track its progress.</p>
       </div>
       <div className="flex gap-4">
-        <PrimaryButton label="Export PDF" onClick={() => {}} variant="march" />
-        <PrimaryButton label="Save to Tracker" onClick={() => {}} variant="strike" />
+        <PrimaryButton label="Export PDF" onClick={() => {}} variant="outlined" />
+        <PrimaryButton label="Save to tracker" onClick={() => {}} variant="filled" />
       </div>
     </motion.div>
   );

@@ -34,7 +34,7 @@ export function StatusSpecificLoadingState() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="text-xl font-bold uppercase tracking-widest text-[var(--sys-color-paperWhite-base)]"
+          className="text-xl font-bold text-[var(--sys-color-paperWhite-base)]"
         >
           {messages[index]}
         </motion.p>

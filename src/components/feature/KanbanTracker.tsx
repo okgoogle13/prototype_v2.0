@@ -38,7 +38,7 @@ export function KanbanTracker({ onSelectApp, selectedId }: { onSelectApp: (id: s
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: column.color }} />
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--sys-color-worker-ash-base)]">{column.label}</h3>
+              <h3 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">{column.label}</h3>
             </div>
             <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] opacity-40">
               {mockApplications.filter(app => app.status === column.id).length}
@@ -64,7 +64,7 @@ export function KanbanTracker({ onSelectApp, selectedId }: { onSelectApp: (id: s
                   )}
                   
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-xs font-bold text-[var(--sys-color-paperWhite-base)] uppercase truncate max-w-[180px]">
+                    <h4 className="text-xs font-bold text-[var(--sys-color-paperWhite-base)] truncate max-w-[180px]">
                       {app.company}
                     </h4>
                     <div className="flex items-center gap-1">
@@ -76,7 +76,7 @@ export function KanbanTracker({ onSelectApp, selectedId }: { onSelectApp: (id: s
                   <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-medium mb-4 line-clamp-1">{app.role}</p>
                   
                   <div className="flex items-center justify-between mt-auto">
-                    <div className="flex items-center gap-2 text-[8px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">
+                    <div className="flex items-center gap-2 text-[8px] font-bold text-[var(--sys-color-worker-ash-base)]">
                       <Calendar size={10} />
                       {app.date}
                     </div>
@@ -90,7 +90,7 @@ export function KanbanTracker({ onSelectApp, selectedId }: { onSelectApp: (id: s
             {mockApplications.filter(app => app.status === column.id).length === 0 && (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center opacity-20">
                 <div className="w-12 h-12 border-2 border-dashed border-[var(--sys-color-worker-ash-base)] rounded-full mb-4" />
-                <p className="text-[8px] font-bold uppercase tracking-widest">Empty Column</p>
+                <p className="text-[8px] font-bold">Empty column</p>
               </div>
             )}
           </div>
@@ -105,10 +105,10 @@ export function ApplicationDetailWorkspace({ app }: { app: Application }) {
     <div className="max-w-4xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-12">
         <div>
-          <h1 className="text-4xl md:text-5xl font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter mb-2">
+          <h1 className="text-4xl md:text-5xl font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-2">
             {app.role}
           </h1>
-          <p className="text-xl text-[var(--sys-color-inkGold-base)] font-bold uppercase tracking-widest">
+          <p className="text-xl text-[var(--sys-color-inkGold-base)] font-bold">
             {app.company} • {app.location}
           </p>
         </div>
@@ -116,53 +116,53 @@ export function ApplicationDetailWorkspace({ app }: { app: Application }) {
           <div className="text-4xl font-bold text-[var(--sys-color-paperWhite-base)]">
             {app.atsScore}<span className="text-lg text-[var(--sys-color-worker-ash-base)]">/100</span>
           </div>
-          <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest font-bold">ATS Match Score</p>
+          <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-bold">ATS match score</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-6 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] mb-4">Application Status</h3>
+          <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] mb-4">Application status</h3>
           <div className="flex items-center gap-4">
             <div className={`w-3 h-3 rounded-full ${
               app.status === "offered" ? "bg-[var(--sys-color-signalGreen-base)]" :
               app.status === "rejected" ? "bg-[var(--sys-color-solidarityRed-base)]" :
               "bg-[var(--sys-color-inkGold-base)]"
             }`} />
-            <span className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase">{app.status}</span>
+            <span className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] capitalize">{app.status}</span>
           </div>
         </div>
         <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-6 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] mb-4">Submitted On</h3>
+          <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] mb-4">Submitted on</h3>
           <p className="text-xl font-bold text-[var(--sys-color-paperWhite-base)]">{app.date}</p>
         </div>
       </div>
 
       <div className="space-y-8">
         <section>
-          <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider mb-4 border-l-4 border-[var(--sys-color-solidarityRed-base)] pl-4">Source Documents</h3>
+          <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] mb-4 border-l-4 border-[var(--sys-color-solidarityRed-base)] pl-4">Source documents</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <AssetCard 
               icon={<FileText size={24} />} 
-              label="Resume Version" 
+              label="Resume version" 
               value={app.resumeVersion} 
-              action="View Version"
+              action="View version"
             />
             <AssetCard 
               icon={<Mail size={24} />} 
-              label="Cover Letter" 
+              label="Cover letter" 
               value={app.coverLetterId} 
-              action="View Draft"
+              action="View draft"
             />
           </div>
         </section>
 
         <section>
-          <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider mb-4 border-l-4 border-[var(--sys-color-metalBlue-base)] pl-4">Application Timeline</h3>
+          <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] mb-4 border-l-4 border-[var(--sys-color-metalBlue-base)] pl-4">Application timeline</h3>
           <div className="space-y-4">
-            <TimelineItem date="2024-03-15" event="Interview Scheduled" desc="Round 1 with Hiring Manager" />
-            <TimelineItem date="2024-03-10" event="Application Submitted" desc="Tailored via CareerCopilot" />
-            <TimelineItem date="2024-03-09" event="Job Clipped" desc="Found via LinkedIn" />
+            <TimelineItem date="2024-03-15" event="Interview scheduled" desc="Round 1 with hiring manager" />
+            <TimelineItem date="2024-03-10" event="Application submitted" desc="Tailored via CareerCopilot" />
+            <TimelineItem date="2024-03-09" event="Job clipped" desc="Found via LinkedIn" />
           </div>
         </section>
       </div>
@@ -178,11 +178,11 @@ function AssetCard({ icon, label, value, action }: any) {
         <ExternalLink size={16} className="text-[var(--sys-color-worker-ash-base)] group-hover:text-[var(--sys-color-paperWhite-base)] transition-colors" />
       </div>
       <div>
-        <h4 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest mb-1">{label}</h4>
-        <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] uppercase truncate">{value}</p>
+        <h4 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] mb-1">{label}</h4>
+        <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] truncate">{value}</p>
       </div>
       <div className="pt-2 border-t border-[var(--sys-color-outline-variant)]">
-        <span className="text-[10px] font-bold text-[var(--sys-color-solidarityRed-base)] uppercase tracking-widest">{action}</span>
+        <span className="text-[10px] font-bold text-[var(--sys-color-solidarityRed-base)]">{action}</span>
       </div>
     </div>
   );
@@ -197,8 +197,8 @@ function TimelineItem({ date, event, desc }: any) {
       </div>
       <div className="pb-6">
         <div className="flex items-center gap-3 mb-1">
-          <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">{date}</span>
-          <span className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] uppercase">{event}</span>
+          <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">{date}</span>
+          <span className="text-sm font-bold text-[var(--sys-color-paperWhite-base)]">{event}</span>
         </div>
         <p className="text-xs text-[var(--sys-color-worker-ash-base)]">{desc}</p>
       </div>

@@ -25,7 +25,7 @@ export function Loader({ message = "Extracting skills..." }: { message?: string 
             repeat: Infinity,
           }}
         >
-          <h2 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">
+          <h2 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] tracking-tight">
             {message}
           </h2>
         </motion.div>

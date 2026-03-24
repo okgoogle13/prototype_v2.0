@@ -52,7 +52,7 @@ export function AuditDial({
           {Math.round(score)}
         </span>
         {label && (
-          <span className="text-[8px] uppercase tracking-tighter text-[var(--sys-color-worker-ash-base)] font-bold">
+          <span className="text-[8px] text-[var(--sys-color-worker-ash-base)] font-bold">
             {label}
           </span>
         )}

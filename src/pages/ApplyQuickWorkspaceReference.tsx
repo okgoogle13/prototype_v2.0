@@ -30,23 +30,23 @@ const ChecklistItem = ({ label, completed }: { label: string; completed: boolean
     ) : (
       <Circle size={18} className="text-[var(--sys-color-worker-ash-base)]" />
     )}
-    <span className={`text-sm font-bold uppercase tracking-wider ${completed ? 'text-[var(--sys-color-worker-ash-base)] line-through' : 'text-[var(--sys-color-paperWhite-base)]'}`}>
+    <span className={`text-sm font-medium ${completed ? 'text-[var(--sys-color-worker-ash-base)] line-through opacity-60' : 'text-[var(--sys-color-paperWhite-base)]'}`}>
       {label}
     </span>
   </div>
 );
 
 const StepCard = ({ number, icon: Icon, label, desc }: any) => (
-  <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] flex items-start gap-4" style={{ borderRadius: 'var(--sys-shape-radius-lg)' }}>
+  <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] flex items-start gap-4 shadow-sm hover:shadow-md transition-shadow" style={{ borderRadius: '16px' }}>
     <div className="w-10 h-10 rounded-full bg-[var(--sys-color-solidarityRed-base)] flex items-center justify-center text-[var(--sys-color-paperWhite-base)] font-bold shrink-0">
       {number}
     </div>
     <div>
       <div className="flex items-center gap-2 mb-1">
         <Icon size={18} className="text-[var(--sys-color-inkGold-base)]" />
-        <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wide">{label}</h4>
+        <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">{label}</h4>
       </div>
-      <p className="text-sm text-[var(--sys-color-worker-ash-base)]">{desc}</p>
+      <p className="text-sm text-[var(--sys-color-worker-ash-base)] leading-relaxed">{desc}</p>
     </div>
   </div>
 );
@@ -89,11 +89,11 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange
             className="w-full md:w-[440px] flex-shrink-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] flex flex-col gap-4 overflow-y-auto rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none md:rounded-br-none"
           >
             <div className="mb-2">
-              <h1 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">
-                Target <span className="text-[var(--sys-color-solidarityRed-base)]">Job</span>
+              <h1 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] tracking-tight">
+                Target <span className="text-[var(--sys-color-solidarityRed-base)]">job</span>
               </h1>
-              <p className="text-[clamp(20px,5vw,28px)] leading-[clamp(28px,6vw,36px)] type-laborExploitationPressure text-[var(--sys-color-stencilYellow-base)] uppercase tracking-widest">
-                NO NEUTRAL CANVAS.
+              <p className="text-[clamp(20px,5vw,28px)] leading-[clamp(28px,6vw,36px)] type-laborExploitationPressure text-[var(--sys-color-stencilYellow-base)]">
+                No neutral canvas.
               </p>
             </div>
 
@@ -119,15 +119,15 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange
                   className="w-full max-w-4xl mx-auto flex flex-col h-full"
                 >
                   <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-[clamp(22px,6vw,28px)] leading-[clamp(30px,7vw,36px)] type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase">
-                      {showDashboard ? "Dashboard" : "How It Works"}
+                    <h2 className="text-[clamp(22px,6vw,28px)] leading-[clamp(30px,7vw,36px)] type-solidarityProtest text-[var(--sys-color-paperWhite-base)]">
+                      {showDashboard ? "Dashboard" : "How it works"}
                     </h2>
                     <button 
                       onClick={() => setShowDashboard(!showDashboard)}
-                      className="px-4 py-2 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] font-bold uppercase tracking-widest text-[10px] hover:text-[var(--sys-color-paperWhite-base)] transition-colors rounded-full flex items-center gap-2"
+                      className="px-4 h-9 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] font-medium text-xs hover:text-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-paperWhite-base)]/5 transition-all rounded-full flex items-center gap-2"
                     >
                       {showDashboard ? <Sparkles size={14} /> : <LayoutDashboard size={14} />}
-                      {showDashboard ? "View Guide" : "View Dashboard"}
+                      {showDashboard ? "View guide" : "View dashboard"}
                     </button>
                   </div>
 
@@ -146,8 +146,8 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange
                           >
                             <X size={18} />
                           </button>
-                          <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight mb-4">
-                            Getting Started
+                          <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight mb-4">
+                            Getting started
                           </h3>
                           <div className="space-y-1">
                             <ChecklistItem label="Upload master resume" completed={false} />
@@ -156,7 +156,7 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange
                           </div>
                           <button 
                             onClick={() => setDismissedChecklist(true)}
-                            className="mt-4 text-[10px] font-bold uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors underline underline-offset-4"
+                            className="mt-4 text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors underline underline-offset-4"
                           >
                             Dismiss for now
                           </button>
@@ -175,13 +175,13 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange
                       <StepCard 
                         number="2" 
                         icon={Target} 
-                        label="Match Scored" 
+                        label="Match scored" 
                         desc="See exactly where you fit and identify critical skill gaps instantly." 
                       />
                       <StepCard 
                         number="3" 
                         icon={Sparkles} 
-                        label="Tailored Response" 
+                        label="Tailored response" 
                         desc="Resume + cover letter generated in seconds, optimized for this specific role." 
                       />
                     </div>

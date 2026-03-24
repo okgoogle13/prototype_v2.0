@@ -37,7 +37,7 @@ export const QuickApply: React.FC<QuickApplyProps> = ({ onAnalyze, onGoToDashboa
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl md:text-7xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter mb-4">
+          <h1 className="text-5xl md:text-7xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-4">
             Jobs
           </h1>
           <p className="text-xl type-melancholyLonging text-[var(--sys-color-worker-ash-base)]">
@@ -63,9 +63,9 @@ export const QuickApply: React.FC<QuickApplyProps> = ({ onAnalyze, onGoToDashboa
               setHasSetJobTarget(true);
               if (onGoToDashboard) onGoToDashboard();
             }}
-            className="text-[var(--sys-color-worker-ash-base)] opacity-60 hover:opacity-100 hover:text-[var(--sys-color-paperWhite-base)] font-bold uppercase tracking-widest text-sm transition-all"
+            className="text-[var(--sys-color-worker-ash-base)] opacity-60 hover:opacity-100 hover:text-[var(--sys-color-paperWhite-base)] font-bold text-sm transition-all"
           >
-            Go to Dashboard →
+            Go to dashboard →
           </button>
         </div>
       </div>

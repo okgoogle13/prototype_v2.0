@@ -14,7 +14,7 @@ export function SectionHeader({ title, subtitle }: Props) {
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className="mb-8 border-b border-[var(--sys-color-outline-variant)] pb-4"
     >
-      <h2 className="text-5xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none">
+      <h2 className="text-5xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] leading-none">
         {title}
       </h2>
       {subtitle && (

@@ -11,7 +11,7 @@ type Props = {
 export function Textarea({ label, placeholder, value, onChange }: Props) {
   return (
     <div className="flex flex-col gap-3">
-      <label className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">
+      <label className="text-sm font-bold text-[var(--sys-color-worker-ash-base)]">
         {label}
       </label>
       <motion.textarea

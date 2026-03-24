@@ -42,7 +42,7 @@ export function Modal({ isOpen, onClose, title, children }: Props) {
                 className="flex items-center justify-between mb-8 border-b pb-4"
                 style={{ borderColor: 'var(--sys-color-outline-variant)' }}
               >
-                <h2 className="text-4xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter leading-none">
+                <h2 className="text-4xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] leading-none">
                   {title}
                 </h2>
                 <button

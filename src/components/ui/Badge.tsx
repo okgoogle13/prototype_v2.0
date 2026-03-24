@@ -29,7 +29,7 @@ export function Badge({ label, variant = 'default' }: Props) {
     <motion.span
       whileHover={{ scale: 1.05, rotate: (Math.random() - 0.5) * 5 }}
       transition={{ type: "spring", stiffness: 400, damping: 10 }}
-      className="inline-block px-3 py-1 font-mono text-xs uppercase tracking-widest border"
+      className="inline-block px-3 py-1 font-mono text-xs border"
       style={{ 
         borderRadius: 'var(--sys-shape-blockRiot02)',
         color: textColor,
