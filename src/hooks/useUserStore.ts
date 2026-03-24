@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 interface UserState {
   hasCompletedOnboarding: boolean;
@@ -19,25 +18,20 @@ interface UserState {
 }
 
 export const useUserStore = create<UserState>()(
-  persist(
-    (set) => ({
-      hasCompletedOnboarding: false,
-      setHasCompletedOnboarding: (value) => set({ hasCompletedOnboarding: value }),
-      hasSetJobTarget: false,
-      setHasSetJobTarget: (value) => set({ hasSetJobTarget: value }),
-      onboardingPath: null,
-      setOnboardingPath: (path) => set({ onboardingPath: path }),
-      dismissedChecklist: false,
-      setDismissedChecklist: (value) => set({ dismissedChecklist: value }),
-      pendingJobUrl: null,
-      setPendingJobUrl: (url) => set({ pendingJobUrl: url }),
-      isGovernmentJob: false,
-      setIsGovernmentJob: (value) => set({ isGovernmentJob: value }),
-      hasGeneratedDocument: false,
-      setHasGeneratedDocument: (value) => set({ hasGeneratedDocument: value }),
-    }),
-    {
-      name: 'user-storage',
-    }
-  )
+  (set) => ({
+    hasCompletedOnboarding: false,
+    setHasCompletedOnboarding: (value) => set({ hasCompletedOnboarding: value }),
+    hasSetJobTarget: false,
+    setHasSetJobTarget: (value) => set({ hasSetJobTarget: value }),
+    onboardingPath: null,
+    setOnboardingPath: (path) => set({ onboardingPath: path }),
+    dismissedChecklist: false,
+    setDismissedChecklist: (value) => set({ dismissedChecklist: value }),
+    pendingJobUrl: null,
+    setPendingJobUrl: (url) => set({ pendingJobUrl: url }),
+    isGovernmentJob: false,
+    setIsGovernmentJob: (value) => set({ isGovernmentJob: value }),
+    hasGeneratedDocument: false,
+    setHasGeneratedDocument: (value) => set({ hasGeneratedDocument: value }),
+  })
 );

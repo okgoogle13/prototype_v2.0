@@ -28,10 +28,10 @@ export const AppNavDrawer: React.FC<AppNavDrawerProps> = ({ user, activeTab, onT
 
   const navItems = [
     { id: 'DASHBOARD' as TabType, label: 'Dashboard', icon: <LayoutDashboard size={24} /> },
-    { id: 'JOBS' as TabType, label: 'Opportunities', icon: <Briefcase size={24} /> },
-    { id: 'ATS_CHECK' as TabType, label: 'Analysis', icon: <SearchCheck size={24} /> },
-    { id: 'APPLICATIONS' as TabType, label: 'Tracker', icon: <History size={24} /> },
-    { id: 'SUBMITTED_DOCS' as TabType, label: 'Documents', icon: <Files size={24} /> },
+    { id: 'JOBS' as TabType, label: 'JOBS', icon: <Briefcase size={24} /> },
+    { id: 'ATS_CHECK' as TabType, label: 'ATS CHECK', icon: <SearchCheck size={24} /> },
+    { id: 'APPLICATIONS' as TabType, label: 'APPLICATIONS', icon: <History size={24} /> },
+    { id: 'SUBMITTED_DOCS' as TabType, label: 'SUBMITTED DOCS', icon: <Files size={24} /> },
     { id: 'PROFILE' as TabType, label: 'Profile', icon: <FileUser size={24} /> },
   ];
 

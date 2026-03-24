@@ -118,20 +118,19 @@ const App: React.FC = () => {
     return <OnboardingPathBifurcation />;
   }
 
-  // Onboarding Flow: Force JOBS if target not set (unless they chose PROFILE path)
-  if ((user || isGuest) && !hasSetJobTarget && onboardingPath !== 'PROFILE') {
-    return (
-      <AppShell user={user} onLogout={handleLogout} activeTab={'JOBS'} onTabChange={setActiveTab}>
-        <JobsWorklist />
-      </AppShell>
-    );
-  }
-
   return (
     <AppShell user={user} onLogout={handleLogout} activeTab={activeTab} onTabChange={setActiveTab}>
       {/* Canonical routing is owned by the main repo router. */}
       {activeTab === 'DASHBOARD' && <ApplyQuickWorkspaceReference initialJobData={initialJobData} user={user} onTabChange={setActiveTab} />}
-      {activeTab === 'JOBS' && <JobsWorklist />}
+      {activeTab === 'JOBS' && (
+        <QuickApply 
+          onAnalyze={async (title, company, text) => {
+            setInitialJobData({ title, company, text });
+            setActiveTab('DASHBOARD');
+          }} 
+          onGoToDashboard={() => setActiveTab('DASHBOARD')}
+        />
+      )}
       {activeTab === 'ATS_CHECK' && <OptimisePage user={user} />}
       {activeTab === 'APPLICATIONS' && <PastApplicationsReference user={user} />}
       {activeTab === 'SUBMITTED_DOCS' && <LibraryReferencePage user={user} />}
