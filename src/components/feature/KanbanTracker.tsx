@@ -1,8 +1,8 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
-import { FileText, Mail, Link, ExternalLink, History, Target } from 'lucide-react';
+import { FileText, Mail, Link, ExternalLink, History, Target, ChevronRight, MoreVertical, Calendar, MapPin } from 'lucide-react';
 
 interface Application {
   id: string;
@@ -23,37 +23,78 @@ const mockApplications: Application[] = [
   { id: "4", company: "FutureAI", role: "Machine Learning Engineer", date: "2024-02-15", status: "offered", atsScore: 95, location: "Austin, TX", resumeVersion: "v3.0-MLE", coverLetterId: "CL-9955" },
 ];
 
+const columns = [
+  { id: 'applied', label: 'Applied', color: 'var(--sys-color-worker-ash-base)' },
+  { id: 'interviewing', label: 'Interviewing', color: 'var(--sys-color-inkGold-base)' },
+  { id: 'offered', label: 'Offered', color: 'var(--sys-color-signalGreen-base)' },
+  { id: 'rejected', label: 'Archived', color: 'var(--sys-color-solidarityRed-base)' },
+];
+
 export function KanbanTracker({ onSelectApp, selectedId }: { onSelectApp: (id: string) => void, selectedId: string | null }) {
   return (
-    <div className="flex flex-col gap-3">
-      {mockApplications.map((app) => (
-        <button
-          key={app.id}
-          onClick={() => onSelectApp(app.id)}
-          className={`p-4 rounded-2xl text-left transition-all border ${
-            selectedId === app.id
-              ? "bg-[var(--sys-color-charcoalBackground-steps-3)] border-[var(--sys-color-outline-variant)] shadow-lg"
-              : "bg-transparent border-transparent hover:bg-[var(--sys-color-charcoalBackground-steps-3)]/30"
-          }`}
-        >
-          <div className="flex justify-between items-start mb-1">
-            <h3 className={`font-bold uppercase tracking-tight ${selectedId === app.id ? "text-[var(--sys-color-paperWhite-base)]" : "text-[var(--sys-color-worker-ash-base)]"}`}>
-              {app.company}
-            </h3>
-            <span className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-bold">{app.date}</span>
-          </div>
-          <p className="text-sm text-[var(--sys-color-worker-ash-base)] mb-3">{app.role}</p>
-          <div className="flex items-center justify-between">
-            <Badge 
-              label={app.status} 
-              variant={app.status === "offered" ? "success" : app.status === "rejected" ? "danger" : "warning"} 
-            />
-            <div className="flex items-center gap-1">
-              <Target size={12} className="text-[var(--sys-color-inkGold-base)]" />
-              <span className="text-[10px] font-bold text-[var(--sys-color-paperWhite-base)]">{app.atsScore}%</span>
+    <div className="flex gap-6 h-full overflow-x-auto pb-4 scrollbar-hide">
+      {columns.map((column) => (
+        <div key={column.id} className="w-[300px] flex-shrink-0 flex flex-col gap-4">
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: column.color }} />
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--sys-color-worker-ash-base)]">{column.label}</h3>
             </div>
+            <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] opacity-40">
+              {mockApplications.filter(app => app.status === column.id).length}
+            </span>
           </div>
-        </button>
+
+          <div className="flex-1 flex flex-col gap-3 p-2 bg-[var(--sys-color-charcoalBackground-steps-3)]/30 rounded-[24px] border border-[var(--sys-color-outline-variant)]/30">
+            {mockApplications
+              .filter(app => app.status === column.id)
+              .map((app) => (
+                <motion.button
+                  layoutId={app.id}
+                  key={app.id}
+                  onClick={() => onSelectApp(app.id)}
+                  className={`p-4 rounded-2xl text-left transition-all border group relative overflow-hidden ${
+                    selectedId === app.id
+                      ? "bg-[var(--sys-color-charcoalBackground-steps-3)] border-[var(--sys-color-inkGold-base)]/50 shadow-xl"
+                      : "bg-[var(--sys-color-charcoalBackground-steps-2)] border-[var(--sys-color-outline-variant)] hover:border-[var(--sys-color-worker-ash-base)]"
+                  }`}
+                >
+                  {selectedId === app.id && (
+                    <div className="absolute top-0 left-0 w-1 h-full bg-[var(--sys-color-inkGold-base)]" />
+                  )}
+                  
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="text-xs font-bold text-[var(--sys-color-paperWhite-base)] uppercase truncate max-w-[180px]">
+                      {app.company}
+                    </h4>
+                    <div className="flex items-center gap-1">
+                      <Target size={10} className="text-[var(--sys-color-inkGold-base)]" />
+                      <span className="text-[10px] font-bold text-[var(--sys-color-paperWhite-base)]">{app.atsScore}%</span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-medium mb-4 line-clamp-1">{app.role}</p>
+                  
+                  <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center gap-2 text-[8px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">
+                      <Calendar size={10} />
+                      {app.date}
+                    </div>
+                    <div className="w-6 h-6 rounded-full bg-[var(--sys-color-charcoalBackground-steps-4)] flex items-center justify-center text-[var(--sys-color-worker-ash-base)] group-hover:text-[var(--sys-color-paperWhite-base)] transition-colors">
+                      <ChevronRight size={14} />
+                    </div>
+                  </div>
+                </motion.button>
+              ))}
+            
+            {mockApplications.filter(app => app.status === column.id).length === 0 && (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center opacity-20">
+                <div className="w-12 h-12 border-2 border-dashed border-[var(--sys-color-worker-ash-base)] rounded-full mb-4" />
+                <p className="text-[8px] font-bold uppercase tracking-widest">Empty Column</p>
+              </div>
+            )}
+          </div>
+        </div>
       ))}
     </div>
   );

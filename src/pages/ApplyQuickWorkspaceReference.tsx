@@ -11,15 +11,30 @@ import { StudioMatchPanel } from "../../components/StudioMatchPanel";
 import { SaveApplicationBar } from "../components/feature/SaveApplicationBar";
 import { generateMatchAnalysis } from "../../services/geminiService";
 import { useApplyWorkspace } from "../hooks/useApplyWorkspace";
-import { Link, Target, Sparkles, LayoutDashboard } from "lucide-react";
+import { Link, Target, Sparkles, LayoutDashboard, CheckCircle2, Circle, X } from "lucide-react";
 import { DashboardOverview } from "../components/feature/DashboardOverview";
+import { useUserStore } from "../hooks/useUserStore";
 
 import { User } from 'firebase/auth';
 
 interface Props {
   initialJobData?: { title: string; company: string; text: string } | null;
   user?: User | null;
+  onTabChange?: (tab: 'DASHBOARD' | 'JOBS' | 'ATS_CHECK' | 'APPLICATIONS' | 'SUBMITTED_DOCS' | 'PROFILE' | 'SETTINGS') => void;
 }
+
+const ChecklistItem = ({ label, completed }: { label: string; completed: boolean }) => (
+  <div className="flex items-center gap-3 py-2">
+    {completed ? (
+      <CheckCircle2 size={18} className="text-[var(--sys-color-signalGreen-base)]" />
+    ) : (
+      <Circle size={18} className="text-[var(--sys-color-worker-ash-base)]" />
+    )}
+    <span className={`text-sm font-bold uppercase tracking-wider ${completed ? 'text-[var(--sys-color-worker-ash-base)] line-through' : 'text-[var(--sys-color-paperWhite-base)]'}`}>
+      {label}
+    </span>
+  </div>
+);
 
 const StepCard = ({ number, icon: Icon, label, desc }: any) => (
   <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] flex items-start gap-4" style={{ borderRadius: 'var(--sys-shape-radius-lg)' }}>
@@ -36,7 +51,7 @@ const StepCard = ({ number, icon: Icon, label, desc }: any) => (
   </div>
 );
 
-export function ApplyQuickWorkspaceReference({ initialJobData, user }: Props) {
+export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange }: Props) {
   const {
     careerData,
     job,
@@ -47,7 +62,11 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user }: Props) {
     handleSave
   } = useApplyWorkspace({ initialJobData, user });
 
+  const { dismissedChecklist, setDismissedChecklist } = useUserStore();
   const [showDashboard, setShowDashboard] = React.useState(true);
+
+  // Stub boolean for missing profile data
+  const isProfileMissing = true;
 
   if (isLoadingProfile) {
     return (
@@ -113,7 +132,38 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user }: Props) {
                   </div>
 
                   {showDashboard ? (
-                    <DashboardOverview />
+                    <>
+                      {!dismissedChecklist && isProfileMissing && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: -20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mb-8 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] relative"
+                          style={{ borderRadius: 'var(--sys-shape-radius-lg)' }}
+                        >
+                          <button 
+                            onClick={() => setDismissedChecklist(true)}
+                            className="absolute top-4 right-4 text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors"
+                          >
+                            <X size={18} />
+                          </button>
+                          <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight mb-4">
+                            Getting Started
+                          </h3>
+                          <div className="space-y-1">
+                            <ChecklistItem label="Upload master resume" completed={false} />
+                            <ChecklistItem label="Paste a job URL" completed={false} />
+                            <ChecklistItem label="Browse jobs" completed={false} />
+                          </div>
+                          <button 
+                            onClick={() => setDismissedChecklist(true)}
+                            className="mt-4 text-[10px] font-bold uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors underline underline-offset-4"
+                          >
+                            Dismiss for now
+                          </button>
+                        </motion.div>
+                      )}
+                      <DashboardOverview onTabChange={onTabChange} />
+                    </>
                   ) : (
                     <div className="grid grid-cols-1 gap-4 max-w-2xl mx-auto w-full">
                       <StepCard 

@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
-  Zap,
-  Binoculars, 
-  MessageSquareQuote, 
-  FileUser, 
-  History, 
+  Briefcase,
+  SearchCheck,
+  History,
+  Files,
+  FileUser,
   Settings, 
   LogOut,
   Menu,
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 
-type TabType = 'WORKSPACE' | 'QUICK_APPLY' | 'LOOKOUT' | 'PREP' | 'PROFILE' | 'PAST' | 'LIBRARY';
+type TabType = 'DASHBOARD' | 'JOBS' | 'ATS_CHECK' | 'APPLICATIONS' | 'SUBMITTED_DOCS' | 'PROFILE' | 'SETTINGS';
 
 interface AppNavDrawerProps {
   user: User | null;
@@ -27,17 +27,15 @@ export const AppNavDrawer: React.FC<AppNavDrawerProps> = ({ user, activeTab, onT
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { id: 'WORKSPACE' as TabType, label: 'Dashboard', icon: <LayoutDashboard size={24} /> },
-    { id: 'QUICK_APPLY' as TabType, label: 'Apply Now', icon: <Zap size={24} className="text-[var(--sys-color-solidarityRed-base)]" /> },
-    { id: 'LOOKOUT' as TabType, label: 'Lookout', icon: <Binoculars size={24} /> },
-    { id: 'PREP' as TabType, label: 'Prep', icon: <MessageSquareQuote size={24} /> },
-    { id: 'PROFILE' as TabType, label: 'Master Profile', icon: <FileUser size={24} /> },
-    { id: 'PAST' as TabType, label: 'Applications', icon: <History size={24} /> },
+    { id: 'DASHBOARD' as TabType, label: 'Dashboard', icon: <LayoutDashboard size={24} /> },
+    { id: 'JOBS' as TabType, label: 'Opportunities', icon: <Briefcase size={24} /> },
+    { id: 'ATS_CHECK' as TabType, label: 'Analysis', icon: <SearchCheck size={24} /> },
+    { id: 'APPLICATIONS' as TabType, label: 'Tracker', icon: <History size={24} /> },
+    { id: 'SUBMITTED_DOCS' as TabType, label: 'Documents', icon: <Files size={24} /> },
+    { id: 'PROFILE' as TabType, label: 'Profile', icon: <FileUser size={24} /> },
   ];
 
-  const bottomItems = [
-    { id: 'LIBRARY' as TabType, label: 'Settings', icon: <Settings size={24} /> },
-  ];
+  const bottomItems: { id: TabType, label: string, icon: React.ReactNode }[] = [];
 
   const DrawerContent = ({ isRail = false }: { isRail?: boolean }) => (
     <div className="flex flex-col h-full py-6 px-3">
@@ -50,30 +48,48 @@ export const AppNavDrawer: React.FC<AppNavDrawerProps> = ({ user, activeTab, onT
 
       {/* Identity Block */}
       {!isRail && user && (
-        <div className="mb-8 px-3 py-4 bg-[var(--sys-color-charcoalBackground-steps-2)] rounded-2xl border border-[var(--sys-color-outline-variant)] flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--sys-color-outline-variant)] bg-[var(--sys-color-charcoalBackground-steps-3)]">
-            <img 
-              src={user.photoURL || "https://picsum.photos/seed/worker/100/100"} 
-              alt="Avatar" 
-              className="w-full h-full object-cover grayscale"
-              referrerPolicy="no-referrer"
-            />
+        <div className="mb-8 px-3 py-4 bg-[var(--sys-color-charcoalBackground-steps-2)] rounded-2xl border border-[var(--sys-color-outline-variant)] flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--sys-color-outline-variant)] bg-[var(--sys-color-charcoalBackground-steps-3)]">
+              <img 
+                src={user.photoURL || "https://picsum.photos/seed/worker/100/100"} 
+                alt="Avatar" 
+                className="w-full h-full object-cover grayscale"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] truncate uppercase tracking-tight">
+                {user.displayName || 'User'}
+              </p>
+              <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] truncate opacity-60">
+                {user.email}
+              </p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] truncate uppercase tracking-tight">
-              {user.displayName || 'User'}
-            </p>
-            <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] truncate opacity-60">
-              {user.email}
-            </p>
-          </div>
+          <button 
+            onClick={() => onTabChange('SETTINGS')}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
+              activeTab === 'SETTINGS' 
+                ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)]' 
+                : 'bg-[var(--sys-color-charcoalBackground-steps-3)] text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'
+            }`}
+          >
+            <Settings size={14} />
+            Settings
+          </button>
         </div>
       )}
 
       {/* Identity Block for Rail */}
       {isRail && user && (
-        <div className="mb-8 flex justify-center">
-          <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--sys-color-outline-variant)] bg-[var(--sys-color-charcoalBackground-steps-3)]">
+        <div className="mb-8 flex flex-col items-center gap-2">
+          <div 
+            onClick={() => onTabChange('SETTINGS')}
+            className={`w-10 h-10 rounded-full overflow-hidden border cursor-pointer transition-all ${
+              activeTab === 'SETTINGS' ? 'border-[var(--sys-color-solidarityRed-base)] ring-2 ring-[var(--sys-color-solidarityRed-base)]' : 'border-[var(--sys-color-outline-variant)]'
+            } bg-[var(--sys-color-charcoalBackground-steps-3)]`}
+          >
             <img 
               src={user.photoURL || "https://picsum.photos/seed/worker/100/100"} 
               alt="Avatar" 

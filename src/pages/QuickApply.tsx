@@ -38,7 +38,7 @@ export const QuickApply: React.FC<QuickApplyProps> = ({ onAnalyze, onGoToDashboa
           className="text-center mb-12"
         >
           <h1 className="text-5xl md:text-7xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase tracking-tighter mb-4">
-            Apply <span className="text-[var(--sys-color-solidarityRed-base)]">Now</span>
+            Jobs
           </h1>
           <p className="text-xl type-melancholyLonging text-[var(--sys-color-worker-ash-base)]">
             Drop in a job URL and we'll prep your full application in seconds.

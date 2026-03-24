@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";
 import { SolidarityPageLayout } from "../components/layout/SolidarityPageLayout";
 import { KanbanTracker, ApplicationDetailWorkspace } from "../components/feature/KanbanTracker";
+import { Mail, Calendar, History, Target } from "lucide-react";
 
 interface Application {
   id: string;
@@ -24,45 +25,70 @@ const mockApplications: Application[] = [
 ];
 
 export function PastApplicationsReference() {
-  const [selectedId, setSelectedId] = useState<string | null>(mockApplications[0].id);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selectedApp = mockApplications.find(app => app.id === selectedId);
 
   return (
     <SolidarityPageLayout>
       <WorkspaceLayout>
-        <div className="flex flex-col md:flex-row w-full h-full overflow-hidden">
-          {/* LEFT PANE: Application List */}
-          <div className="w-full md:w-[360px] flex-shrink-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] flex flex-col gap-6 overflow-y-auto rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none md:rounded-br-none">
-            <h2 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">History</h2>
+        <div className="flex flex-col w-full h-full overflow-hidden">
+          {/* TOP SECTION: Kanban Board */}
+          <div className="h-[400px] flex-shrink-0 p-8 bg-[var(--sys-color-charcoalBackground-steps-2)] overflow-hidden rounded-t-[28px] border-b border-[var(--sys-color-outline-variant)]">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight type-solidarityProtest">Applications Pipeline</h2>
+              <div className="flex gap-2">
+                <button className="px-4 py-2 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[10px] font-bold uppercase tracking-widest text-[var(--sys-color-worker-ash-base)] rounded-xl hover:text-[var(--sys-color-paperWhite-base)] transition-colors">Filter</button>
+                <button className="px-4 py-2 bg-[var(--sys-color-solidarityRed-base)] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl">Add New</button>
+              </div>
+            </div>
             <KanbanTracker onSelectApp={setSelectedId} selectedId={selectedId} />
           </div>
 
-          {/* RIGHT PANE: Detail View */}
-          <div className="flex-1 min-width-0 bg-[var(--sys-color-charcoalBackground-steps-1)] flex flex-col overflow-hidden rounded-b-[28px] md:rounded-r-[28px] md:rounded-tl-none md:rounded-bl-none">
+          {/* BOTTOM SECTION: Detail Workspace */}
+          <div className="flex-1 min-width-0 bg-[var(--sys-color-charcoalBackground-steps-1)] flex flex-col overflow-hidden rounded-b-[28px]">
             <AnimatePresence mode="wait">
               {selectedApp ? (
                 <motion.div
                   key={selectedApp.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   className="flex-1 overflow-y-auto p-8"
                 >
-                  <ApplicationDetailWorkspace app={selectedApp} />
+                  <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12">
+                    <div className="flex-1">
+                      <ApplicationDetailWorkspace app={selectedApp} />
+                    </div>
+                    
+                    {/* Workspace Sidebar */}
+                    <div className="w-full lg:w-[320px] space-y-6">
+                      <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] rounded-[28px]">
+                        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--sys-color-worker-ash-base)] mb-6">Quick Actions</h3>
+                        <div className="space-y-3">
+                          <WorkspaceAction icon={<Mail size={16} />} label="Send Follow-up" />
+                          <WorkspaceAction icon={<Calendar size={16} />} label="Log Interview" />
+                          <WorkspaceAction icon={<History size={16} />} label="View History" />
+                        </div>
+                      </div>
+                      
+                      <div className="p-6 bg-[var(--sys-color-inkGold-base)]/5 border border-[var(--sys-color-inkGold-base)]/20 rounded-[28px]">
+                        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--sys-color-inkGold-base)] mb-4">AI Insight</h3>
+                        <p className="text-xs text-[var(--sys-color-worker-ash-base)] leading-relaxed italic">
+                          "This company values 'Scalability' highly. Ensure your interview responses highlight your experience with high-traffic systems."
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </motion.div>
               ) : (
                 <div className="flex-1 flex items-center justify-center p-8 text-center">
                   <div className="max-w-md">
-                    <div className="w-24 h-24 bg-[var(--sys-color-charcoalBackground-steps-2)] rounded-full flex items-center justify-center mx-auto mb-6">
-                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--sys-color-worker-ash-base)]">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                      </svg>
+                    <div className="w-24 h-24 bg-[var(--sys-color-charcoalBackground-steps-2)] rounded-full flex items-center justify-center mx-auto mb-6 border border-[var(--sys-color-outline-variant)]">
+                      <Target size={48} className="text-[var(--sys-color-worker-ash-base)] opacity-20" />
                     </div>
-                    <h2 className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-2">No Application Selected</h2>
-                    <p className="text-[var(--sys-color-worker-ash-base)]">Select an application from the history list to view details and assets.</p>
+                    <h2 className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] uppercase mb-2">Select an Application</h2>
+                    <p className="text-[var(--sys-color-worker-ash-base)]">Click on a card in the pipeline above to open the detail workspace.</p>
                   </div>
                 </div>
               )}
@@ -71,5 +97,14 @@ export function PastApplicationsReference() {
         </div>
       </WorkspaceLayout>
     </SolidarityPageLayout>
+  );
+}
+
+function WorkspaceAction({ icon, label }: { icon: React.ReactNode, label: string }) {
+  return (
+    <button className="w-full flex items-center gap-3 p-3 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-xl text-xs font-bold text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] hover:border-[var(--sys-color-worker-ash-base)] transition-all uppercase tracking-widest">
+      {icon}
+      {label}
+    </button>
   );
 }

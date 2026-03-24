@@ -11,6 +11,7 @@ import { ProfileView } from './src/pages/ProfileView';
 import { PastApplicationsReference } from './src/pages/PastApplicationsReference';
 import { LibraryReferencePage } from './src/pages/LibraryReferencePage';
 import { OptimisePage } from './src/pages/ImageStudioPage';
+import { JobsWorklist } from './src/pages/JobsWorklist';
 import { OnboardingPathBifurcation } from './src/pages/OnboardingPathBifurcation';
 import { QuickApply } from './src/pages/QuickApply';
 import { LandingPage } from './src/pages/LandingPage';
@@ -34,12 +35,21 @@ const App: React.FC = () => {
   } = useUserStore();
   
   // Prototype-only activeTab state. Canonical routing belongs to the main repo.
-  const [activeTab, setActiveTab] = useState<'WORKSPACE' | 'PROFILE' | 'PAST' | 'OPTIMISE' | 'LIBRARY' | 'LOOKOUT' | 'PREP' | 'QUICK_APPLY'>('WORKSPACE');
+  const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'JOBS' | 'ATS_CHECK' | 'APPLICATIONS' | 'SUBMITTED_DOCS' | 'PROFILE' | 'SETTINGS'>('DASHBOARD');
   const [initialJobData, setInitialJobData] = useState<{title: string, company: string, text: string} | null>(null);
 
   useEffect(() => {
     if (hasCompletedOnboarding && onboardingPath) {
-      setActiveTab(onboardingPath);
+      // Map onboarding paths to new tabs
+      const pathMap: Record<string, any> = {
+        'WORKSPACE': 'DASHBOARD',
+        'QUICK_APPLY': 'JOBS',
+        'PROFILE': 'PROFILE',
+        'PAST': 'APPLICATIONS',
+        'LIBRARY': 'SUBMITTED_DOCS',
+        'OPTIMISE': 'ATS_CHECK'
+      };
+      setActiveTab(pathMap[onboardingPath] || 'DASHBOARD');
     }
   }, [hasCompletedOnboarding, onboardingPath]);
   const { isExtension } = useChromeExtension();
@@ -80,7 +90,7 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     await logout();
     setIsGuest(false);
-    setActiveTab('WORKSPACE');
+    setActiveTab('DASHBOARD');
   };
 
   if (isAuthLoading) {
@@ -104,50 +114,29 @@ const App: React.FC = () => {
     return <LandingPage onLogin={handleLogin} onGuestLogin={handleGuestLogin} />;
   }
 
-  // Onboarding Flow: Force QuickApply if target not set
-  if ((user || isGuest) && !hasSetJobTarget) {
-    return (
-      <AppShell user={user} onLogout={handleLogout} activeTab={'QUICK_APPLY'} onTabChange={setActiveTab}>
-        <QuickApply 
-          onAnalyze={async (title, company, text) => {
-            setInitialJobData({ title, company, text });
-            setHasSetJobTarget(true);
-            setOnboardingPath('WORKSPACE');
-            setHasCompletedOnboarding(true);
-            setActiveTab('WORKSPACE'); // Route directly to workspace
-          }} 
-          onGoToDashboard={() => {
-            setHasSetJobTarget(true);
-            setActiveTab('WORKSPACE');
-          }}
-        />
-      </AppShell>
-    );
-  }
-
   if ((user || isGuest) && !hasCompletedOnboarding) {
     return <OnboardingPathBifurcation />;
+  }
+
+  // Onboarding Flow: Force JOBS if target not set (unless they chose PROFILE path)
+  if ((user || isGuest) && !hasSetJobTarget && onboardingPath !== 'PROFILE') {
+    return (
+      <AppShell user={user} onLogout={handleLogout} activeTab={'JOBS'} onTabChange={setActiveTab}>
+        <JobsWorklist />
+      </AppShell>
+    );
   }
 
   return (
     <AppShell user={user} onLogout={handleLogout} activeTab={activeTab} onTabChange={setActiveTab}>
       {/* Canonical routing is owned by the main repo router. */}
-      {activeTab === 'WORKSPACE' && <ApplyQuickWorkspaceReference initialJobData={initialJobData} user={user} />}
-      {activeTab === 'QUICK_APPLY' && (
-        <QuickApply 
-          onAnalyze={async (title, company, text) => {
-            setInitialJobData({ title, company, text });
-            setActiveTab('WORKSPACE');
-          }} 
-          onGoToDashboard={() => setActiveTab('WORKSPACE')}
-        />
-      )}
+      {activeTab === 'DASHBOARD' && <ApplyQuickWorkspaceReference initialJobData={initialJobData} user={user} onTabChange={setActiveTab} />}
+      {activeTab === 'JOBS' && <JobsWorklist />}
+      {activeTab === 'ATS_CHECK' && <OptimisePage user={user} />}
+      {activeTab === 'APPLICATIONS' && <PastApplicationsReference user={user} />}
+      {activeTab === 'SUBMITTED_DOCS' && <LibraryReferencePage user={user} />}
       {activeTab === 'PROFILE' && <ProfileView user={user} />}
-      {activeTab === 'PAST' && <PastApplicationsReference user={user} />}
-      {activeTab === 'LIBRARY' && <LibraryReferencePage user={user} />}
-      {activeTab === 'OPTIMISE' && <OptimisePage user={user} />}
-      {activeTab === 'LOOKOUT' && <div className="p-8 text-center text-[var(--sys-color-worker-ash-base)]">Lookout Feed (Coming Soon)</div>}
-      {activeTab === 'PREP' && <div className="p-8 text-center text-[var(--sys-color-worker-ash-base)]">Interview Prep (Coming Soon)</div>}
+      {activeTab === 'SETTINGS' && <div className="p-8 text-center text-[var(--sys-color-worker-ash-base)]">Settings (Coming Soon)</div>}
     </AppShell>
   );
 };

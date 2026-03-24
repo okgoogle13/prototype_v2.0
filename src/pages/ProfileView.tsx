@@ -12,6 +12,7 @@ import { DocumentInput } from "../../components/DocumentInput";
 import { Modal } from "../components/ui/Modal";
 import { AutocompleteInput } from "../components/ui/AutocompleteInput";
 import { commonIndustrySkills } from "../utils/skills";
+import { Zap } from "lucide-react";
 
 import { User } from 'firebase/auth';
 import { processCareerDocuments } from "../../services/geminiService";
@@ -39,10 +40,11 @@ export function ProfileView({ user }: Props) {
   const [isSaving, setIsSaving] = useState(false);
   const [processError, setProcessError] = useState<string | null>(null);
 
-  // Stubbed Voice Profile State (MIG-202-B)
+  // Stubbed Voice Profile State (MIG-FINAL)
   const [stubSavedProfile, setStubSavedProfile] = useState<{ sample: string; savedAt: Date } | null>(null);
   const [stubIsLoading, setStubIsLoading] = useState(false);
   const [stubError, setStubError] = useState<string | null>(null);
+  const [simulateError, setSimulateError] = useState(false);
 
   const handleStubSaveVoice = async (sample: string) => {
     setStubIsLoading(true);
@@ -50,6 +52,12 @@ export function ProfileView({ user }: Props) {
     
     await new Promise(resolve => setTimeout(resolve, 1500));
     
+    if (simulateError) {
+      setStubError("Calibration failed: Sample too short or contains invalid patterns.");
+      setStubIsLoading(false);
+      return;
+    }
+
     setStubSavedProfile({
       sample,
       savedAt: new Date()
@@ -456,6 +464,8 @@ export function ProfileView({ user }: Props) {
                       onSave={handleStubSaveVoice}
                       isLoading={stubIsLoading}
                       error={stubError}
+                      simulateError={simulateError}
+                      onToggleError={() => setSimulateError(!simulateError)}
                     />
                   )}
 
@@ -530,9 +540,22 @@ export function ProfileView({ user }: Props) {
                   {activeSection === "integrations" && (
                     <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
                       <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-6">Integrations</h3>
-                      <p className="text-[var(--sys-color-worker-ash-base)] mb-8">Connect your external tools to automate your job search.</p>
+                      <p className="text-[var(--sys-color-worker-ash-base)] mb-8">Connect your external tools to automate your job search and sync your career assets.</p>
                       
-                      <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <IntegrationCard 
+                          name="LinkedIn" 
+                          desc="Import your profile data and job history directly."
+                          status="Connected"
+                          lastSync="1 hour ago"
+                          icon={<svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>}
+                        />
+                        <IntegrationCard 
+                          name="Google Drive" 
+                          desc="Sync your resumes and cover letters from your cloud storage."
+                          status="Disconnected"
+                          icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>}
+                        />
                         <IntegrationCard 
                           name="Gmail Scan" 
                           desc="Automatically detect job application emails and update your tracker."
@@ -541,17 +564,10 @@ export function ProfileView({ user }: Props) {
                           icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}
                         />
                         <IntegrationCard 
-                          name="Job Scout" 
-                          desc="Sync clipped jobs from the CareerCopilot Chrome Extension."
-                          status="Connected"
-                          lastSync="15 mins ago"
-                          icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>}
-                        />
-                        <IntegrationCard 
-                          name="LinkedIn" 
-                          desc="Import your profile data and job history directly."
+                          name="Slack" 
+                          desc="Receive real-time notifications for job updates and interview invites."
                           status="Disconnected"
-                          icon={<svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>}
+                          icon={<Zap size={24} />}
                         />
                       </div>
                     </div>
@@ -559,23 +575,54 @@ export function ProfileView({ user }: Props) {
 
                   {activeSection === "settings" && (
                     <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
-                      <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-6">Settings</h3>
-                      <p className="text-[var(--sys-color-worker-ash-base)] mb-6">Manage your profile settings.</p>
-                      <div className="mb-8">
-                        <label className="block text-sm font-bold uppercase tracking-wider text-[var(--sys-color-worker-ash-base)] mb-2">Locale Formatting</label>
-                        <select className="w-full p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-lg">
-                          <option value="en-US">US English</option>
-                          <option value="en-GB">UK English</option>
-                          <option value="en-AU">AUS English</option>
-                        </select>
+                      <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-8">Settings</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div className="space-y-6">
+                          <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--sys-color-worker-ash-base)]">Account Config</h4>
+                          <div className="space-y-4">
+                            <TextInput label="Display Name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                            <TextInput label="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} />
+                          </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--sys-color-worker-ash-base)]">Locale & Preferences</h4>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--sys-color-worker-ash-base)]">System Language</label>
+                              <select className="w-full p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-xl focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors">
+                                <option value="en-AU">AUS English (Default)</option>
+                                <option value="en-US">US English</option>
+                                <option value="en-GB">UK English</option>
+                              </select>
+                            </div>
+                            <div className="flex items-center justify-between p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-xl">
+                              <span className="text-xs font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-tight">Dark Mode</span>
+                              <div className="w-10 h-5 bg-[var(--sys-color-inkGold-base)] rounded-full relative">
+                                <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="pt-8 border-t border-[var(--sys-color-outline-variant)]">
-                        <button 
-                          onClick={() => setShowDeleteModal(true)}
-                          className="px-8 py-4 bg-[var(--sys-color-kr-charcoalRed-base)] text-[var(--sys-color-paperWhite-base)] font-bold text-lg uppercase tracking-wider transition-all hover:bg-[var(--sys-color-solidarityRed-base)] rounded-lg"
-                        >
-                          Delete My Data
-                        </button>
+
+                      <div className="mt-12 pt-8 border-t border-[var(--sys-color-outline-variant)] flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div className="space-y-1">
+                          <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] uppercase">Data Privacy</p>
+                          <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">Manage your information and account status</p>
+                        </div>
+                        <div className="flex gap-4">
+                          <button 
+                            onClick={() => setShowDeleteModal(true)}
+                            className="px-6 py-3 bg-[var(--sys-color-kr-charcoalRed-base)]/10 border border-[var(--sys-color-solidarityRed-base)]/30 text-[var(--sys-color-solidarityRed-base)] font-bold uppercase tracking-widest text-[10px] rounded-xl hover:bg-[var(--sys-color-solidarityRed-base)] hover:text-white transition-all"
+                          >
+                            Delete My Data
+                          </button>
+                          <button className="px-6 py-3 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] font-bold uppercase tracking-widest text-[10px] rounded-xl hover:text-[var(--sys-color-paperWhite-base)] transition-colors">
+                            Export Data
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -629,9 +676,10 @@ function IntegrationCard({ name, desc, status, lastSync, icon }: any) {
 interface VoiceProfileStatusCardProps {
   profile: { sample: string; savedAt: Date };
   onReplace: () => void;
+  onReset: () => void;
 }
 
-function VoiceProfileStatusCard({ profile, onReplace }: VoiceProfileStatusCardProps) {
+function VoiceProfileStatusCard({ profile, onReplace, onReset }: VoiceProfileStatusCardProps) {
   return (
     <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-inkGold-base)]/30 rounded-2xl">
       <div className="flex items-center justify-between mb-4">
@@ -647,7 +695,7 @@ function VoiceProfileStatusCard({ profile, onReplace }: VoiceProfileStatusCardPr
       </div>
       <div className="flex gap-4">
         <PrimaryButton label="Refine Sample" onClick={onReplace} variant="tonal" />
-        <PrimaryButton label="Reset Voice" onClick={onReplace} variant="march" />
+        <PrimaryButton label="Reset Voice" onClick={onReset} variant="march" />
       </div>
     </div>
   );
@@ -726,13 +774,17 @@ interface VoiceProfileManagementSectionProps {
   onSave: (sample: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
+  simulateError: boolean;
+  onToggleError: () => void;
 }
 
 function VoiceProfileManagementSection({
   savedProfile,
   onSave,
   isLoading,
-  error
+  error,
+  simulateError,
+  onToggleError
 }: VoiceProfileManagementSectionProps) {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -742,24 +794,43 @@ function VoiceProfileManagementSection({
 
   const handleSaveWrapper = async (sample: string) => {
     await onSave(sample);
-    setIsEditing(false);
+    if (!simulateError) {
+      setIsEditing(false);
+    }
   };
 
   return (
     <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
-      <div className="mb-8">
-        <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-2">Authentic Voice</h3>
-        <p className="text-[var(--sys-color-worker-ash-base)]">
-          {savedProfile && !isEditing
-            ? "Your voice profile is active and being used to calibrate generated documents." 
-            : "Calibrate the AI to mirror your natural writing style, ensuring consistency across all career documents."}
-        </p>
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] uppercase mb-2">Authentic Voice</h3>
+          <p className="text-[var(--sys-color-worker-ash-base)]">
+            {savedProfile && !isEditing
+              ? "Your voice profile is active and being used to calibrate generated documents." 
+              : "Calibrate the AI to mirror your natural writing style, ensuring consistency across all career documents."}
+          </p>
+        </div>
+        
+        {/* Stub Toggle for Error Simulation */}
+        <button 
+          onClick={onToggleError}
+          className={`px-3 py-1 rounded text-[8px] font-bold uppercase tracking-widest border transition-all ${
+            simulateError 
+              ? "bg-[var(--sys-color-solidarityRed-base)]/20 border-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-solidarityRed-base)]" 
+              : "bg-transparent border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)]"
+          }`}
+        >
+          {simulateError ? "Error Mode: ON" : "Error Mode: OFF"}
+        </button>
       </div>
 
       {savedProfile && !isEditing ? (
         <VoiceProfileStatusCard 
           profile={savedProfile} 
           onReplace={handleReplace} 
+          onReset={() => {
+            handleReplace();
+          }}
         />
       ) : (
         <VoiceProfileCreationPanel 

@@ -6,7 +6,7 @@ import { useUserStore } from '../hooks/useUserStore';
 export function OnboardingPathBifurcation() {
   const { setOnboardingPath, setHasCompletedOnboarding } = useUserStore();
 
-  const handleSelectPath = (path: 'PROFILE' | 'WORKSPACE') => {
+  const handleSelectPath = (path: 'PROFILE' | 'QUICK_APPLY') => {
     setOnboardingPath(path);
     setHasCompletedOnboarding(true);
   };
@@ -66,7 +66,7 @@ export function OnboardingPathBifurcation() {
           <motion.button
             whileHover={{ scale: 1.02, rotate: 1 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => handleSelectPath('WORKSPACE')}
+            onClick={() => handleSelectPath('QUICK_APPLY')}
             className="group p-8 bg-[var(--sys-color-charcoalBackground-steps-2)] border-2 border-[var(--sys-color-outline-variant)] hover:border-[var(--sys-color-inkGold-base)] transition-all text-left relative overflow-hidden"
             style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
           >

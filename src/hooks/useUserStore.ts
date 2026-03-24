@@ -6,8 +6,16 @@ interface UserState {
   setHasCompletedOnboarding: (value: boolean) => void;
   hasSetJobTarget: boolean;
   setHasSetJobTarget: (value: boolean) => void;
-  onboardingPath: 'PROFILE' | 'WORKSPACE' | null;
-  setOnboardingPath: (path: 'PROFILE' | 'WORKSPACE' | null) => void;
+  onboardingPath: 'PROFILE' | 'WORKSPACE' | 'QUICK_APPLY' | null;
+  setOnboardingPath: (path: 'PROFILE' | 'WORKSPACE' | 'QUICK_APPLY' | null) => void;
+  dismissedChecklist: boolean;
+  setDismissedChecklist: (value: boolean) => void;
+  pendingJobUrl: string | null;
+  setPendingJobUrl: (url: string | null) => void;
+  isGovernmentJob: boolean;
+  setIsGovernmentJob: (value: boolean) => void;
+  hasGeneratedDocument: boolean;
+  setHasGeneratedDocument: (value: boolean) => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -19,6 +27,14 @@ export const useUserStore = create<UserState>()(
       setHasSetJobTarget: (value) => set({ hasSetJobTarget: value }),
       onboardingPath: null,
       setOnboardingPath: (path) => set({ onboardingPath: path }),
+      dismissedChecklist: false,
+      setDismissedChecklist: (value) => set({ dismissedChecklist: value }),
+      pendingJobUrl: null,
+      setPendingJobUrl: (url) => set({ pendingJobUrl: url }),
+      isGovernmentJob: false,
+      setIsGovernmentJob: (value) => set({ isGovernmentJob: value }),
+      hasGeneratedDocument: false,
+      setHasGeneratedDocument: (value) => set({ hasGeneratedDocument: value }),
     }),
     {
       name: 'user-storage',
