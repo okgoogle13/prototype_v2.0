@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Card } from '../ui/Card';
+import { M3Card } from '../ui/M3Card';
+import { M3Button } from '../ui/M3Button';
+import { M3Type } from '../../theme/typography';
 import { GettingStartedChecklist } from './GettingStartedChecklist';
 import { useUserStore } from '../../hooks/useUserStore';
 import { Link, ArrowRight, FileText, LayoutDashboard, History, Files, FileUser } from 'lucide-react';
@@ -20,6 +22,16 @@ interface DashboardOverviewProps {
 export function DashboardOverview({ onTabChange }: DashboardOverviewProps) {
   const { setPendingJobUrl } = useUserStore();
   const [jobUrl, setJobUrl] = useState('');
+  const [windowWidth, setWindowWidth] = React.useState(window.innerWidth);
+
+  React.useEffect(() => {
+    const handler = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
+  const isDesktop = windowWidth >= 900;
+  const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
   const handlePasteJob = () => {
     if (jobUrl.trim()) {
@@ -30,23 +42,44 @@ export function DashboardOverview({ onTabChange }: DashboardOverviewProps) {
 
   return (
     <div className="space-y-8">
-      <GettingStartedChecklist />
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard label="Total applications" value="42" change="+12% this month" />
-        <StatCard label="Interview rate" value="24%" change="+5% from last month" />
-        <StatCard label="Avg. ATS score" value="88" change="+3 pts improvement" />
-      </div>
+      {isDesktop && (
+        <div className="mb-6">
+          <h1 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Good morning</h1>
+          <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>{currentDate}</p>
+        </div>
+      )}
+
+      {isDesktop ? (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <StatCard label="Total applications" value="42" change="+12% this month" />
+            <StatCard label="Interview rate" value="24%" change="+5% from last month" />
+            <StatCard label="Avg. ATS score" value="88" change="+3 pts improvement" />
+          </div>
+          <div style={{ width: '100%' }}>
+            <GettingStartedChecklist />
+          </div>
+        </>
+      ) : (
+        <>
+          <GettingStartedChecklist />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StatCard label="Total applications" value="42" change="+12% this month" />
+            <StatCard label="Interview rate" value="24%" change="+5% from last month" />
+            <StatCard label="Avg. ATS score" value="88" change="+3 pts improvement" />
+          </div>
+        </>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-8 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)]">
+        <M3Card variant="elevated" className="p-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)]">ATS score trend</h3>
-              <p className="text-sm text-[var(--sys-color-worker-ash-base)]">Performance across your last 5 applications</p>
+              <h3 style={{ ...M3Type.titleMedium, color: 'var(--sys-color-paperWhite-base)' }}>ATS score trend</h3>
+              <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>Performance across your last 5 applications</p>
             </div>
             <div className="px-4 py-1 bg-[var(--sys-color-solidarityRed-base)]/10 border border-[var(--sys-color-solidarityRed-base)]/30 rounded-full">
-              <span className="text-[10px] font-bold text-[var(--sys-color-solidarityRed-base)]">Live tracking</span>
+              <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-solidarityRed-base)' }}>Live tracking</span>
             </div>
           </div>
 
@@ -91,15 +124,15 @@ export function DashboardOverview({ onTabChange }: DashboardOverviewProps) {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </Card>
+        </M3Card>
 
         <div className="space-y-6">
-          <Card className="p-8 bg-[var(--sys-color-charcoalBackground-steps-2)] border-2 border-[var(--sys-color-inkGold-base)]/30 relative overflow-hidden">
+          <M3Card variant="elevated" className="p-8 relative overflow-hidden" style={{ border: '2px solid rgba(255,193,7,0.3)' }}>
             <div className="flex items-center gap-3 mb-4">
               <Link className="text-[var(--sys-color-inkGold-base)]" size={24} />
-              <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)]">Paste job URL</h3>
+              <h3 style={{ ...M3Type.titleMedium, color: 'var(--sys-color-paperWhite-base)' }}>Paste job URL</h3>
             </div>
-            <p className="text-sm text-[var(--sys-color-worker-ash-base)] mb-6">
+            <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)', marginBottom: '24px' }}>
               Ready to analyze a new role? Drop the link here to start the asymmetric pre-processor.
             </p>
             <div className="flex gap-2">
@@ -110,14 +143,11 @@ export function DashboardOverview({ onTabChange }: DashboardOverviewProps) {
                 onChange={(e) => setJobUrl(e.target.value)}
                 className="flex-1 px-4 py-3 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-xl text-sm text-[var(--sys-color-paperWhite-base)] focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors"
               />
-              <button 
-                onClick={handlePasteJob}
-                className="p-3 bg-[var(--sys-color-inkGold-base)] text-[var(--sys-color-charcoalBackground-base)] rounded-xl hover:bg-[var(--sys-color-inkGold-steps-2)] transition-colors"
-              >
+              <M3Button variant="filled" onClick={handlePasteJob} style={{ padding: '0 16px' }}>
                 <ArrowRight size={24} />
-              </button>
+              </M3Button>
             </div>
-          </Card>
+          </M3Card>
 
           <YourDocumentsWidget />
         </div>
@@ -128,20 +158,20 @@ export function DashboardOverview({ onTabChange }: DashboardOverviewProps) {
 
 function YourDocumentsWidget() {
   return (
-    <Card className="p-8 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)]">
+    <M3Card variant="elevated" className="p-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <FileText className="text-[var(--sys-color-solidarityRed-base)]" size={24} />
-          <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)]">Your documents</h3>
+          <h3 style={{ ...M3Type.titleMedium, color: 'var(--sys-color-paperWhite-base)' }}>Your documents</h3>
         </div>
-        <button className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors">View all</button>
+        <M3Button variant="text" style={{ padding: '0 8px', minHeight: '32px' }}>View all</M3Button>
       </div>
       <div className="space-y-3">
         <DocumentItem name="Master_Resume_2026.pdf" type="Resume" date="Mar 20" />
         <DocumentItem name="Cover_Letter_Generic.docx" type="Cover letter" date="Mar 18" />
         <DocumentItem name="Portfolio_Case_Studies.pdf" type="Portfolio" date="Mar 15" />
       </div>
-    </Card>
+    </M3Card>
   );
 }
 
@@ -153,21 +183,21 @@ function DocumentItem({ name, type, date }: { name: string, type: string, date: 
           <FileText size={16} />
         </div>
         <div>
-          <p className="text-xs font-bold text-[var(--sys-color-paperWhite-base)] truncate max-w-[140px]">{name}</p>
-          <p className="text-[8px] text-[var(--sys-color-worker-ash-base)]">{type}</p>
+          <p style={{ ...M3Type.labelLarge, color: 'var(--sys-color-paperWhite-base)' }} className="truncate max-w-[140px]">{name}</p>
+          <p style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }}>{type}</p>
         </div>
       </div>
-      <div className="text-[8px] font-bold text-[var(--sys-color-worker-ash-base)]">{date}</div>
+      <div style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }}>{date}</div>
     </div>
   );
 }
 
 function StatCard({ label, value, change }: { label: string, value: string, change: string }) {
   return (
-    <Card className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)]" style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}>
-      <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] mb-2">{label}</p>
-      <h4 className="text-4xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">{value}</h4>
-      <p className="text-[10px] text-[var(--sys-color-kr-activistSmokeGreen-base)] font-bold">{change}</p>
-    </Card>
+    <M3Card variant="elevated" className="p-6">
+      <p style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)', marginBottom: '8px' }}>{label}</p>
+      <h4 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)', marginBottom: '8px' }}>{value}</h4>
+      <p style={{ ...M3Type.labelMedium, color: 'var(--sys-color-kr-activistSmokeGreen-base)' }}>{change}</p>
+    </M3Card>
   );
 }

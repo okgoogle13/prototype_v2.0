@@ -45,6 +45,7 @@ export function useStudioMatch({
     activeTab,
     analysis,
     careerData,
+    job,
     selectedTemplate,
     coverLetterContent,
     resumeRef,

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
+import { M3Card } from '../ui/M3Card';
+import { M3Type } from '../../theme/typography';
 import { FileText, Mail, Link, ExternalLink, History, Target, ChevronRight, MoreVertical, Calendar, MapPin } from 'lucide-react';
 
 interface Application {
@@ -38,9 +39,9 @@ export function KanbanTracker({ onSelectApp, selectedId }: { onSelectApp: (id: s
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: column.color }} />
-              <h3 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">{column.label}</h3>
+              <h3 style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }}>{column.label}</h3>
             </div>
-            <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] opacity-40">
+            <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="opacity-40">
               {mockApplications.filter(app => app.status === column.id).length}
             </span>
           </div>
@@ -64,19 +65,19 @@ export function KanbanTracker({ onSelectApp, selectedId }: { onSelectApp: (id: s
                   )}
                   
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-xs font-bold text-[var(--sys-color-paperWhite-base)] truncate max-w-[180px]">
+                    <h4 style={{ ...M3Type.labelMedium, color: 'var(--sys-color-paperWhite-base)' }} className="truncate max-w-[180px]">
                       {app.company}
                     </h4>
                     <div className="flex items-center gap-1">
                       <Target size={10} className="text-[var(--sys-color-inkGold-base)]" />
-                      <span className="text-[10px] font-bold text-[var(--sys-color-paperWhite-base)]">{app.atsScore}%</span>
+                      <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-paperWhite-base)' }}>{app.atsScore}%</span>
                     </div>
                   </div>
                   
-                  <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-medium mb-4 line-clamp-1">{app.role}</p>
+                  <p style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="mb-4 line-clamp-1">{app.role}</p>
                   
                   <div className="flex items-center justify-between mt-auto">
-                    <div className="flex items-center gap-2 text-[8px] font-bold text-[var(--sys-color-worker-ash-base)]">
+                    <div style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="flex items-center gap-2">
                       <Calendar size={10} />
                       {app.date}
                     </div>
@@ -90,7 +91,7 @@ export function KanbanTracker({ onSelectApp, selectedId }: { onSelectApp: (id: s
             {mockApplications.filter(app => app.status === column.id).length === 0 && (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center opacity-20">
                 <div className="w-12 h-12 border-2 border-dashed border-[var(--sys-color-worker-ash-base)] rounded-full mb-4" />
-                <p className="text-[8px] font-bold">Empty column</p>
+                <p style={M3Type.labelMedium}>Empty column</p>
               </div>
             )}
           </div>
@@ -105,42 +106,42 @@ export function ApplicationDetailWorkspace({ app }: { app: Application }) {
     <div className="max-w-4xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-12">
         <div>
-          <h1 className="text-4xl md:text-5xl font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-2">
+          <h1 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }} className="mb-2">
             {app.role}
           </h1>
-          <p className="text-xl text-[var(--sys-color-inkGold-base)] font-bold">
+          <p style={{ ...M3Type.titleLarge, color: 'var(--sys-color-inkGold-base)' }}>
             {app.company} • {app.location}
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <div className="text-4xl font-bold text-[var(--sys-color-paperWhite-base)]">
-            {app.atsScore}<span className="text-lg text-[var(--sys-color-worker-ash-base)]">/100</span>
+          <div style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>
+            {app.atsScore}<span style={{ ...M3Type.titleMedium, color: 'var(--sys-color-worker-ash-base)' }}>/100</span>
           </div>
-          <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-bold">ATS match score</p>
+          <p style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }}>ATS match score</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-6 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
-          <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] mb-4">Application status</h3>
+        <M3Card variant="outlined" className="p-6">
+          <h3 style={{ ...M3Type.titleSmall, color: 'var(--sys-color-worker-ash-base)' }} className="mb-4">Application status</h3>
           <div className="flex items-center gap-4">
             <div className={`w-3 h-3 rounded-full ${
               app.status === "offered" ? "bg-[var(--sys-color-signalGreen-base)]" :
               app.status === "rejected" ? "bg-[var(--sys-color-solidarityRed-base)]" :
               "bg-[var(--sys-color-inkGold-base)]"
             }`} />
-            <span className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] capitalize">{app.status}</span>
+            <span style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="capitalize">{app.status}</span>
           </div>
-        </div>
-        <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-6 rounded-[28px] border border-[var(--sys-color-outline-variant)]">
-          <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] mb-4">Submitted on</h3>
-          <p className="text-xl font-bold text-[var(--sys-color-paperWhite-base)]">{app.date}</p>
-        </div>
+        </M3Card>
+        <M3Card variant="outlined" className="p-6">
+          <h3 style={{ ...M3Type.titleSmall, color: 'var(--sys-color-worker-ash-base)' }} className="mb-4">Submitted on</h3>
+          <p style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }}>{app.date}</p>
+        </M3Card>
       </div>
 
       <div className="space-y-8">
         <section>
-          <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] mb-4 border-l-4 border-[var(--sys-color-solidarityRed-base)] pl-4">Source documents</h3>
+          <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-4 border-l-4 border-[var(--sys-color-solidarityRed-base)] pl-4">Source documents</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <AssetCard 
               icon={<FileText size={24} />} 
@@ -158,7 +159,7 @@ export function ApplicationDetailWorkspace({ app }: { app: Application }) {
         </section>
 
         <section>
-          <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] mb-4 border-l-4 border-[var(--sys-color-metalBlue-base)] pl-4">Application timeline</h3>
+          <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-4 border-l-4 border-[var(--sys-color-metalBlue-base)] pl-4">Application timeline</h3>
           <div className="space-y-4">
             <TimelineItem date="2024-03-15" event="Interview scheduled" desc="Round 1 with hiring manager" />
             <TimelineItem date="2024-03-10" event="Application submitted" desc="Tailored via CareerCopilot" />
@@ -172,19 +173,19 @@ export function ApplicationDetailWorkspace({ app }: { app: Application }) {
 
 function AssetCard({ icon, label, value, action }: any) {
   return (
-    <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] rounded-2xl flex flex-col gap-4 hover:bg-[var(--sys-color-charcoalBackground-steps-3)] transition-all cursor-pointer group">
+    <M3Card variant="outlined" className="p-6 flex flex-col gap-4 hover:bg-[var(--sys-color-charcoalBackground-steps-3)] transition-all cursor-pointer group">
       <div className="flex items-center justify-between">
         <div className="text-[var(--sys-color-inkGold-base)]">{icon}</div>
         <ExternalLink size={16} className="text-[var(--sys-color-worker-ash-base)] group-hover:text-[var(--sys-color-paperWhite-base)] transition-colors" />
       </div>
       <div>
-        <h4 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] mb-1">{label}</h4>
-        <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] truncate">{value}</p>
+        <h4 style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="mb-1">{label}</h4>
+        <p style={{ ...M3Type.titleSmall, color: 'var(--sys-color-paperWhite-base)' }} className="truncate">{value}</p>
       </div>
       <div className="pt-2 border-t border-[var(--sys-color-outline-variant)]">
-        <span className="text-[10px] font-bold text-[var(--sys-color-solidarityRed-base)]">{action}</span>
+        <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-solidarityRed-base)' }}>{action}</span>
       </div>
-    </div>
+    </M3Card>
   );
 }
 
@@ -197,10 +198,10 @@ function TimelineItem({ date, event, desc }: any) {
       </div>
       <div className="pb-6">
         <div className="flex items-center gap-3 mb-1">
-          <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">{date}</span>
-          <span className="text-sm font-bold text-[var(--sys-color-paperWhite-base)]">{event}</span>
+          <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }}>{date}</span>
+          <span style={{ ...M3Type.titleSmall, color: 'var(--sys-color-paperWhite-base)' }}>{event}</span>
         </div>
-        <p className="text-xs text-[var(--sys-color-worker-ash-base)]">{desc}</p>
+        <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>{desc}</p>
       </div>
     </div>
   );

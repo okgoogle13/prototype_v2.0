@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";
 import { SolidarityPageLayout } from "../components/layout/SolidarityPageLayout";
-import { Card } from "../components/ui/Card";
-import { PrimaryButton } from "../components/ui/PrimaryButton";
+import { M3Card } from "../components/ui/M3Card";
+import { M3Button } from "../components/ui/M3Button";
+import { M3Type } from "../theme/typography";
 import { 
   FileText, 
   Mail, 
@@ -132,7 +133,7 @@ export function LibraryReferencePage() {
                       <p className="text-[var(--sys-color-worker-ash-base)] max-w-md mx-auto mb-8">
                         We're currently optimizing this feature to ensure your interview and networking strategies are as impactful as possible.
                       </p>
-                      <PrimaryButton variant="outlined" onClick={() => setActiveTab("resume")} label="Back to resume builder" />
+                      <M3Button variant="outlined" onClick={() => setActiveTab("resume")}>Back to resume builder</M3Button>
                     </div>
                   )}
                 </motion.div>
@@ -172,8 +173,8 @@ function ResumeStepContent({ step, onNext, onGenerate }: any) {
     return (
       <div className="space-y-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">Tailor your bullets</h2>
-          <PrimaryButton variant="filled" onClick={onNext} label="Next step" />
+          <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Tailor your bullets</h2>
+          <M3Button variant="filled" onClick={onNext}>Next step</M3Button>
         </div>
         <div className="grid grid-cols-1 gap-4">
           <BulletItem 
@@ -196,8 +197,8 @@ function ResumeStepContent({ step, onNext, onGenerate }: any) {
   if (step === 2) {
     return (
       <div className="space-y-8">
-        <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">Generate final draft</h2>
-        <Card className="p-8">
+        <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Generate final draft</h2>
+        <M3Card variant="elevated" className="p-8">
           <div className="flex items-center gap-4 mb-8">
             <div className="px-3 py-1 bg-[var(--sys-color-signalGreen-base)]/10 border border-[var(--sys-color-signalGreen-base)]/30 rounded-full">
               <span className="text-[8px] font-bold text-[var(--sys-color-signalGreen-base)]">ATS optimized</span>
@@ -213,15 +214,16 @@ function ResumeStepContent({ step, onNext, onGenerate }: any) {
             <div className="h-4 bg-[var(--sys-color-charcoalBackground-steps-3)] rounded w-full" />
           </div>
           <div className="mt-12 flex justify-center">
-            <PrimaryButton 
+            <M3Button 
               variant="filled" 
               onClick={onGenerate} 
               className="px-12 py-6 text-base"
-              label="Generate final resume"
-              icon={<Sparkles size={20} />}
-            />
+            >
+              <Sparkles size={20} className="mr-2" />
+              Generate final resume
+            </M3Button>
           </div>
-        </Card>
+        </M3Card>
       </div>
     );
   }
@@ -233,7 +235,7 @@ function BulletItem({ original, suggestion }: { original: string, suggestion: st
   const [isApplied, setIsApplied] = useState(false);
 
   return (
-    <Card className="p-6 group">
+    <M3Card variant="outlined" className="p-6 group">
       <div className="flex flex-col md:flex-row gap-6">
         <div className="flex-1">
           <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] mb-2">Original</p>
@@ -251,18 +253,15 @@ function BulletItem({ original, suggestion }: { original: string, suggestion: st
         </div>
       </div>
       <div className="mt-4 pt-4 border-t border-[var(--sys-color-outline-variant)]/30 flex justify-end">
-        <button 
+        <M3Button 
+          variant={isApplied ? "filled" : "outlined"}
           onClick={() => setIsApplied(!isApplied)}
-          className={`px-4 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
-            isApplied 
-              ? "bg-[var(--sys-color-signalGreen-base)] text-white" 
-              : "border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]"
-          }`}
+          className={isApplied ? "bg-[var(--sys-color-signalGreen-base)] text-white" : ""}
         >
           {isApplied ? "Applied ✓" : "Apply suggestion"}
-        </button>
+        </M3Button>
       </div>
-    </Card>
+    </M3Card>
   );
 }
 
@@ -271,8 +270,8 @@ function CoverLetterStepContent({ step, onNext, onGenerate, letterStyle, setLett
     return (
       <div className="space-y-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">Configure style</h2>
-          <PrimaryButton variant="filled" onClick={onNext} label="Next step" />
+          <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Configure style</h2>
+          <M3Button variant="filled" onClick={onNext}>Next step</M3Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {styles.map((s: string) => (
@@ -302,8 +301,8 @@ function CoverLetterStepContent({ step, onNext, onGenerate, letterStyle, setLett
   if (step === 2) {
     return (
       <div className="space-y-8">
-        <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">Generate letter</h2>
-        <Card className="p-8">
+        <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Generate letter</h2>
+        <M3Card variant="elevated" className="p-8">
           <div className="flex items-center gap-4 mb-8">
             <div className="px-3 py-1 bg-[var(--sys-color-inkGold-base)]/10 border border-[var(--sys-color-inkGold-base)]/30 rounded-full">
               <span className="text-[8px] font-bold text-[var(--sys-color-inkGold-base)]">{letterStyle} style</span>
@@ -319,15 +318,16 @@ function CoverLetterStepContent({ step, onNext, onGenerate, letterStyle, setLett
             <div className="h-4 bg-[var(--sys-color-charcoalBackground-steps-3)] rounded w-3/4" />
           </div>
           <div className="mt-12 flex justify-center">
-            <PrimaryButton 
+            <M3Button 
               variant="filled" 
               onClick={onGenerate} 
               className="px-12 py-6 text-base"
-              label="Generate cover letter"
-              icon={<Sparkles size={20} />}
-            />
+            >
+              <Sparkles size={20} className="mr-2" />
+              Generate cover letter
+            </M3Button>
           </div>
-        </Card>
+        </M3Card>
       </div>
     );
   }
@@ -340,8 +340,8 @@ function KSCStepContent({ step, onNext, onGenerate }: any) {
     return (
       <div className="space-y-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">Draft KSC responses</h2>
-          <PrimaryButton variant="filled" onClick={onNext} label="Next step" />
+          <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Draft KSC responses</h2>
+          <M3Button variant="filled" onClick={onNext}>Next step</M3Button>
         </div>
         <div className="grid grid-cols-1 gap-6">
           <KSCItem 
@@ -360,8 +360,8 @@ function KSCStepContent({ step, onNext, onGenerate }: any) {
   if (step === 2) {
     return (
       <div className="space-y-8">
-        <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">Finalize KSC</h2>
-        <Card className="p-8">
+        <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Finalize KSC</h2>
+        <M3Card variant="elevated" className="p-8">
           <div className="flex items-center gap-4 mb-8">
             <div className="px-3 py-1 bg-[var(--sys-color-signalGreen-base)]/10 border border-[var(--sys-color-signalGreen-base)]/30 rounded-full">
               <span className="text-[8px] font-bold text-[var(--sys-color-signalGreen-base)]">STAR method applied</span>
@@ -373,15 +373,16 @@ function KSCStepContent({ step, onNext, onGenerate }: any) {
             <div className="h-4 bg-[var(--sys-color-charcoalBackground-steps-3)] rounded w-full" />
           </div>
           <div className="mt-12 flex justify-center">
-            <PrimaryButton 
+            <M3Button 
               variant="filled" 
               onClick={onGenerate} 
               className="px-12 py-6 text-base"
-              label="Generate KSC responses"
-              icon={<Sparkles size={20} />}
-            />
+            >
+              <Sparkles size={20} className="mr-2" />
+              Generate KSC responses
+            </M3Button>
           </div>
-        </Card>
+        </M3Card>
       </div>
     );
   }
@@ -391,7 +392,7 @@ function KSCStepContent({ step, onNext, onGenerate }: any) {
 
 function KSCItem({ title, desc }: { title: string, desc: string }) {
   return (
-    <Card className="p-6">
+    <M3Card variant="outlined" className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">{title}</h4>
         <div className="group relative">
@@ -414,7 +415,7 @@ function KSCItem({ title, desc }: { title: string, desc: string }) {
         placeholder="Draft your response here..."
         className="w-full h-24 p-3 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-xl text-xs text-[var(--sys-color-paperWhite-base)] focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors resize-none"
       />
-    </Card>
+    </M3Card>
   );
 }
 
@@ -422,10 +423,10 @@ function FinalReviewContent() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">Review & finalize</h2>
+        <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Review & finalize</h2>
         <div className="flex gap-3">
-          <PrimaryButton variant="outlined" label="Download PDF" />
-          <PrimaryButton variant="filled" label="Save to tracker" />
+          <M3Button variant="outlined">Download PDF</M3Button>
+          <M3Button variant="filled">Save to tracker</M3Button>
         </div>
       </div>
 
@@ -456,7 +457,7 @@ function FinalReviewContent() {
         </div>
       </div>
 
-      <Card className="p-12 bg-white text-black min-h-[600px] shadow-2xl rounded-none">
+      <M3Card variant="elevated" className="p-12 bg-white text-black min-h-[600px] shadow-2xl rounded-none">
         <div className="max-w-2xl mx-auto space-y-6 font-serif">
           <div className="text-center border-b-2 border-black pb-6 mb-8">
             <h1 className="text-3xl font-bold uppercase tracking-tighter">Alex Johnson</h1>
@@ -475,7 +476,7 @@ function FinalReviewContent() {
             </ul>
           </div>
         </div>
-      </Card>
+      </M3Card>
       
       <div className="bg-[var(--sys-color-inkGold-base)]/10 p-8 rounded-[32px] border border-[var(--sys-color-inkGold-base)]/30 flex flex-col md:flex-row items-center gap-6">
         <div className="w-16 h-16 bg-[var(--sys-color-inkGold-base)] rounded-full flex items-center justify-center text-[var(--sys-color-charcoalBackground-base)] shrink-0">
@@ -485,12 +486,13 @@ function FinalReviewContent() {
           <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">Bridge to profile voice</h3>
           <p className="text-xs text-[var(--sys-color-worker-ash-base)] mt-1">Want these documents to sound even more like you? Update your voice profile in your account settings.</p>
         </div>
-        <PrimaryButton 
+        <M3Button 
           variant="tonal" 
           className="bg-[var(--sys-color-inkGold-base)] text-[var(--sys-color-charcoalBackground-base)] hover:bg-[var(--sys-color-inkGold-steps-2)]"
-          label="Update voice profile"
-          icon={<ArrowRight size={14} />}
-        />
+        >
+          Update voice profile
+          <ArrowRight size={14} className="ml-2" />
+        </M3Button>
       </div>
     </div>
   );

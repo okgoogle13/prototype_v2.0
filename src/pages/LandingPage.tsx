@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-import { PrimaryButton } from '../components/ui/PrimaryButton';
+import { M3Button } from '../components/ui/M3Button';
+import { M3Type } from '../theme/typography';
 
 interface LandingPageProps {
   onLogin: () => void;
@@ -28,38 +29,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onGuestLogin 
             <h1 className="text-7xl md:text-9xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] leading-none mb-4">
               Career<br/><span className="text-[var(--sys-color-solidarityRed-base)]">Copilot</span>
             </h1>
-            <p className="text-2xl md:text-3xl type-melancholyLonging text-[var(--sys-color-worker-ash-base)] mb-6">
+            <p style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-worker-ash-base)', marginBottom: '24px' }}>
               Your career. Precisely targeted.
             </p>
             
             <div className="max-w-xl mb-12">
-              <p className="text-lg text-[var(--sys-color-worker-ash-base)] leading-relaxed">
+              <p style={{ ...M3Type.bodyLarge, color: 'var(--sys-color-worker-ash-base)' }}>
                 An asymmetric advantage in the modern hiring landscape. We use advanced AI to audit your resume, 
                 tailor your applications, and scout opportunities with surgical precision.
               </p>
             </div>
 
             <div className="flex flex-col gap-6 w-full max-w-md">
-              <PrimaryButton 
-                label="Sign in with Google"
-                onClick={onLogin}
+              <M3Button 
                 variant="filled"
-                className="w-full py-7 text-xl shadow-2xl"
-              />
+                onClick={onLogin}
+                className="w-full shadow-2xl"
+                style={{ padding: '0 32px', minHeight: '56px', fontSize: '18px' }}
+              >
+                Sign in with Google
+              </M3Button>
 
               <div className="flex flex-col items-center gap-4">
-                <PrimaryButton 
-                  label="Explore as guest"
-                  onClick={onGuestLogin}
+                <M3Button 
                   variant="outlined"
-                  className="w-full py-6 text-lg"
-                />
+                  onClick={onGuestLogin}
+                  className="w-full"
+                  style={{ padding: '0 32px', minHeight: '56px', fontSize: '16px' }}
+                >
+                  Explore as guest
+                </M3Button>
                 
-                <button 
-                  className="text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] text-sm font-bold transition-colors"
+                <M3Button 
+                  variant="text"
+                  onClick={() => {}}
                 >
                   Create account / register
-                </button>
+                </M3Button>
               </div>
             </div>
           </motion.div>

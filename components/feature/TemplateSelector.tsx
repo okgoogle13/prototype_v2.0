@@ -1,6 +1,7 @@
 import React from 'react';
 import { TemplateStyle } from '../../constants';
 import { RESUME_TEMPLATES } from '../../constants';
+import { M3Type } from '../../src/theme/typography';
 
 interface Props {
   selectedTemplate: TemplateStyle;
@@ -13,19 +14,21 @@ export const TemplateSelector: React.FC<Props> = ({ selectedTemplate, setSelecte
   return (
     <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-6 rounded-[var(--sys-shape-radius-xl)] border border-[var(--sys-color-concreteGrey-steps-0)]">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-sm font-bold text-[var(--sys-color-inkGold-base)] uppercase tracking-widest">Select Document Template</h3>
+        <h3 style={{ ...M3Type.labelLarge, color: 'var(--sys-color-inkGold-base)' }} className="uppercase tracking-widest">Select Document Template</h3>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Locale:</span>
+          <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="uppercase tracking-wider">Locale:</span>
           <div className="flex bg-[var(--sys-color-charcoalBackground-base)] rounded-[var(--sys-shape-radius-lg)] p-1 border border-[var(--sys-color-concreteGrey-steps-0)]">
             <button
               onClick={() => setLocale('US')}
-              className={`px-3 py-1 rounded-[var(--sys-shape-radius-lg)] text-xs font-bold transition-colors ${locale === 'US' ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
+              style={M3Type.labelMedium}
+              className={`px-3 py-1 rounded-[var(--sys-shape-radius-lg)] transition-colors ${locale === 'US' ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
             >
               US
             </button>
             <button
               onClick={() => setLocale('UK/AU')}
-              className={`px-3 py-1 rounded-[var(--sys-shape-radius-lg)] text-xs font-bold transition-colors ${locale === 'UK/AU' ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
+              style={M3Type.labelMedium}
+              className={`px-3 py-1 rounded-[var(--sys-shape-radius-lg)] transition-colors ${locale === 'UK/AU' ? 'bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)]' : 'text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]'}`}
             >
               UK/AU
             </button>
@@ -53,7 +56,7 @@ export const TemplateSelector: React.FC<Props> = ({ selectedTemplate, setSelecte
                 <div className="h-0.5 w-4/5 rounded-[var(--sys-shape-radius-full)]" style={{ backgroundColor: t.textColor, opacity: 0.1 }} />
               </div>
             </div>
-            <span className={`text-[10px] font-bold truncate w-full text-center ${selectedTemplate.id === t.id ? 'text-[var(--sys-color-inkGold-base)]' : 'text-[var(--sys-color-worker-ash-base)] group-hover:text-[var(--sys-color-paperWhite-base)]'}`}>
+            <span style={M3Type.labelMedium} className={`truncate w-full text-center ${selectedTemplate.id === t.id ? 'text-[var(--sys-color-inkGold-base)]' : 'text-[var(--sys-color-worker-ash-base)] group-hover:text-[var(--sys-color-paperWhite-base)]'}`}>
               {t.name}
             </span>
           </button>

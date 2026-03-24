@@ -11,16 +11,27 @@ type Props = {
   onTabChange: (tab: 'DASHBOARD' | 'JOBS' | 'ATS_CHECK' | 'APPLICATIONS' | 'SUBMITTED_DOCS' | 'PROFILE' | 'SETTINGS') => void;
 };
 
-import { LayoutDashboard, Briefcase, Target, FolderOpen, UserCircle, Settings } from "lucide-react";
+import { LayoutDashboard, Briefcase, Target, FolderOpen, UserCircle, Settings, SearchCheck, History, Files, FileUser, LogOut } from "lucide-react";
 
 export function AppShell({ children, user, onLogout, activeTab, onTabChange }: Props) {
-  const [isLarge, setIsLarge] = React.useState(window.innerWidth >= 900);
+  const [windowWidth, setWindowWidth] = React.useState(window.innerWidth);
 
   React.useEffect(() => {
-    const handleResize = () => setIsLarge(window.innerWidth >= 900);
+    const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const isDesktop = windowWidth >= 900;
+
+  const navItems = [
+    { id: 'DASHBOARD' as const, label: 'Dashboard', icon: <LayoutDashboard size={24} /> },
+    { id: 'JOBS' as const, label: 'Jobs', icon: <Briefcase size={24} /> },
+    { id: 'ATS_CHECK' as const, label: 'ATS check', icon: <SearchCheck size={24} /> },
+    { id: 'APPLICATIONS' as const, label: 'Applications', icon: <History size={24} /> },
+    { id: 'SUBMITTED_DOCS' as const, label: 'Docs', icon: <Files size={24} /> },
+    { id: 'PROFILE' as const, label: 'Profile', icon: <FileUser size={24} /> },
+  ];
 
   return (
     <div 
@@ -34,15 +45,97 @@ export function AppShell({ children, user, onLogout, activeTab, onTabChange }: P
         onLogout={onLogout}
       />
 
-      <main className={`flex-1 relative flex flex-col overflow-hidden ${isLarge ? 'ml-[64px]' : 'pb-[72px]'}`}>
+      {isDesktop && (
+        <nav style={{
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          height: '100vh',
+          width: '72px',
+          background: '#1A2526',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          paddingTop: '16px',
+          gap: '4px',
+          zIndex: 100
+        }}>
+          {navItems.map(item => {
+            const isActive = activeTab === item.id;
+            return (
+              <div
+                key={item.id}
+                onClick={() => onTabChange(item.id)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  padding: '16px 0',
+                  width: '72px',
+                  cursor: 'pointer',
+                  borderRadius: '16px',
+                  background: isActive ? 'rgba(0,188,212,0.15)' : 'transparent',
+                  color: isActive ? '#00BCD4' : 'inherit'
+                }}
+              >
+                {item.icon}
+                <span style={{ fontSize: '11px', marginTop: '4px' }}>{item.label}</span>
+              </div>
+            );
+          })}
+          <div style={{ flex: 1 }} />
+          <div
+            onClick={() => onTabChange('SETTINGS')}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '16px 0',
+              width: '72px',
+              cursor: 'pointer',
+              borderRadius: '16px',
+              background: activeTab === 'SETTINGS' ? 'rgba(0,188,212,0.15)' : 'transparent',
+              color: activeTab === 'SETTINGS' ? '#00BCD4' : 'inherit'
+            }}
+          >
+            <Settings size={24} />
+            <span style={{ fontSize: '11px', marginTop: '4px' }}>Settings</span>
+          </div>
+          <div
+            onClick={onLogout}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '16px 0',
+              width: '72px',
+              cursor: 'pointer',
+              borderRadius: '16px',
+              color: 'inherit',
+              marginBottom: '16px'
+            }}
+          >
+            <LogOut size={24} />
+            <span style={{ fontSize: '11px', marginTop: '4px' }}>Logout</span>
+          </div>
+        </nav>
+      )}
+
+      <main 
+        className="flex-1 relative flex flex-col overflow-hidden"
+        style={{
+          marginLeft: isDesktop ? '72px' : '0',
+          marginBottom: isDesktop ? '0' : '0'
+        }}
+      >
         {/* Grit Particle Overlay */}
         <div className="absolute inset-0 pointer-events-none opacity-5 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
-        <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
+        <div className={`relative z-10 flex-1 flex flex-col overflow-hidden ${!isDesktop ? 'pb-[72px]' : ''}`}>
           {children}
         </div>
 
         {/* Mobile Bottom Navigation Bar */}
-        {!isLarge && (
+        {!isDesktop && (
           <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-[var(--sys-color-charcoalBackground-steps-2)] border-t border-[var(--sys-color-outline-variant)] z-[100] flex items-center justify-around px-4 pb-safe">
             <MobileNavItem 
               icon={<LayoutDashboard size={24} />} 

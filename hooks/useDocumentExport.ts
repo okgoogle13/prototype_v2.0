@@ -1,5 +1,5 @@
 import { RefObject } from 'react';
-import { CareerDatabase, MatchAnalysis } from '../types';
+import { CareerDatabase, MatchAnalysis, JobOpportunity } from '../types';
 import { TemplateStyle } from '../constants';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, ColumnBreak } from 'docx';
 import html2pdf from 'html2pdf.js';
@@ -9,6 +9,7 @@ interface UseDocumentExportProps {
   activeTab: 'resume' | 'coverLetter' | 'ksc' | 'analysis' | string;
   analysis: MatchAnalysis | null;
   careerData: CareerDatabase;
+  job: JobOpportunity;
   selectedTemplate: TemplateStyle;
   coverLetterContent: string;
   resumeRef: RefObject<HTMLDivElement | null>;
@@ -19,6 +20,7 @@ export function useDocumentExport({
   activeTab,
   analysis,
   careerData,
+  job,
   selectedTemplate,
   coverLetterContent,
   resumeRef,
@@ -32,27 +34,48 @@ export function useDocumentExport({
 
     if (target === 'resume' && resumeRef.current) {
       element = resumeRef.current;
-      filename = 'Tailored_Resume.pdf';
+      filename = `${careerData.Personal_Information.FullName.replace(/\s+/g, '_')}_Resume_${job.Company_Name.replace(/\s+/g, '_')}.pdf`;
     } else if (target === 'ksc' && kscRef.current) {
       element = kscRef.current;
-      filename = 'KSC_Responses.pdf';
+      filename = `${careerData.Personal_Information.FullName.replace(/\s+/g, '_')}_KSC_Responses_${job.Company_Name.replace(/\s+/g, '_')}.pdf`;
     } else if (target === 'coverLetter' && analysis) {
       element = document.createElement('div');
       element.innerHTML = `
-        <div style="font-family: ${selectedTemplate.fontSans}; padding: 40px; color: ${selectedTemplate.textColor}; max-width: 800px; margin: auto;">
-          <h1 style="color: ${selectedTemplate.primaryColor}; border-bottom: 2px solid ${selectedTemplate.primaryColor}; padding-bottom: 10px; margin-bottom: 30px; text-transform: uppercase;">Cover Letter</h1>
-          <div style="white-space: pre-wrap; line-height: 1.6;">${coverLetterContent || analysis.Cover_Letter_Draft}</div>
+        <div style="font-family: ${selectedTemplate.fontSans}; padding: 60px; color: ${selectedTemplate.textColor}; max-width: 800px; margin: auto; background: white; min-height: 1000px;">
+          <div style="text-align: center; margin-bottom: 50px; border-bottom: 2px solid ${selectedTemplate.primaryColor}; padding-bottom: 25px;">
+            <h1 style="color: ${selectedTemplate.primaryColor}; margin: 0; font-size: 32px; text-transform: uppercase; letter-spacing: 3px; font-weight: 700;">${careerData.Personal_Information.FullName}</h1>
+            <div style="margin-top: 12px; font-size: 13px; color: ${selectedTemplate.secondaryColor}; letter-spacing: 1px;">
+              ${careerData.Personal_Information.Email} | ${careerData.Personal_Information.Phone} | ${careerData.Personal_Information.Location}
+            </div>
+            ${careerData.Personal_Information.Portfolio_Website_URLs?.length > 0 ? `
+              <div style="margin-top: 8px; font-size: 11px; color: ${selectedTemplate.secondaryColor};">
+                ${careerData.Personal_Information.Portfolio_Website_URLs.join(' | ')}
+              </div>
+            ` : ''}
+          </div>
+          <div style="margin-bottom: 40px; font-size: 14px;">
+            <div style="font-weight: 600; margin-bottom: 25px; color: ${selectedTemplate.secondaryColor};">${new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+            <div style="font-weight: 700; color: ${selectedTemplate.primaryColor}; margin-bottom: 4px;">Hiring Manager</div>
+            <div style="font-weight: 600;">${job.Company_Name}</div>
+            <div style="color: ${selectedTemplate.secondaryColor};">${job.Location}</div>
+            <div style="margin-top: 15px; font-weight: 600;">RE: ${job.Job_Title} Application</div>
+          </div>
+          <div style="white-space: pre-wrap; line-height: 1.7; font-size: 14px; text-align: justify;">${coverLetterContent || analysis.Cover_Letter_Draft}</div>
+          <div style="margin-top: 50px;">
+            <div style="margin-bottom: 10px;">Sincerely,</div>
+            <div style="margin-top: 20px; font-weight: 700; font-size: 16px; color: ${selectedTemplate.primaryColor}; border-top: 1px solid #eee; display: inline-block; padding-top: 10px;">${careerData.Personal_Information.FullName}</div>
+          </div>
         </div>
       `;
-      filename = 'Cover_Letter.pdf';
+      filename = `${careerData.Personal_Information.FullName.replace(/\s+/g, '_')}_Cover_Letter_${job.Company_Name.replace(/\s+/g, '_')}.pdf`;
     }
 
     if (element) {
       const opt = {
-        margin: 10,
+        margin: 0,
         filename: filename,
         image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       };
       html2pdf().set(opt).from(element).save();
@@ -86,20 +109,30 @@ export function useDocumentExport({
 
   const exportToMarkdown = (documentType?: 'resume' | 'coverLetter' | 'ksc') => {
     const target = documentType || activeTab;
+    let filename = 'Document.md';
+    
     if (target === 'resume' && analysis) {
       const md = getFullResumeText();
       const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
-      saveAs(blob, 'Tailored_Resume.md');
+      filename = `${careerData.Personal_Information.FullName.replace(/\s+/g, '_')}_Resume_${job.Company_Name.replace(/\s+/g, '_')}.md`;
+      saveAs(blob, filename);
     } else if (target === 'coverLetter' && analysis) {
-      const blob = new Blob([coverLetterContent || analysis.Cover_Letter_Draft], { type: 'text/markdown;charset=utf-8' });
-      saveAs(blob, 'Cover_Letter.md');
+      let md = `# Cover Letter for ${job.Job_Title} at ${job.Company_Name}\n\n`;
+      md += `**Date:** ${new Date().toLocaleDateString()}\n\n`;
+      md += `${coverLetterContent || analysis.Cover_Letter_Draft}\n\n`;
+      md += `---\nGenerated by Career Copilot`;
+      const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+      filename = `${careerData.Personal_Information.FullName.replace(/\s+/g, '_')}_Cover_Letter_${job.Company_Name.replace(/\s+/g, '_')}.md`;
+      saveAs(blob, filename);
     } else if (target === 'ksc' && analysis.KSC_Responses_Drafts) {
-      let md = `# Key Selection Criteria Responses\n\n`;
+      let md = `# Key Selection Criteria Responses\n`;
+      md += `**Target:** ${job.Job_Title} at ${job.Company_Name}\n\n`;
       analysis.KSC_Responses_Drafts.forEach((ksc, i) => {
         md += `## Criterion ${i + 1}: ${ksc.KSC_Prompt}\n\n${ksc.Response}\n\n`;
       });
       const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
-      saveAs(blob, 'KSC_Responses.md');
+      filename = `${careerData.Personal_Information.FullName.replace(/\s+/g, '_')}_KSC_Responses_${job.Company_Name.replace(/\s+/g, '_')}.md`;
+      saveAs(blob, filename);
     }
   };
 
@@ -108,25 +141,53 @@ export function useDocumentExport({
     if (target === 'resume' && analysis) {
       const isTwoColumn = selectedTemplate.layout === 'two-column';
       
-      const leftColumnContent = [
+      const headerContent = [
         new Paragraph({
           text: careerData.Personal_Information.FullName,
           heading: HeadingLevel.HEADING_1,
+          alignment: "center",
         }),
         new Paragraph({
+          alignment: "center",
           children: [
-            new TextRun(`${careerData.Personal_Information.Email} | ${careerData.Personal_Information.Phone} | ${careerData.Personal_Information.Location}`),
+            new TextRun({
+              text: `${careerData.Personal_Information.Email} | ${careerData.Personal_Information.Phone} | ${careerData.Personal_Information.Location}`,
+              size: 20,
+            }),
           ],
         }),
+        ...(careerData.Personal_Information.Portfolio_Website_URLs?.length > 0 ? [
+          new Paragraph({
+            alignment: "center",
+            children: [
+              new TextRun({
+                text: careerData.Personal_Information.Portfolio_Website_URLs.join(' | '),
+                size: 18,
+                bold: true,
+              }),
+            ],
+          })
+        ] : []),
         new Paragraph({ text: "" }),
+      ];
+
+      const leftColumnContent = [
+        ...(analysis.Headline_Suggestion ? [
+          new Paragraph({
+            text: analysis.Headline_Suggestion,
+            heading: HeadingLevel.HEADING_2,
+            alignment: "center",
+          }),
+          new Paragraph({ text: "" }),
+        ] : []),
         new Paragraph({
           text: "Professional Summary",
           heading: HeadingLevel.HEADING_2,
         }),
         new Paragraph({
           text: analysis.Tailored_Summary,
+          spacing: { after: 200 },
         }),
-        new Paragraph({ text: "" }),
         new Paragraph({
           text: "Professional Experience",
           heading: HeadingLevel.HEADING_2,
@@ -135,38 +196,98 @@ export function useDocumentExport({
           .sort((a, b) => new Date(b.StartDate).getTime() - new Date(a.StartDate).getTime())
           .flatMap(entry => {
             const entryAchievements = careerData.Structured_Achievements.filter(a => a.Entry_ID === entry.Entry_ID);
-            if (entryAchievements.length === 0) return [];
+            
+            // Sort achievements to put recommended ones first
+            const sortedAchievements = [...entryAchievements].sort((a, b) => {
+              const aRec = analysis.Recommended_Achievement_IDs.includes(a.Achievement_ID);
+              const bRec = analysis.Recommended_Achievement_IDs.includes(b.Achievement_ID);
+              if (aRec && !bRec) return -1;
+              if (!aRec && bRec) return 1;
+              return 0;
+            });
+
             return [
               new Paragraph({
-                text: entry.Role,
-                heading: HeadingLevel.HEADING_3,
+                children: [
+                  new TextRun({ text: entry.Role, bold: true, size: 24 }),
+                  new TextRun({ text: `\t${entry.StartDate} - ${entry.EndDate}`, size: 20 }),
+                ],
+                tabStops: [{ type: "right", position: 9000 }],
               }),
               new Paragraph({
                 children: [
-                  new TextRun({ text: entry.Organization, bold: true }),
-                  new TextRun(` | ${entry.StartDate} - ${entry.EndDate}`),
+                  new TextRun({ text: entry.Organization, italics: true, size: 22 }),
+                  new TextRun({ text: ` | ${entry.Location}`, size: 20 }),
                 ],
+                spacing: { after: 120 },
               }),
-              ...entryAchievements.map(ach => new Paragraph({
-                text: `${ach.Action_Verb} ${ach.Noun_Task} ${ach.Strategy} resulting in ${ach.Outcome}.`,
-                bullet: { level: 0 }
+              ...sortedAchievements.map(ach => new Paragraph({
+                children: [
+                  new TextRun({ 
+                    text: `${ach.Action_Verb} ${ach.Noun_Task} ${ach.Strategy} resulting in ${ach.Outcome}.`,
+                    bold: analysis.Recommended_Achievement_IDs.includes(ach.Achievement_ID)
+                  })
+                ],
+                bullet: { level: 0 },
+                spacing: { before: 40, after: 40 },
               })),
               new Paragraph({ text: "" })
             ];
-          })
+          }),
+        // Volunteering Section
+        ...(careerData.Career_Entries.some(e => e.Entry_Type === "Volunteer") ? [
+          new Paragraph({
+            text: "Volunteering & Community",
+            heading: HeadingLevel.HEADING_2,
+          }),
+          ...careerData.Career_Entries.filter(e => e.Entry_Type === "Volunteer")
+            .flatMap(entry => [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: entry.Role, bold: true, size: 22 }),
+                  new TextRun({ text: ` | ${entry.Organization}`, italics: true, size: 20 }),
+                ],
+              }),
+              new Paragraph({
+                text: entry.Core_Responsibilities_Scope,
+                spacing: { after: 120 },
+              })
+            ])
+        ] : []),
+        // Projects Section
+        ...(careerData.Career_Entries.some(e => e.Entry_Type === "Project") ? [
+          new Paragraph({
+            text: "Key Projects",
+            heading: HeadingLevel.HEADING_2,
+          }),
+          ...careerData.Career_Entries.filter(e => e.Entry_Type === "Project")
+            .flatMap(entry => [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: entry.Role, bold: true, size: 22 }),
+                  new TextRun({ text: ` | ${entry.Organization}`, italics: true, size: 20 }),
+                ],
+              }),
+              new Paragraph({
+                text: entry.Core_Responsibilities_Scope,
+                spacing: { after: 120 },
+              })
+            ])
+        ] : [])
       ];
 
       const rightColumnContent = [
         new Paragraph({
-          text: "Skills",
+          text: "Core Competencies",
           heading: HeadingLevel.HEADING_2,
         }),
         ...careerData.Master_Skills_Inventory
           .filter(s => s.Proficiency === 'Expert' || s.Proficiency === 'Master' || s.Proficiency === 'Proficient')
-          .slice(0, 15)
+          .slice(0, 20)
           .map(skill => new Paragraph({
             text: skill.Skill_Name,
-            bullet: { level: 0 }
+            bullet: { level: 0 },
+            spacing: { before: 20, after: 20 },
           })),
         new Paragraph({ text: "" }),
         new Paragraph({
@@ -176,14 +297,39 @@ export function useDocumentExport({
         ...careerData.Career_Entries.filter(e => e.Entry_Type === "Education")
           .map(entry => new Paragraph({
             children: [
-              new TextRun({ text: entry.Role, bold: true }),
-              new TextRun(`\n${entry.Organization}`),
-              new TextRun(`\n${entry.EndDate}`),
-            ]
-          }))
+              new TextRun({ text: entry.Role, bold: true, size: 22 }),
+              new TextRun({ text: `\n${entry.Organization}`, size: 20 }),
+              new TextRun({ text: `\n${entry.EndDate}`, size: 18, italics: true }),
+            ],
+            spacing: { after: 120 },
+          })),
+        // Certifications
+        ...(careerData.Career_Entries.some(e => e.Entry_Type === "Certification") ? [
+          new Paragraph({
+            text: "Certifications",
+            heading: HeadingLevel.HEADING_2,
+          }),
+          ...careerData.Career_Entries.filter(e => e.Entry_Type === "Certification")
+            .map(entry => new Paragraph({
+              children: [
+                new TextRun({ text: entry.Role, bold: true, size: 20 }),
+                new TextRun({ text: ` - ${entry.Organization}`, size: 18 }),
+              ],
+            }))
+        ] : [])
       ];
 
       const doc = new Document({
+        styles: {
+          default: {
+            document: {
+              run: {
+                font: selectedTemplate.fontSans.split(',')[0].trim(),
+                size: 22, // 11pt
+              },
+            },
+          },
+        },
         sections: [{
           properties: isTwoColumn ? {
             column: {
@@ -192,34 +338,96 @@ export function useDocumentExport({
             }
           } : {},
           children: isTwoColumn 
-            ? [...leftColumnContent, new Paragraph({ children: [new ColumnBreak()] }), ...rightColumnContent] 
-            : [...leftColumnContent, ...rightColumnContent],
+            ? [...headerContent, ...leftColumnContent, new Paragraph({ children: [new ColumnBreak()] }), ...rightColumnContent] 
+            : [...headerContent, ...leftColumnContent, ...rightColumnContent],
         }],
       });
       const blob = await Packer.toBlob(doc);
-      saveAs(blob, 'Tailored_Resume.docx');
+      saveAs(blob, `${careerData.Personal_Information.FullName.replace(/\s+/g, '_')}_Resume_${job.Company_Name.replace(/\s+/g, '_')}.docx`);
     } else if (target === 'coverLetter' && analysis) {
       const doc = new Document({
         sections: [{
           properties: {},
-          children: (coverLetterContent || analysis.Cover_Letter_Draft).split('\n').map(line => new Paragraph({ text: line })),
+          children: [
+            new Paragraph({
+              text: careerData.Personal_Information.FullName,
+              heading: HeadingLevel.HEADING_1,
+            }),
+            new Paragraph({
+              text: `${careerData.Personal_Information.Email} | ${careerData.Personal_Information.Phone}`,
+            }),
+            new Paragraph({
+              text: careerData.Personal_Information.Location,
+              spacing: { after: 200 },
+            }),
+            new Paragraph({ text: "" }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' }), size: 22 })
+              ],
+              spacing: { after: 200 }
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Hiring Manager", bold: true, size: 22 })
+              ],
+            }),
+            new Paragraph({ text: job.Company_Name }),
+            new Paragraph({ text: job.Location, spacing: { after: 200 } }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: `RE: ${job.Job_Title} Application`, bold: true, size: 22 })
+              ],
+              spacing: { after: 400 }
+            }),
+            ...(coverLetterContent || analysis.Cover_Letter_Draft || "").split('\n').map(line => new Paragraph({ 
+              text: line,
+              spacing: { after: 120 }
+            })),
+            new Paragraph({ text: "" }),
+            new Paragraph({ text: "Sincerely," }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: careerData.Personal_Information.FullName, bold: true, size: 22 })
+              ],
+            }),
+          ],
         }],
       });
       const blob = await Packer.toBlob(doc);
-      saveAs(blob, 'Cover_Letter.docx');
+      saveAs(blob, `${careerData.Personal_Information.FullName.replace(/\s+/g, '_')}_Cover_Letter_${job.Company_Name.replace(/\s+/g, '_')}.docx`);
     } else if (target === 'ksc' && analysis.KSC_Responses_Drafts) {
       const doc = new Document({
         sections: [{
           properties: {},
-          children: analysis.KSC_Responses_Drafts.flatMap((ksc, i) => [
-            new Paragraph({ text: `Criterion ${i + 1}: ${ksc.KSC_Prompt}`, heading: HeadingLevel.HEADING_1 }),
-            ...ksc.Response.split('\n').map(line => new Paragraph({ text: line })),
-            new Paragraph({ text: "" })
-          ]),
+          children: [
+            new Paragraph({
+              text: `Key Selection Criteria Responses`,
+              heading: HeadingLevel.HEADING_1,
+              alignment: "center",
+            }),
+            new Paragraph({
+              text: `For ${job.Job_Title} at ${job.Company_Name}`,
+              alignment: "center",
+              spacing: { after: 400 },
+            }),
+            ...analysis.KSC_Responses_Drafts.flatMap((ksc, i) => [
+              new Paragraph({ 
+                text: `Criterion ${i + 1}: ${ksc.KSC_Prompt}`, 
+                heading: HeadingLevel.HEADING_2,
+                spacing: { before: 400, after: 200 }
+              }),
+              ...ksc.Response.split('\n').map(line => new Paragraph({ 
+                text: line, 
+                spacing: { after: 120 } 
+              })),
+              new Paragraph({ text: "" })
+            ])
+          ],
         }],
       });
       const blob = await Packer.toBlob(doc);
-      saveAs(blob, 'KSC_Responses.docx');
+      saveAs(blob, `${careerData.Personal_Information.FullName.replace(/\s+/g, '_')}_KSC_Responses_${job.Company_Name.replace(/\s+/g, '_')}.docx`);
     }
   };
 

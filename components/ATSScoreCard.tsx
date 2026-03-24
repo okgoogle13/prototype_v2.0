@@ -5,6 +5,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { ATSScoreResult, DocumentType } from '../types';
+import { M3Card } from '../src/components/ui/M3Card';
+import { M3Type } from '../src/theme/typography';
 
 interface ATSScoreCardProps {
   score: ATSScoreResult | null;
@@ -38,11 +40,11 @@ export function ATSScoreCard({ score, isCalculating, documentType }: ATSScoreCar
   };
 
   return (
-    <div className="shadow-xl" style={{ background: 'var(--sys-color-charcoalBackground-steps-1)', borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderRadius: 'var(--sys-shape-blockRiot03)', borderWidth: 1, borderStyle: 'solid', padding: '1.5rem' }}>
+    <M3Card variant="elevated" className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)]">ATS Score ({documentType === 'resume' ? 'Resume' : 'Cover Letter'})</h3>
+        <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }}>ATS Score ({documentType === 'resume' ? 'Resume' : 'Cover Letter'})</h3>
         {isCalculating && (
-          <span className="text-xs text-[var(--sys-color-inkGold-base)] animate-pulse">Calculating...</span>
+          <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-inkGold-base)' }} className="animate-pulse">Calculating...</span>
         )}
       </div>
 
@@ -55,16 +57,16 @@ export function ATSScoreCard({ score, isCalculating, documentType }: ATSScoreCar
           <div className="grid grid-cols-2 gap-4 mb-6">
             {Object.entries(score.breakdown).map(([key, value]) => (
               <div key={key} className="p-3 shadow-sm" style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-base) 85%, transparent)', borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderRadius: 'var(--sys-shape-blockRiot02)', borderWidth: 1, borderStyle: 'solid' }}>
-                <div className="text-xs text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-1">{key.replace(/([A-Z])/g, ' $1')}</div>
-                <div className="text-xl font-bold text-[var(--sys-color-paperWhite-base)]">{value}%</div>
+                <div style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="uppercase tracking-wider mb-1">{key.replace(/([A-Z])/g, ' $1')}</div>
+                <div style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }} className="font-bold">{value}%</div>
               </div>
             ))}
           </div>
           <div className="text-center mb-6">
-            <span className={`text-6xl font-black ${getScoreColor(score.overallScore)}`}>
+            <span style={M3Type.headlineSmall} className={`text-6xl font-black ${getScoreColor(score.overallScore)}`}>
               {score.overallScore}%
             </span>
-            <p className="text-sm text-[var(--sys-color-worker-ash-base)] mt-2">
+            <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }} className="mt-2">
               This score is equivalent to industry-standard ATS compliance scanners. It is not an arbitrary calculation.
             </p>
           </div>
@@ -80,13 +82,13 @@ export function ATSScoreCard({ score, isCalculating, documentType }: ATSScoreCar
               />
             </svg>
             <div className={`absolute inset-0 flex items-center justify-center`}>
-              <span className={`text-3xl font-bold ${getScoreColor(score.overallScore)}`}>
+              <span style={M3Type.headlineSmall} className={`text-3xl font-bold ${getScoreColor(score.overallScore)}`}>
                 {score.overallScore}
               </span>
             </div>
           </div>
 
-          <p className="text-center mt-4 text-sm text-[var(--sys-color-worker-ash-base)]">
+          <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }} className="text-center mt-4">
             {documentType === 'coverLetter' ? (
               <>
                 {score.overallScore >= 90 && 'Excellent match! Highly competitive for recruiter review.'}
@@ -104,6 +106,6 @@ export function ATSScoreCard({ score, isCalculating, documentType }: ATSScoreCar
           </p>
         </motion.div>
       )}
-    </div>
+    </M3Card>
   );
 }

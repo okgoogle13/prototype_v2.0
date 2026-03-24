@@ -7,6 +7,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { UploadIcon } from './icons/UploadIcon';
 import { FileIcon } from './icons/FileIcon';
 import { TrashIcon } from './icons/TrashIcon';
+import { M3Button } from '../src/components/ui/M3Button';
+import { M3Card } from '../src/components/ui/M3Card';
+import { M3Type } from '../src/theme/typography';
 
 interface DocumentInputProps {
   onProcess: (files: File[], rawText?: string, fileData?: { data: string; mimeType: string }[]) => void;
@@ -124,8 +127,8 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoadi
   };
 
   return (
-    <div className="p-10 bg-[var(--sys-color-charcoalBackground-steps-2)] border-l-4 border-l-[var(--sys-color-solidarityRed-base)] border-y border-r border-y-[var(--sys-color-outline-variant)] border-r-[var(--sys-color-outline-variant)] shadow-[var(--sys-shadow-elevation2Placard)] my-8 mx-auto max-w-6xl" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
-      {!hideTitle && <h2 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-4 uppercase tracking-tight">1. Upload Your Career Documents</h2>}
+    <M3Card variant="elevated" className="p-10 border-l-4 border-l-[var(--sys-color-solidarityRed-base)] my-8 mx-auto max-w-6xl">
+      {!hideTitle && <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }} className="mb-4 tracking-tight">1. Upload Your Career Documents</h2>}
       <div className="flex gap-2 mb-8">
         <span className="px-3 py-1 bg-[var(--sys-color-charcoalBackground-steps-2)] text-[var(--sys-color-worker-ash-base)] text-sm font-bold uppercase tracking-wider rounded-full border border-[var(--sys-color-outline-variant)]">Up to {MAX_FILES} documents</span>
         <span className="px-3 py-1 bg-[var(--sys-color-charcoalBackground-steps-2)] text-[var(--sys-color-worker-ash-base)] text-sm font-bold uppercase tracking-wider rounded-full border border-[var(--sys-color-outline-variant)]">PDF · DOCX · TXT</span>
@@ -161,7 +164,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoadi
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="rawText" className="text-xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-4 uppercase tracking-tight">
+            <label htmlFor="rawText" style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-4 tracking-tight">
               Paste raw text instead
             </label>
             <textarea
@@ -180,7 +183,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoadi
 
         {files.length > 0 && (
           <div className="mt-8">
-            <h3 className="text-xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-4 uppercase tracking-tight">Selected Files:</h3>
+            <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-4 tracking-tight">Selected Files:</h3>
             <div className="max-h-60 overflow-y-auto space-y-3 pr-2">
               {files.map((file, index) => (
                 <div key={`${file.name}-${index}`} className="flex items-center justify-between bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] p-4 animate-fade-in" style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}>
@@ -203,22 +206,24 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({ onProcess, isLoadi
         <div className="mt-10 flex justify-end min-h-[60px]">
           <AnimatePresence>
             {(files.length > 0 || rawText.trim().length > 0) && (
-              <motion.button
+              <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                type="submit"
-                disabled={isLoading || isReading}
-                className="px-8 py-4 bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] font-bold text-lg uppercase tracking-wider disabled:bg-[var(--sys-color-concreteGrey-steps-0)] disabled:cursor-not-allowed transition-all hover:-translate-y-1 hover:shadow-[var(--sys-shadow-elevation3HoverLift)]"
-                style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
               >
-                {isLoading || isReading ? 'Processing...' : submitLabel || `Process ${files.length > 0 ? `${files.length} File(s)` : 'Text'}`}
-              </motion.button>
+                <M3Button
+                  variant="filled"
+                  type="submit"
+                  disabled={isLoading || isReading}
+                >
+                  {isLoading || isReading ? 'Processing...' : submitLabel || `Process ${files.length > 0 ? `${files.length} File(s)` : 'Text'}`}
+                </M3Button>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
       </form>
-    </div>
+    </M3Card>
   );
 };

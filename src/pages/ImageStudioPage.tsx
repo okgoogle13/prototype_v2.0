@@ -6,8 +6,9 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";
 import { SolidarityPageLayout } from "../components/layout/SolidarityPageLayout";
-import { PrimaryButton } from "../components/ui/PrimaryButton";
-import { Card } from "../components/ui/Card";
+import { M3Button } from "../components/ui/M3Button";
+import { M3Card } from "../components/ui/M3Card";
+import { M3Type } from "../theme/typography";
 import { Badge } from "../components/ui/Badge";
 import { Search, Target, Zap, ShieldCheck, CheckCircle2, XCircle, AlertCircle, ArrowRight, Download, FileText, Loader2, Info } from "lucide-react";
 import { GoogleGenAI, Type } from "@google/genai";
@@ -152,12 +153,13 @@ export function OptimisePage({ user }: Props) {
                 className="flex-1 w-full p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-xl focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors resize-none mb-6 min-h-[200px]"
               />
               
-              <PrimaryButton 
-                label={isAnalyzing ? "Analyzing..." : "Scan & score →"} 
-                onClick={handleScan}
+              <M3Button 
                 variant="filled"
+                onClick={handleScan}
                 disabled={isAnalyzing || !jobDescription}
-              />
+              >
+                {isAnalyzing ? "Analyzing..." : "Scan & score →"}
+              </M3Button>
             </div>
           </div>
 
@@ -259,11 +261,12 @@ export function OptimisePage({ user }: Props) {
                         </div>
                       </div>
                       <p className="text-sm text-[var(--sys-color-worker-ash-base)] mb-6">We've detected that this is a government role. Would you like to generate draft responses for the selection criteria?</p>
-                      <PrimaryButton 
-                        label="Generate KSC responses →" 
-                        onClick={() => setHasGeneratedKSC(true)} 
+                      <M3Button 
                         variant="filled" 
-                      />
+                        onClick={() => setHasGeneratedKSC(true)} 
+                      >
+                        Generate KSC responses →
+                      </M3Button>
                     </section>
                   )}
 
@@ -300,7 +303,7 @@ export function OptimisePage({ user }: Props) {
 
                   <section>
                     <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] mb-6">AI recommendations</h3>
-                    <Card className="p-6 border-[var(--sys-color-inkGold-base)]/30">
+                    <M3Card variant="outlined" className="p-6 border-[var(--sys-color-inkGold-base)]/30">
                       <ul className="space-y-4">
                         {recommendations.map((rec, idx) => (
                           <li key={idx} className="flex gap-3">
@@ -311,7 +314,7 @@ export function OptimisePage({ user }: Props) {
                           </li>
                         ))}
                       </ul>
-                    </Card>
+                    </M3Card>
                   </section>
 
                   {hasGeneratedKSC && (
@@ -327,11 +330,12 @@ export function OptimisePage({ user }: Props) {
                   )}
 
                   <div className="flex flex-col sm:flex-row gap-4 pt-8">
-                    <PrimaryButton 
-                      label="Apply suggestions →" 
-                      onClick={() => {}} 
+                    <M3Button 
                       variant="filled" 
-                    />
+                      onClick={() => {}} 
+                    >
+                      Apply suggestions →
+                    </M3Button>
                     <button className="flex-1 px-8 py-4 border border-[var(--sys-color-outline-variant)] rounded-xl font-bold text-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors flex items-center justify-center gap-2">
                       <Download size={20} />
                       Export resume
@@ -381,11 +385,11 @@ export function OptimisePage({ user }: Props) {
 
 function AnalysisCard({ title, score, icon, children }: { title: string, score: number, icon: React.ReactNode, children: React.ReactNode }) {
   return (
-    <Card className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)]">
+    <M3Card variant="filled" className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)]">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="text-[var(--sys-color-inkGold-base)]">{icon}</div>
-          <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">{title}</h4>
+          <h4 style={{ ...M3Type.titleMedium, color: 'var(--sys-color-paperWhite-base)' }}>{title}</h4>
         </div>
         <div className={`text-sm font-bold ${score > 80 ? 'text-[var(--sys-color-signalGreen-base)]' : score > 50 ? 'text-[var(--sys-color-inkGold-base)]' : 'text-[var(--sys-color-solidarityRed-base)]'}`}>
           {score}%
@@ -395,7 +399,7 @@ function AnalysisCard({ title, score, icon, children }: { title: string, score: 
         <div className={`h-full ${score > 80 ? 'bg-[var(--sys-color-signalGreen-base)]' : score > 50 ? 'bg-[var(--sys-color-inkGold-base)]' : 'bg-[var(--sys-color-solidarityRed-base)]'}`} style={{ width: `${score}%` }} />
       </div>
       {children}
-    </Card>
+    </M3Card>
   );
 }
 

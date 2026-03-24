@@ -17,6 +17,9 @@ interface Props {
   handlePolish: (achId: string, field: keyof StructuredAchievement) => void;
   workEntries: any[];
   educationEntries: any[];
+  projectEntries: any[];
+  volunteerEntries: any[];
+  certificationEntries: any[];
   tailoredSummary: string;
   setTailoredSummary: (summary: string) => void;
 }
@@ -36,6 +39,9 @@ export const SingleColumnResume: React.FC<Props> = ({
   handlePolish,
   workEntries,
   educationEntries,
+  projectEntries,
+  volunteerEntries,
+  certificationEntries,
   tailoredSummary,
   setTailoredSummary
 }) => {
@@ -181,6 +187,62 @@ export const SingleColumnResume: React.FC<Props> = ({
         </div>
       </div>
 
+      {/* Projects */}
+      {projectEntries.length > 0 && (
+        <div className="mb-8">
+          <h2 
+            className="text-xl font-bold uppercase border-b mb-3 pb-1 tracking-wide"
+            style={{ 
+              color: template.headingColor, 
+              borderColor: template.borderColor,
+              fontFamily: template.fontSerif 
+            }}
+          >
+            Key Projects
+          </h2>
+          <div className="space-y-4">
+            {projectEntries.map((entry, i) => (
+              <div key={i}>
+                <div className="flex justify-between items-baseline mb-1">
+                  <h3 className="text-sm font-bold" style={{ color: template.primaryColor }}>{entry.Role}</h3>
+                  <span className="text-xs font-bold opacity-60">{formatDate(entry.StartDate)} – {formatDate(entry.EndDate)}</span>
+                </div>
+                <p className="text-sm italic mb-1" style={{ color: template.secondaryColor }}>{entry.Organization}</p>
+                <p className="text-sm opacity-90">{entry.Core_Responsibilities_Scope}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Volunteering */}
+      {volunteerEntries.length > 0 && (
+        <div className="mb-8">
+          <h2 
+            className="text-xl font-bold uppercase border-b mb-3 pb-1 tracking-wide"
+            style={{ 
+              color: template.headingColor, 
+              borderColor: template.borderColor,
+              fontFamily: template.fontSerif 
+            }}
+          >
+            Volunteering & Community
+          </h2>
+          <div className="space-y-4">
+            {volunteerEntries.map((entry, i) => (
+              <div key={i}>
+                <div className="flex justify-between items-baseline mb-1">
+                  <h3 className="text-sm font-bold" style={{ color: template.primaryColor }}>{entry.Role}</h3>
+                  <span className="text-xs font-bold opacity-60">{formatDate(entry.StartDate)} – {formatDate(entry.EndDate)}</span>
+                </div>
+                <p className="text-sm italic mb-1" style={{ color: template.secondaryColor }}>{entry.Organization}</p>
+                <p className="text-sm opacity-90">{entry.Core_Responsibilities_Scope}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Education */}
       {educationEntries.length > 0 && (
         <div className="mb-8">
@@ -202,6 +264,33 @@ export const SingleColumnResume: React.FC<Props> = ({
                   <span className="text-sm opacity-80">{entry.Organization}</span>
                 </div>
                 <span className="text-sm font-bold opacity-60">{formatDate(entry.EndDate)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Certifications */}
+      {certificationEntries.length > 0 && (
+        <div className="mb-8">
+          <h2 
+            className="text-xl font-bold uppercase border-b mb-3 pb-1 tracking-wide"
+            style={{ 
+              color: template.headingColor, 
+              borderColor: template.borderColor,
+              fontFamily: template.fontSerif 
+            }}
+          >
+            Certifications
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {certificationEntries.map((entry, i) => (
+              <div key={i} className="flex justify-between items-baseline">
+                <div>
+                  <h3 className="text-xs font-bold" style={{ color: template.primaryColor }}>{entry.Role}</h3>
+                  <span className="text-xs opacity-80">{entry.Organization}</span>
+                </div>
+                <span className="text-xs font-bold opacity-60">{formatDate(entry.EndDate)}</span>
               </div>
             ))}
           </div>

@@ -15,11 +15,12 @@ import { Link, Target, Sparkles, LayoutDashboard, CheckCircle2, Circle, X } from
 import { DashboardOverview } from "../components/feature/DashboardOverview";
 import { useUserStore } from "../hooks/useUserStore";
 
-import { User } from 'firebase/auth';
+import { M3Button } from "../components/ui/M3Button";
+import { M3Type } from "../theme/typography";
 
 interface Props {
   initialJobData?: { title: string; company: string; text: string } | null;
-  user?: User | null;
+  user?: any | null;
   onTabChange?: (tab: 'DASHBOARD' | 'JOBS' | 'ATS_CHECK' | 'APPLICATIONS' | 'SUBMITTED_DOCS' | 'PROFILE' | 'SETTINGS') => void;
 }
 
@@ -30,7 +31,13 @@ const ChecklistItem = ({ label, completed }: { label: string; completed: boolean
     ) : (
       <Circle size={18} className="text-[var(--sys-color-worker-ash-base)]" />
     )}
-    <span className={`text-sm font-medium ${completed ? 'text-[var(--sys-color-worker-ash-base)] line-through opacity-60' : 'text-[var(--sys-color-paperWhite-base)]'}`}>
+    <span 
+      style={{ 
+        ...M3Type.titleSmall, 
+        color: completed ? '#888' : 'var(--sys-color-paperWhite-base)',
+        textDecoration: completed ? 'line-through' : 'none'
+      }}
+    >
       {label}
     </span>
   </div>
@@ -44,9 +51,9 @@ const StepCard = ({ number, icon: Icon, label, desc }: any) => (
     <div>
       <div className="flex items-center gap-2 mb-1">
         <Icon size={18} className="text-[var(--sys-color-inkGold-base)]" />
-        <h4 className="font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">{label}</h4>
+        <h4 style={{ ...M3Type.titleMedium, color: 'var(--sys-color-paperWhite-base)' }}>{label}</h4>
       </div>
-      <p className="text-sm text-[var(--sys-color-worker-ash-base)] leading-relaxed">{desc}</p>
+      <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>{desc}</p>
     </div>
   </div>
 );
@@ -89,10 +96,10 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange
             className="w-full md:w-[440px] flex-shrink-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] flex flex-col gap-4 overflow-y-auto rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none md:rounded-br-none"
           >
             <div className="mb-2">
-              <h1 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] tracking-tight">
+              <h1 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>
                 Target <span className="text-[var(--sys-color-solidarityRed-base)]">job</span>
               </h1>
-              <p className="text-[clamp(20px,5vw,28px)] leading-[clamp(28px,6vw,36px)] type-laborExploitationPressure text-[var(--sys-color-stencilYellow-base)]">
+              <p style={{ ...M3Type.titleLarge, color: 'var(--sys-color-stencilYellow-base)' }} className="mt-1">
                 No neutral canvas.
               </p>
             </div>
@@ -119,16 +126,16 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange
                   className="w-full max-w-4xl mx-auto flex flex-col h-full"
                 >
                   <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-[clamp(22px,6vw,28px)] leading-[clamp(30px,7vw,36px)] type-solidarityProtest text-[var(--sys-color-paperWhite-base)]">
+                    <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>
                       {showDashboard ? "Dashboard" : "How it works"}
                     </h2>
-                    <button 
+                    <M3Button 
+                      variant="outlined"
                       onClick={() => setShowDashboard(!showDashboard)}
-                      className="px-4 h-9 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] font-medium text-xs hover:text-[var(--sys-color-paperWhite-base)] hover:bg-[var(--sys-color-paperWhite-base)]/5 transition-all rounded-full flex items-center gap-2"
                     >
-                      {showDashboard ? <Sparkles size={14} /> : <LayoutDashboard size={14} />}
+                      {showDashboard ? <Sparkles size={14} className="mr-2" /> : <LayoutDashboard size={14} className="mr-2" />}
                       {showDashboard ? "View guide" : "View dashboard"}
-                    </button>
+                    </M3Button>
                   </div>
 
                   {showDashboard ? (
@@ -146,7 +153,7 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange
                           >
                             <X size={18} />
                           </button>
-                          <h3 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight mb-4">
+                          <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-4">
                             Getting started
                           </h3>
                           <div className="space-y-1">
@@ -154,12 +161,13 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange
                             <ChecklistItem label="Paste a job URL" completed={false} />
                             <ChecklistItem label="Browse jobs" completed={false} />
                           </div>
-                          <button 
+                          <M3Button 
+                            variant="text"
                             onClick={() => setDismissedChecklist(true)}
-                            className="mt-4 text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors underline underline-offset-4"
+                            className="mt-4"
                           >
                             Dismiss for now
-                          </button>
+                          </M3Button>
                         </motion.div>
                       )}
                       <DashboardOverview onTabChange={onTabChange} />

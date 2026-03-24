@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
+import { M3Type } from "../../theme/typography";
 
 type Props = {
   label: string;
@@ -47,8 +48,9 @@ export function TextInput({ label, placeholder, value, onChange, onFocus, onBlur
           onBlur?.(e);
         }}
         onKeyDown={onKeyDown}
-        className={`w-full p-4 border-2 text-lg type-melancholyLonging focus:outline-none focus:shadow-[var(--sys-shadow-elevation2Placard)] text-[var(--sys-color-paperWhite-base)] transition-colors ${isFocused ? 'border-[var(--sys-color-solidarityRed-base)]' : 'border-[var(--sys-color-outline-variant)]'}`}
+        className={`w-full p-4 border-2 focus:outline-none focus:shadow-[var(--sys-shadow-elevation2Placard)] text-[var(--sys-color-paperWhite-base)] transition-colors ${isFocused ? 'border-[var(--sys-color-solidarityRed-base)]' : 'border-[var(--sys-color-outline-variant)]'}`}
         style={{ 
+          ...M3Type.bodyLarge,
           borderRadius: 'var(--sys-shape-blockRiot01)',
           background: 'var(--sys-color-charcoalBackground-steps-0)',
         }}

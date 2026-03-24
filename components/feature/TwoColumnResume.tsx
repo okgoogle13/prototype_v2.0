@@ -17,6 +17,9 @@ interface Props {
   handlePolish: (achId: string, field: keyof StructuredAchievement) => void;
   workEntries: any[];
   educationEntries: any[];
+  projectEntries: any[];
+  volunteerEntries: any[];
+  certificationEntries: any[];
   tailoredSummary: string;
   setTailoredSummary: (summary: string) => void;
 }
@@ -36,6 +39,9 @@ export const TwoColumnResume: React.FC<Props> = ({
   handlePolish,
   workEntries,
   educationEntries,
+  projectEntries,
+  volunteerEntries,
+  certificationEntries,
   tailoredSummary,
   setTailoredSummary
 }) => {
@@ -163,6 +169,66 @@ export const TwoColumnResume: React.FC<Props> = ({
             })}
           </div>
         </div>
+
+        {/* Projects */}
+        {projectEntries.length > 0 && (
+          <div>
+            <h2 
+              className="text-lg font-bold uppercase border-b mb-4 pb-1 tracking-wide"
+              style={{ 
+                color: template.headingColor, 
+                borderColor: template.borderColor,
+                fontFamily: template.fontSerif 
+              }}
+            >
+              Key Projects
+            </h2>
+            <div className="space-y-6">
+              {projectEntries.map((entry, i) => (
+                <div key={i}>
+                  <div className="mb-1">
+                    <h3 className="text-md font-bold" style={{ color: template.primaryColor }}>{entry.Role}</h3>
+                    <div className="flex justify-between text-xs font-bold opacity-70">
+                      <span>{entry.Organization}</span>
+                      <span>{formatDate(entry.StartDate)} – {formatDate(entry.EndDate)}</span>
+                    </div>
+                  </div>
+                  <p className="text-sm opacity-90 leading-relaxed">{entry.Core_Responsibilities_Scope}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Volunteering */}
+        {volunteerEntries.length > 0 && (
+          <div>
+            <h2 
+              className="text-lg font-bold uppercase border-b mb-4 pb-1 tracking-wide"
+              style={{ 
+                color: template.headingColor, 
+                borderColor: template.borderColor,
+                fontFamily: template.fontSerif 
+              }}
+            >
+              Volunteering & Community
+            </h2>
+            <div className="space-y-6">
+              {volunteerEntries.map((entry, i) => (
+                <div key={i}>
+                  <div className="mb-1">
+                    <h3 className="text-md font-bold" style={{ color: template.primaryColor }}>{entry.Role}</h3>
+                    <div className="flex justify-between text-xs font-bold opacity-70">
+                      <span>{entry.Organization}</span>
+                      <span>{formatDate(entry.StartDate)} – {formatDate(entry.EndDate)}</span>
+                    </div>
+                  </div>
+                  <p className="text-sm opacity-90 leading-relaxed">{entry.Core_Responsibilities_Scope}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Right Column (Secondary) - 35% */}
@@ -213,6 +279,31 @@ export const TwoColumnResume: React.FC<Props> = ({
                 <div key={i}>
                   <h3 className="text-xs font-bold" style={{ color: template.primaryColor }}>{entry.Role}</h3>
                   <p className="text-xs opacity-80">{entry.Organization}</p>
+                  <p className="text-[10px] font-bold opacity-60">{formatDate(entry.EndDate)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Certifications */}
+        {certificationEntries.length > 0 && (
+          <div>
+            <h2 
+              className="text-lg font-bold uppercase border-b mb-3 pb-1 tracking-wide"
+              style={{ 
+                color: template.headingColor, 
+                borderColor: template.borderColor,
+                fontFamily: template.fontSerif 
+              }}
+            >
+              Certifications
+            </h2>
+            <div className="space-y-3">
+              {certificationEntries.map((entry, i) => (
+                <div key={i}>
+                  <h3 className="text-xs font-bold" style={{ color: template.primaryColor }}>{entry.Role}</h3>
+                  <p className="text-[10px] opacity-80">{entry.Organization}</p>
                   <p className="text-[10px] font-bold opacity-60">{formatDate(entry.EndDate)}</p>
                 </div>
               ))}

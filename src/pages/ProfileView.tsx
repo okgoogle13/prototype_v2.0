@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { WorkspaceLayout } from "../components/layout/WorkspaceLayout";
 import { SolidarityPageLayout } from "../components/layout/SolidarityPageLayout";
 import { TextInput } from "../components/ui/TextInput";
-import { PrimaryButton } from "../components/ui/PrimaryButton";
+import { M3Button } from "../components/ui/M3Button";
+import { M3Type } from "../theme/typography";
 import { DocumentInput } from "../../components/DocumentInput";
 import { Modal } from "../components/ui/Modal";
 import { AutocompleteInput } from "../components/ui/AutocompleteInput";
@@ -67,6 +68,7 @@ export function ProfileView({ user }: Props) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [processError, setProcessError] = useState<string | null>(null);
+  const [fullCareerData, setFullCareerData] = useState<CareerDatabase | null>(null);
 
   // Stubbed Voice Profile State (MIG-FINAL)
   const [stubSavedProfile, setStubSavedProfile] = useState<{ sample: string; savedAt: Date } | null>(null);
@@ -109,6 +111,7 @@ export function ProfileView({ user }: Props) {
     if (user?.uid) {
       getUserCareerData(user.uid).then(data => {
         if (data) {
+          setFullCareerData(data);
           setFullName(data.Personal_Information.FullName || "");
           setEmail(data.Personal_Information.Email || "");
           setPhone(data.Personal_Information.Phone || "");
@@ -117,14 +120,6 @@ export function ProfileView({ user }: Props) {
           setSkills(data.Master_Skills_Inventory.map(s => s.Skill_Name) || []);
           setIngestedDocuments(data.Ingested_Documents || []);
           setDocCount(data.Ingested_Documents?.length || 0);
-          
-          // Calculate completeness based on data
-          let score = 25;
-          if (data.Personal_Information.FullName) score += 15;
-          if (data.Personal_Information.Email) score += 10;
-          if (data.Master_Skills_Inventory.length > 0) score += 25;
-          if (data.Ingested_Documents && data.Ingested_Documents.length > 0) score += 25;
-          setCompleteness(Math.min(100, score));
         } else {
           // Auto-populate from Google account if no Firestore data exists
           if (user.displayName) setFullName(user.displayName);
@@ -134,11 +129,34 @@ export function ProfileView({ user }: Props) {
     }
   }, [user]);
 
+  useEffect(() => {
+    let score = 10;
+    if (fullName) score += 10;
+    if (email) score += 10;
+    if (phone) score += 10;
+    if (location) score += 10;
+    if (skills.length > 0) score += 10;
+    if (ingestedDocuments.length > 0) score += 10;
+    
+    // Target Roles
+    if (fullCareerData?.Career_Profile?.Target_Titles?.length || fullCareerData?.Career_Profile?.Job_Preferences?.Target_Roles?.length) {
+      score += 15;
+    }
+    
+    // Saved Documents
+    if (fullCareerData?.Saved_Documents && fullCareerData.Saved_Documents.length > 0) {
+      score += 15;
+    }
+
+    setCompleteness(Math.min(100, score));
+  }, [fullName, email, phone, location, skills, ingestedDocuments, fullCareerData]);
+
   const handleSave = async () => {
     if (!user?.uid) return;
     setIsSaving(true);
     try {
       const data: CareerDatabase = {
+        ...fullCareerData,
         Personal_Information: {
           FullName: fullName,
           Email: email,
@@ -151,17 +169,19 @@ export function ProfileView({ user }: Props) {
           Category: "General",
           Subtype: []
         })),
-        Career_Profile: {
+        Ingested_Documents: ingestedDocuments,
+        Career_Profile: fullCareerData?.Career_Profile || {
           Target_Titles: [],
           Master_Summary_Points: []
         },
-        Career_Entries: [],
-        Structured_Achievements: [],
-        KSC_Responses: [],
-        Ingested_Documents: ingestedDocuments,
-        Voice_Profiles: []
+        Career_Entries: fullCareerData?.Career_Entries || [],
+        Structured_Achievements: fullCareerData?.Structured_Achievements || [],
+        KSC_Responses: fullCareerData?.KSC_Responses || [],
+        Saved_Documents: fullCareerData?.Saved_Documents || [],
+        Voice_Profiles: fullCareerData?.Voice_Profiles || []
       };
       await saveUserCareerData(user.uid, data);
+      setFullCareerData(data);
     } catch (err) {
       console.error("Save failed:", err);
     } finally {
@@ -173,7 +193,6 @@ export function ProfileView({ user }: Props) {
     setFullName("Jane Doe");
     setEmail("jane.doe@example.com");
     setSkills(["React", "TypeScript", "Node.js", "Tailwind CSS"]);
-    setCompleteness(100);
     setDocCount(3);
   };
 
@@ -235,7 +254,6 @@ export function ProfileView({ user }: Props) {
         const updatedIngestedDocs = [...ingestedDocuments, ...newIngestedDocs];
         setIngestedDocuments(updatedIngestedDocs);
         setDocCount(updatedIngestedDocs.length);
-        setCompleteness(Math.min(100, completeness + 40));
         
         // Switch to skills section to show suggestions
         setActiveSection("skills");
@@ -326,6 +344,50 @@ export function ProfileView({ user }: Props) {
                   <p className="text-xs text-[var(--sys-color-paperWhite-base)] font-bold">Complete</p>
                 </div>
               </div>
+
+              {/* Completeness Breakdown */}
+              <div className="mt-4 flex flex-col gap-1">
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-[var(--sys-color-worker-ash-base)]">Basic Info</span>
+                  {fullName && email && phone && location ? (
+                    <CheckCircle2 size={12} className="text-[var(--sys-color-signalGreen-base)]" />
+                  ) : (
+                    <span className="text-[var(--sys-color-inkGold-base)]">Missing</span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-[var(--sys-color-worker-ash-base)]">Skills</span>
+                  {skills.length > 0 ? (
+                    <CheckCircle2 size={12} className="text-[var(--sys-color-signalGreen-base)]" />
+                  ) : (
+                    <span className="text-[var(--sys-color-inkGold-base)]">Missing</span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-[var(--sys-color-worker-ash-base)]">Documents</span>
+                  {ingestedDocuments.length > 0 ? (
+                    <CheckCircle2 size={12} className="text-[var(--sys-color-signalGreen-base)]" />
+                  ) : (
+                    <span className="text-[var(--sys-color-inkGold-base)]">Missing</span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-[var(--sys-color-worker-ash-base)]">Target Roles</span>
+                  {fullCareerData?.Career_Profile?.Target_Titles?.length || fullCareerData?.Career_Profile?.Job_Preferences?.Target_Roles?.length ? (
+                    <CheckCircle2 size={12} className="text-[var(--sys-color-signalGreen-base)]" />
+                  ) : (
+                    <span className="text-[var(--sys-color-inkGold-base)]">Missing</span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-[var(--sys-color-worker-ash-base)]">Saved Docs</span>
+                  {fullCareerData?.Saved_Documents && fullCareerData.Saved_Documents.length > 0 ? (
+                    <CheckCircle2 size={12} className="text-[var(--sys-color-signalGreen-base)]" />
+                  ) : (
+                    <span className="text-[var(--sys-color-inkGold-base)]">Missing</span>
+                  )}
+                </div>
+              </div>
             </div>
 
             <nav className="flex flex-col gap-1">
@@ -349,15 +411,16 @@ export function ProfileView({ user }: Props) {
           <div className="flex-1 min-width-0 bg-[var(--sys-color-charcoalBackground-steps-1)] flex flex-col overflow-hidden rounded-b-[28px] md:rounded-r-[28px] md:rounded-tl-none md:rounded-bl-none">
             {/* Sticky Save Header */}
             <div className="sticky top-0 z-10 bg-[var(--sys-color-charcoalBackground-steps-1)]/80 backdrop-blur-md border-b border-[var(--sys-color-outline-variant)] py-4 px-8 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">
+              <h2 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }}>
                 {sections.find(s => s.id === activeSection)?.label}
               </h2>
-              <PrimaryButton 
-                label={isSaving ? "Saving..." : "Save changes"} 
-                onClick={handleSave} 
+              <M3Button 
                 variant="filled" 
+                onClick={handleSave} 
                 disabled={isSaving}
-              />
+              >
+                {isSaving ? "Saving..." : "Save changes"}
+              </M3Button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-8">
@@ -394,9 +457,9 @@ export function ProfileView({ user }: Props) {
                       )}
 
                       <div className="mt-6 text-right">
-                        <button onClick={handleLoadSampleProfile} className="text-sm text-[var(--sys-color-primary-base)] hover:underline">
+                        <M3Button variant="text" onClick={handleLoadSampleProfile}>
                           Load sample profile
-                        </button>
+                        </M3Button>
                       </div>
                     </div>
                   )}
@@ -406,18 +469,19 @@ export function ProfileView({ user }: Props) {
                       <div className="flex items-center justify-between mb-6">
                          <h3 className="text-[22px] leading-[28px] font-bold text-[var(--sys-color-paperWhite-base)]">Master resume profile</h3>
                         {ingestedDocuments.length > 0 && (
-                          <button 
+                          <M3Button 
+                            variant="text"
                             onClick={handleReanalyze}
                             disabled={isProcessing}
-                            className="text-xs font-bold text-[var(--sys-color-inkGold-base)] hover:underline flex items-center gap-2 disabled:opacity-50"
+                            className="text-[var(--sys-color-inkGold-base)]"
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
                               <path d="M23 4v6h-6"></path>
                               <path d="M1 20v-6h6"></path>
                               <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                             </svg>
                             {isProcessing ? 'Analyzing...' : 'Re-analyze profile'}
-                          </button>
+                          </M3Button>
                         )}
                       </div>
 
@@ -556,11 +620,12 @@ export function ProfileView({ user }: Props) {
                             suggestions={[...commonIndustrySkills, ...skills]}
                           />
                         </div>
-                        <PrimaryButton 
-                          label="Add" 
-                          onClick={() => addSkill(newSkill)} 
+                        <M3Button 
                           variant="tonal" 
-                        />
+                          onClick={() => addSkill(newSkill)} 
+                        >
+                          Add
+                        </M3Button>
                       </div>
                     </div>
                   )}
@@ -641,15 +706,16 @@ export function ProfileView({ user }: Props) {
                           <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-bold">Manage your information and account status</p>
                         </div>
                         <div className="flex gap-4">
-                          <button 
+                          <M3Button 
+                            variant="outlined"
                             onClick={() => setShowDeleteModal(true)}
-                            className="px-6 py-3 bg-[var(--sys-color-kr-charcoalRed-base)]/10 border border-[var(--sys-color-solidarityRed-base)]/30 text-[var(--sys-color-solidarityRed-base)] font-bold text-[10px] rounded-xl hover:bg-[var(--sys-color-solidarityRed-base)] hover:text-white transition-all"
+                            className="border-[var(--sys-color-solidarityRed-base)]/30 text-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-base)] hover:text-white"
                           >
                             Delete my data
-                          </button>
-                          <button className="px-6 py-3 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)] font-bold text-[10px] rounded-xl hover:text-[var(--sys-color-paperWhite-base)] transition-colors">
+                          </M3Button>
+                          <M3Button variant="outlined">
                             Export data
-                          </button>
+                          </M3Button>
                         </div>
                       </div>
                     </div>
@@ -664,8 +730,8 @@ export function ProfileView({ user }: Props) {
         <div className="p-8">
           <p className="text-[var(--sys-color-worker-ash-base)] mb-8">Are you sure you want to delete all your data? This action cannot be undone.</p>
           <div className="flex justify-end gap-4">
-            <PrimaryButton label="Cancel" onClick={() => setShowDeleteModal(false)} variant="outlined" />
-            <PrimaryButton label="Delete" onClick={() => { setShowDeleteModal(false); console.log("Data deleted"); }} variant="filled" />
+            <M3Button variant="outlined" onClick={() => setShowDeleteModal(false)}>Cancel</M3Button>
+            <M3Button variant="filled" onClick={() => { setShowDeleteModal(false); console.log("Data deleted"); }}>Delete</M3Button>
           </div>
         </div>
       </Modal>
@@ -722,8 +788,8 @@ function VoiceProfileStatusCard({ profile, onReplace, onReset }: VoiceProfileSta
         </p>
       </div>
       <div className="flex gap-4">
-        <PrimaryButton label="Refine sample" onClick={onReplace} variant="tonal" />
-        <PrimaryButton label="Reset voice" onClick={onReset} variant="outlined" />
+        <M3Button variant="tonal" onClick={onReplace}>Refine sample</M3Button>
+        <M3Button variant="outlined" onClick={onReset}>Reset voice</M3Button>
       </div>
     </div>
   );
@@ -751,12 +817,13 @@ function VoiceSampleSubmissionForm({ onSubmit, isLoading, initialValue = "" }: V
           className="w-full bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] p-4 rounded-xl font-bold text-sm focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-all min-h-[150px]"
         />
       </div>
-      <PrimaryButton 
-        label={isLoading ? "Analyzing patterns..." : "Calibrate voice"} 
+      <M3Button 
+        variant="filled"
         onClick={() => onSubmit(inputValue)} 
         disabled={isLoading || !inputValue.trim()}
-        variant="filled"
-      />
+      >
+        {isLoading ? "Analyzing patterns..." : "Calibrate voice"}
+      </M3Button>
     </div>
   );
 }

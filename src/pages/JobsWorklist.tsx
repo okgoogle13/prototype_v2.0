@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Search, Plus, Briefcase, ExternalLink, Filter } from 'lucide-react';
-import { Card } from '../components/ui/Card';
+import { M3Card } from '../components/ui/M3Card';
+import { M3Button } from '../components/ui/M3Button';
+import { M3Type } from '../theme/typography';
 
 interface Job {
   id: string;
@@ -33,10 +35,10 @@ export function JobsWorklist() {
     <div className="max-w-6xl mx-auto p-6 space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight type-solidarityProtest">
+          <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>
             Jobs
           </h2>
-          <p className="text-sm text-[var(--sys-color-worker-ash-base)]">Track and manage your target roles.</p>
+          <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>Track and manage your target roles.</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -55,7 +57,7 @@ export function JobsWorklist() {
         </div>
       </div>
 
-      <Card className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)]" style={{ borderRadius: '24px' }}>
+      <M3Card variant="outlined" className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)]" style={{ borderRadius: '24px' }}>
         <div className="flex flex-col md:flex-row gap-4">
           <input 
             type="text"
@@ -64,12 +66,12 @@ export function JobsWorklist() {
             onChange={(e) => setPasteUrl(e.target.value)}
             className="flex-1 px-4 h-12 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-xl text-sm text-[var(--sys-color-paperWhite-base)] focus:outline-none focus:border-[var(--sys-color-solidarityRed-base)] transition-colors"
           />
-          <button className="px-6 h-12 bg-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-paperWhite-base)] font-bold text-sm rounded-xl hover:bg-[var(--sys-color-solidarityRed-steps-3)] transition-all flex items-center gap-2 shadow-sm active:shadow-none">
-            <Plus size={18} />
+          <M3Button variant="filled" className="px-6 h-12">
+            <Plus size={18} className="mr-2" />
             Add job
-          </button>
+          </M3Button>
         </div>
-      </Card>
+      </M3Card>
 
       {filteredJobs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -105,8 +107,8 @@ export function JobsWorklist() {
             <Briefcase size={40} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">No jobs found</h3>
-            <p className="text-sm text-[var(--sys-color-worker-ash-base)] max-w-xs mx-auto">Start by pasting a job URL above to begin your application journey.</p>
+            <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }}>No jobs found</h3>
+            <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }} className="max-w-xs mx-auto mt-2">Start by pasting a job URL above to begin your application journey.</p>
           </div>
         </div>
       )}

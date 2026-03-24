@@ -82,6 +82,12 @@ export function useTailoredResume({ careerData, analysis, onUpdate }: UseTailore
     .sort((a, b) => new Date(b.StartDate).getTime() - new Date(a.StartDate).getTime());
 
   const educationEntries = careerData.Career_Entries.filter(e => e.Entry_Type === "Education");
+  
+  const projectEntries = careerData.Career_Entries.filter(e => e.Entry_Type === "Project");
+  
+  const volunteerEntries = careerData.Career_Entries.filter(e => e.Entry_Type === "Volunteer");
+  
+  const certificationEntries = careerData.Career_Entries.filter(e => e.Entry_Type === "Certification");
 
   return {
     achievements,
@@ -94,6 +100,9 @@ export function useTailoredResume({ careerData, analysis, onUpdate }: UseTailore
     discardSuggestion,
     getAchievementsForEntry,
     workEntries,
-    educationEntries
+    educationEntries,
+    projectEntries,
+    volunteerEntries,
+    certificationEntries
   };
 }

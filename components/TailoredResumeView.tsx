@@ -31,7 +31,10 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
     discardSuggestion,
     getAchievementsForEntry,
     workEntries,
-    educationEntries
+    educationEntries,
+    projectEntries,
+    volunteerEntries,
+    certificationEntries
   } = useTailoredResume({ careerData, analysis, onUpdate });
 
   const formatDate = (dateString: string) => {
@@ -106,6 +109,9 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
           handlePolish={handlePolish}
           workEntries={workEntries}
           educationEntries={educationEntries}
+          projectEntries={projectEntries}
+          volunteerEntries={volunteerEntries}
+          certificationEntries={certificationEntries}
           tailoredSummary={tailoredSummary}
           setTailoredSummary={setTailoredSummary}
         />
@@ -125,6 +131,9 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
           handlePolish={handlePolish}
           workEntries={workEntries}
           educationEntries={educationEntries}
+          projectEntries={projectEntries}
+          volunteerEntries={volunteerEntries}
+          certificationEntries={certificationEntries}
           tailoredSummary={tailoredSummary}
           setTailoredSummary={setTailoredSummary}
         />

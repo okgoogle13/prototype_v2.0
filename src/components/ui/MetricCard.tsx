@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from './Card';
+import { M3Card } from './M3Card';
 import { AuditDial } from './AuditDial';
 
 interface MetricCardProps {
@@ -12,7 +12,8 @@ interface MetricCardProps {
 
 export function MetricCard({ label, value, tooltip, color, desc }: MetricCardProps) {
   return (
-    <Card 
+    <M3Card 
+      variant="outlined"
       className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] flex flex-col items-center gap-4 text-center"
       style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
     >
@@ -27,6 +28,6 @@ export function MetricCard({ label, value, tooltip, color, desc }: MetricCardPro
           </p>
         )}
       </div>
-    </Card>
+    </M3Card>
   );
 }

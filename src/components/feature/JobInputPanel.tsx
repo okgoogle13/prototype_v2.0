@@ -6,7 +6,9 @@ import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { SectionHeader } from "../ui/SectionHeader";
 import { TextInput } from "../ui/TextInput";
-import { PrimaryButton } from "../ui/PrimaryButton";
+import { M3Button } from "../ui/M3Button";
+import { M3Card } from "../ui/M3Card";
+import { M3Type } from "../../theme/typography";
 import { DocumentInput } from "../../../components/DocumentInput";
 import { StatusSpecificLoadingState } from "../ui/StatusSpecificLoadingState";
 import { useJobInput } from "../../hooks/useJobInput";
@@ -44,21 +46,20 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
       initial={{ opacity: 0, y: 40, rotate: 1 }}
       animate={{ opacity: 1, y: 0, rotate: 0 }}
       transition={{ type: "spring", stiffness: 200, damping: 20 }}
-      className="p-10 bg-[var(--sys-color-charcoalBackground-steps-1)] border border-[var(--sys-color-outline-variant)] shadow-[var(--sys-shadow-elevation2Placard)] relative overflow-hidden" 
-      style={{ borderRadius: 'var(--sys-shape-block-main)' }}
     >
-      {/* Wheat-paste noise background */}
-      <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('https://www.transparenttextures.com/patterns/wall-4-light.png')]" />
-      
-      <div className="relative z-10">
+      <M3Card variant="elevated" className="p-10 relative overflow-hidden">
+        {/* Wheat-paste noise background */}
+        <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('https://www.transparenttextures.com/patterns/wall-4-light.png')]" />
+        
+        <div className="relative z-10">
         {isAnalyzing ? (
           <div className="flex flex-col items-center justify-center py-12 gap-6">
             <StatusSpecificLoadingState />
             <div className="text-center">
-              <p className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] animate-pulse">
+              <p style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="animate-pulse">
                 Analyzing job...
               </p>
-              <p className="text-sm text-[var(--sys-color-worker-ash-base)] opacity-60">
+              <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }} className="opacity-60">
                 Tailoring your application workspace...
               </p>
             </div>
@@ -79,7 +80,7 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
               />
               
               {isExtracting && (
-                <div className="text-sm text-[var(--sys-color-worker-ash-base)] animate-pulse mt-2">
+                <div style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="animate-pulse mt-2">
                   Extracting job details...
                 </div>
               )}
@@ -101,34 +102,36 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                         onChange={(e) => setExtractedCompany(e.target.value)}
                         placeholder="Company name"
                       />
-                      <button 
+                      <M3Button 
+                        variant="text"
                         onClick={() => setIsEditingChips(false)}
-                        className="text-sm text-[var(--sys-color-solidarityRed-base)] hover:underline ml-2"
+                        style={{ padding: '0 8px', minHeight: '32px' }}
                       >
                         Save
-                      </button>
+                      </M3Button>
                     </div>
                   ) : (
                     <div 
-                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] rounded-full text-sm text-[var(--sys-color-paperWhite-base)] cursor-pointer hover:border-[var(--sys-color-solidarityRed-base)] transition-colors"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] rounded-full cursor-pointer hover:border-[var(--sys-color-solidarityRed-base)] transition-colors"
                       onClick={() => setIsEditingChips(true)}
                     >
                       <span className="text-[var(--sys-color-solidarityRed-base)]">✓</span>
-                      <span className="font-medium">{extractedRole || 'Unknown role'}</span>
+                      <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-paperWhite-base)' }}>{extractedRole || 'Unknown role'}</span>
                       <span className="text-[var(--sys-color-worker-ash-base)]">·</span>
-                      <span className="text-[var(--sys-color-worker-ash-base)]">{extractedCompany || 'Unknown company'}</span>
+                      <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }}>{extractedCompany || 'Unknown company'}</span>
                     </div>
                   )}
                 </div>
               )}
 
               {!isManualExpanded && (
-                <button 
+                <M3Button 
+                  variant="text"
                   onClick={() => setIsManualExpanded(true)}
-                  className="text-left text-sm text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors mt-2"
+                  style={{ justifyContent: 'flex-start', padding: 0 }}
                 >
                   No URL? Describe the role instead
-                </button>
+                </M3Button>
               )}
 
               <AnimatePresence>
@@ -141,12 +144,13 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                     className="overflow-hidden"
                   >
                     <div className="pt-4 border-t border-[var(--sys-color-outline-variant)] mt-2">
-                      <button 
+                      <M3Button 
+                        variant="text"
                         onClick={() => setIsManualExpanded(false)}
-                        className="text-sm text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors mb-4"
+                        style={{ justifyContent: 'flex-start', padding: 0, marginBottom: '16px' }}
                       >
                         Back
-                      </button>
+                      </M3Button>
                       <DocumentInput 
                         onProcess={handleFileProcess} 
                         isLoading={isExtracting} 
@@ -165,23 +169,24 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                     <div>
-                      <h4 className="font-bold text-[var(--sys-color-protestMetalBlue-steps-5)]">Apply faster</h4>
-                      <p className="text-sm text-[var(--sys-color-protestMetalBlue-steps-4)] opacity-80">Import directly from job boards.</p>
+                      <h4 style={{ ...M3Type.titleMedium, color: 'var(--sys-color-protestMetalBlue-steps-5)' }}>Apply faster</h4>
+                      <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-protestMetalBlue-steps-4)' }} className="opacity-80">Import directly from job boards.</p>
                     </div>
                   </div>
-                  <PrimaryButton variant="outlined" label="Install extension" onClick={() => {}} className="h-10" />
+                  <M3Button variant="outlined" onClick={() => {}}>Install extension</M3Button>
                 </div>
               )}
               
               <div className="flex justify-end mt-4">
                 <motion.div whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-                  <PrimaryButton label="Start my application" onClick={handleAnalyze} variant="filled" />
+                  <M3Button variant="filled" onClick={handleAnalyze}>Start my application</M3Button>
                 </motion.div>
               </div>
             </div>
           </div>
         )}
       </div>
+      </M3Card>
     </motion.div>
   );
 }

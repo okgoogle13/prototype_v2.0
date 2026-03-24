@@ -4,7 +4,9 @@
  */
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Card } from "../ui/Card";
+import { M3Card } from "../ui/M3Card";
+import { M3Button } from "../ui/M3Button";
+import { M3Type } from "../../theme/typography";
 import { Badge } from "../ui/Badge";
 import { useAiOutputs } from "../../hooks/useAiOutputs";
 
@@ -26,7 +28,7 @@ export function AiOutputsTabs() {
         <TabButton label="KSC" active={activeTab === 'ksc'} onClick={() => setActiveTab('ksc')} id="ksc" />
       </div>
 
-      <Card className="p-10">
+      <M3Card variant="elevated" className="p-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -39,18 +41,17 @@ export function AiOutputsTabs() {
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                   <div>
-                    <h3 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] tracking-tight">Key selection criteria</h3>
-                    <p className="type-melancholyLonging text-lg text-[var(--sys-color-worker-ash-base)]">
+                    <h3 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Key selection criteria</h3>
+                    <p style={{ ...M3Type.bodyLarge, color: 'var(--sys-color-worker-ash-base)' }} className="mt-2">
                       The following criteria were extracted from the job description.
                     </p>
                   </div>
-                  <button 
+                  <M3Button 
+                    variant="outlined"
                     onClick={() => handleCopy(criteria.map(c => c.title).join('\n'))}
-                    className="px-6 py-3 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold text-sm hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors whitespace-nowrap"
-                    style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
                   >
                     Copy to clipboard for ATS
-                  </button>
+                  </M3Button>
                 </div>
                 {criteria.map(c => (
                   <motion.div 
@@ -83,14 +84,13 @@ export function AiOutputsTabs() {
             {activeTab === 'resume' && (
               <div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                  <h3 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] tracking-tight">Resume tailoring</h3>
-                  <button 
+                  <h3 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Resume tailoring</h3>
+                  <M3Button 
+                    variant="outlined"
                     onClick={() => handleCopy("React & TypeScript\nGraphQL")}
-                    className="px-6 py-3 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold text-sm hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors whitespace-nowrap"
-                    style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
                   >
                     Copy to clipboard for ATS
-                  </button>
+                  </M3Button>
                 </div>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 border border-[var(--sys-color-outline-variant)] bg-[var(--sys-color-charcoalBackground-steps-2)]" style={{ borderRadius: 'var(--sys-shape-blockRiot02)' }}>
@@ -107,14 +107,13 @@ export function AiOutputsTabs() {
             {activeTab === 'cover' && (
               <div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                  <h3 className="text-3xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] tracking-tight">Cover letter draft</h3>
-                  <button 
+                  <h3 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Cover letter draft</h3>
+                  <M3Button 
+                    variant="outlined"
                     onClick={() => handleCopy("Dear Hiring Manager...")}
-                    className="px-6 py-3 border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] font-bold text-sm hover:bg-[var(--sys-color-charcoalBackground-steps-2)] transition-colors whitespace-nowrap"
-                    style={{ borderRadius: 'var(--sys-shape-blockRiot01)' }}
                   >
                     Copy to clipboard for ATS
-                  </button>
+                  </M3Button>
                 </div>
                 <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)]" style={{ borderRadius: 'var(--sys-shape-blockRiot03)' }}>
                   <p className="type-melancholyLonging text-[var(--sys-color-worker-ash-base)] whitespace-pre-line">
@@ -133,7 +132,7 @@ export function AiOutputsTabs() {
             )}
           </motion.div>
         </AnimatePresence>
-      </Card>
+      </M3Card>
     </div>
   );
 }

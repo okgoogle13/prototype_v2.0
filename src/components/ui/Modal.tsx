@@ -1,6 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
+import { M3Type } from "../../theme/typography";
 
 type Props = {
   isOpen: boolean;
@@ -42,7 +43,7 @@ export function Modal({ isOpen, onClose, title, children }: Props) {
                 className="flex items-center justify-between mb-8 border-b pb-4"
                 style={{ borderColor: 'var(--sys-color-outline-variant)' }}
               >
-                <h2 className="text-4xl type-solidarityProtest text-[var(--sys-color-paperWhite-base)] leading-none">
+                <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>
                   {title}
                 </h2>
                 <button

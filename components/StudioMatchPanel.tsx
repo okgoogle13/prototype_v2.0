@@ -15,6 +15,8 @@ import { AnalysisTabContent } from './feature/AnalysisTabContent';
 import { ExportActionBar } from './feature/ExportActionBar';
 import { MatchScoreHeader } from './feature/MatchScoreHeader';
 import { useStudioMatch } from '../hooks/useStudioMatch';
+import { M3Button } from '../src/components/ui/M3Button';
+import { M3Type } from '../src/theme/typography';
 
 interface MatchDashboardProps {
   careerData: CareerDatabase;
@@ -82,16 +84,17 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] mb-4">Job Extracted Successfully</h2>
-          <p className="text-[var(--sys-color-worker-ash-base)] mb-8 max-w-lg mx-auto">
+          <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }} className="mb-4">Job Extracted Successfully</h2>
+          <p style={{ ...M3Type.bodyLarge, color: 'var(--sys-color-worker-ash-base)' }} className="mb-8 max-w-lg mx-auto">
             We've analyzed the job posting. Now, let's see how your career database matches up and generate your tailored application materials.
           </p>
-          <button
+          <M3Button
+            variant="filled"
             onClick={handleAnalyze}
-            className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] text-[var(--sys-color-paperWhite-base)] font-bold py-4 px-12 rounded-[var(--sys-shape-radius-xl)] transition-all transform hover:scale-105 shadow-lg shadow-cyan-900/20"
+            className="py-4 px-12 transform hover:scale-105 shadow-lg shadow-cyan-900/20"
           >
             Start Match Analysis
-          </button>
+          </M3Button>
         </div>
       </div>
     );
@@ -104,8 +107,8 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
           <div className="absolute inset-0 border-4 border-cyan-500/20 rounded-[var(--sys-shape-radius-full)]"></div>
           <div className="absolute inset-0 border-4 border-[var(--sys-color-inkGold-base)] border-t-transparent rounded-[var(--sys-shape-radius-full)] animate-spin"></div>
         </div>
-        <h2 className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">Analyzing Match...</h2>
-        <p className="text-[var(--sys-color-worker-ash-base)] animate-pulse">Gemini is researching the company and tailoring your profile.</p>
+        <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }} className="mb-2">Analyzing Match...</h2>
+        <p style={{ ...M3Type.bodyLarge, color: 'var(--sys-color-worker-ash-base)' }} className="animate-pulse">Gemini is researching the company and tailoring your profile.</p>
       </div>
     );
   }
@@ -149,28 +152,30 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
             </div>
             <div className="flex justify-end">
               {analysis.Cover_Letter_Draft ? (
-                <button 
+                <M3Button 
+                  variant="filled"
                   onClick={() => unlockStep('coverLetter')}
-                  className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] text-[var(--sys-color-paperWhite-base)] font-bold py-3 px-8 rounded-[var(--sys-shape-radius-lg)] transition-colors text-lg flex items-center gap-2 shadow-lg"
+                  className="py-3 px-8 shadow-lg"
                 >
                   Next: View Cover Letter
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
-                </button>
+                </M3Button>
               ) : (
-                <button 
+                <M3Button 
+                  variant="filled"
                   onClick={handleGenerateCoverLetter}
                   disabled={isGeneratingCoverLetter}
-                  className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] disabled:opacity-50 text-[var(--sys-color-paperWhite-base)] font-bold py-3 px-8 rounded-[var(--sys-shape-radius-lg)] transition-colors text-lg flex items-center gap-2 shadow-lg"
+                  className="py-3 px-8 shadow-lg"
                 >
                   {isGeneratingCoverLetter ? 'Generating...' : 'Next: Generate Cover Letter'}
                   {!isGeneratingCoverLetter && (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   )}
-                </button>
+                </M3Button>
               )}
             </div>
           </div>
@@ -226,46 +231,50 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
                     }
                   }}
                 />
-                <button
+                <M3Button
+                  variant="outlined"
                   onClick={handleGenerateCoverLetter}
                   disabled={isGeneratingCoverLetter || !coverLetterInstructions.trim()}
-                  className="bg-cyan-900/30 hover:bg-cyan-800/40 text-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-[var(--sys-shape-radius-lg)] font-medium transition-colors border border-cyan-500/30 flex items-center gap-2"
+                  className="px-6 py-3 flex items-center gap-2"
                 >
                   {isGeneratingCoverLetter ? 'Regenerating...' : 'Regenerate'}
-                </button>
+                </M3Button>
               </div>
             </div>
 
             <div className="flex justify-end gap-4">
-              <button 
+              <M3Button 
+                variant="outlined"
                 onClick={() => unlockStep('export')}
-                className="bg-transparent hover:bg-[var(--sys-color-charcoalBackground-steps-2)] text-[var(--sys-color-worker-ash-base)] font-bold py-3 px-6 rounded-[var(--sys-shape-radius-lg)] transition-colors text-lg border border-[var(--sys-color-outline-variant)]"
+                className="py-3 px-6"
               >
                 Skip to Export
-              </button>
+              </M3Button>
               {analysis.KSC_Responses_Drafts && analysis.KSC_Responses_Drafts.length > 0 ? (
-                <button 
+                <M3Button 
+                  variant="filled"
                   onClick={() => unlockStep('ksc')}
-                  className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] text-[var(--sys-color-paperWhite-base)] font-bold py-3 px-8 rounded-[var(--sys-shape-radius-lg)] transition-colors text-lg flex items-center gap-2 shadow-lg"
+                  className="py-3 px-8 shadow-lg"
                 >
                   Next: View KSC Responses
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
-                </button>
+                </M3Button>
               ) : (
-                <button 
+                <M3Button 
+                  variant="filled"
                   onClick={handleGenerateKSC}
                   disabled={isGeneratingKSC}
-                  className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] disabled:opacity-50 text-[var(--sys-color-paperWhite-base)] font-bold py-3 px-8 rounded-[var(--sys-shape-radius-lg)] transition-colors text-lg flex items-center gap-2 shadow-lg"
+                  className="py-3 px-8 shadow-lg"
                 >
                   {isGeneratingKSC ? 'Generating...' : 'Next: Generate KSC Responses'}
                   {!isGeneratingKSC && (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   )}
-                </button>
+                </M3Button>
               )}
             </div>
           </div>
@@ -304,25 +313,27 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
                   }
                 }}
               />
-              <button
+              <M3Button
+                variant="outlined"
                 onClick={handleGenerateKSC}
                 disabled={isGeneratingKSC || !kscInstructions.trim()}
-                className="bg-cyan-900/30 hover:bg-cyan-800/40 text-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-[var(--sys-shape-radius-lg)] font-medium transition-colors border border-cyan-500/30 flex items-center gap-2"
+                className="px-6 py-3 flex items-center gap-2"
               >
                 {isGeneratingKSC ? 'Regenerating...' : 'Regenerate'}
-              </button>
+              </M3Button>
             </div>
           </div>
           <div className="flex justify-end">
-            <button 
+            <M3Button 
+              variant="filled"
               onClick={() => unlockStep('export')}
-              className="bg-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-steps-3)] text-[var(--sys-color-paperWhite-base)] font-bold py-3 px-8 rounded-[var(--sys-shape-radius-lg)] transition-colors text-lg flex items-center gap-2 shadow-lg"
+              className="py-3 px-8 shadow-lg"
             >
               Next: Preview & Export
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
-            </button>
+            </M3Button>
           </div>
         </div>
       )}
@@ -345,8 +356,8 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
               <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">Tailored Resume</h3>
               <p className="text-[var(--sys-color-worker-ash-base)] text-sm mb-6 flex-1">Your resume, optimized for ATS and tailored to the job description.</p>
               <div className="flex gap-3 w-full">
-                <button onClick={() => exportToPDF('resume')} className="flex-1 bg-cyan-900/30 hover:bg-cyan-800/40 text-cyan-400 px-4 py-2 rounded-lg font-medium transition-colors border border-cyan-500/30">PDF</button>
-                <button onClick={() => exportToDOCX('resume')} className="flex-1 bg-cyan-900/30 hover:bg-cyan-800/40 text-cyan-400 px-4 py-2 rounded-lg font-medium transition-colors border border-cyan-500/30">DOCX</button>
+                <M3Button variant="outlined" onClick={() => exportToPDF('resume')} className="flex-1">PDF</M3Button>
+                <M3Button variant="outlined" onClick={() => exportToDOCX('resume')} className="flex-1">DOCX</M3Button>
               </div>
             </div>
             
@@ -359,8 +370,8 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
               <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">Cover Letter</h3>
               <p className="text-[var(--sys-color-worker-ash-base)] text-sm mb-6 flex-1">A compelling narrative connecting your experience to their needs.</p>
               <div className="flex gap-3 w-full">
-                <button onClick={() => exportToPDF('coverLetter')} className="flex-1 bg-amber-900/30 hover:bg-amber-800/40 text-amber-400 px-4 py-2 rounded-lg font-medium transition-colors border border-amber-500/30">PDF</button>
-                <button onClick={() => exportToDOCX('coverLetter')} className="flex-1 bg-amber-900/30 hover:bg-amber-800/40 text-amber-400 px-4 py-2 rounded-lg font-medium transition-colors border border-amber-500/30">DOCX</button>
+                <M3Button variant="outlined" onClick={() => exportToPDF('coverLetter')} className="flex-1">PDF</M3Button>
+                <M3Button variant="outlined" onClick={() => exportToDOCX('coverLetter')} className="flex-1">DOCX</M3Button>
               </div>
             </div>
 
@@ -374,8 +385,8 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
                 <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">KSC Responses</h3>
                 <p className="text-[var(--sys-color-worker-ash-base)] text-sm mb-6 flex-1">Detailed STAR-method responses to key selection criteria.</p>
                 <div className="flex gap-3 w-full">
-                  <button onClick={() => exportToPDF('ksc')} className="flex-1 bg-emerald-900/30 hover:bg-emerald-800/40 text-emerald-400 px-4 py-2 rounded-lg font-medium transition-colors border border-emerald-500/30">PDF</button>
-                  <button onClick={() => exportToDOCX('ksc')} className="flex-1 bg-emerald-900/30 hover:bg-emerald-800/40 text-emerald-400 px-4 py-2 rounded-lg font-medium transition-colors border border-emerald-500/30">DOCX</button>
+                  <M3Button variant="outlined" onClick={() => exportToPDF('ksc')} className="flex-1">PDF</M3Button>
+                  <M3Button variant="outlined" onClick={() => exportToDOCX('ksc')} className="flex-1">DOCX</M3Button>
                 </div>
               </div>
             )}

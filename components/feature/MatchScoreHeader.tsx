@@ -1,5 +1,6 @@
 import React from 'react';
 import { MatchAnalysis, JobOpportunity } from '../../types';
+import { M3Type } from '../../src/theme/typography';
 
 interface Props {
   analysis: MatchAnalysis;
@@ -21,13 +22,13 @@ export const MatchScoreHeader: React.FC<Props> = ({ analysis, job }) => {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)]">{analysis.Overall_Fit_Score}%</span>
-          <span className="text-xs text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Fit Score</span>
+          <span style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>{analysis.Overall_Fit_Score}%</span>
+          <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="uppercase tracking-wider">Fit Score</span>
         </div>
       </div>
       <div>
-        <h2 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">Match Analysis Complete</h2>
-        <p className="text-[var(--sys-color-worker-ash-base)] text-lg">
+        <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }} className="mb-2">Match Analysis Complete</h2>
+        <p style={{ ...M3Type.bodyLarge, color: 'var(--sys-color-worker-ash-base)' }}>
           Your profile is a <strong>{analysis.Overall_Fit_Score >= 80 ? 'strong' : analysis.Overall_Fit_Score >= 60 ? 'moderate' : 'weak'} match</strong> for the {job.Job_Title} role at {job.Company_Name}.
         </p>
       </div>

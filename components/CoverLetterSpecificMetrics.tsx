@@ -5,6 +5,8 @@
 import React from 'react';
 import { CoverLetterScoreResult } from '../types';
 import { MetricCard } from '../src/components/ui/MetricCard';
+import { M3Card } from '../src/components/ui/M3Card';
+import { M3Type } from '../src/theme/typography';
 
 interface CoverLetterSpecificMetricsProps {
   score: CoverLetterScoreResult;
@@ -19,11 +21,11 @@ export function CoverLetterSpecificMetrics({ score, wordCount }: CoverLetterSpec
   };
 
   return (
-    <div className="bg-[var(--sys-color-charcoalBackground-steps-1)] p-8 rounded-2xl border border-[var(--sys-color-outline-variant)] shadow-2xl space-y-8">
+    <M3Card variant="elevated" className="p-8 space-y-8">
       <div className="flex items-center justify-between">
-        <h4 className="font-bold text-lg text-[var(--sys-color-stencilYellow-base)] uppercase tracking-[0.2em] type-solidarityProtest">Cover Letter Analysis</h4>
+        <h4 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-stencilYellow-base)' }} className="uppercase tracking-[0.2em] type-solidarityProtest">Cover Letter Analysis</h4>
         <div className="px-4 py-1.5 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] rounded-full">
-          <span className="text-xs font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">
+          <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="uppercase tracking-widest">
             {wordCount} Words
           </span>
         </div>
@@ -66,12 +68,12 @@ export function CoverLetterSpecificMetrics({ score, wordCount }: CoverLetterSpec
       <div className="flex items-center justify-between p-4 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] rounded-xl">
         <div className="flex items-center gap-3">
           <div className={`w-3 h-3 rounded-full ${score.callToActionPresent ? 'bg-[var(--sys-color-kr-activistSmokeGreen-base)]' : 'bg-[var(--sys-color-solidarityRed-base)]'}`} />
-          <span className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] uppercase tracking-wider">Call to Action</span>
+          <span style={{ ...M3Type.labelLarge, color: 'var(--sys-color-paperWhite-base)' }} className="uppercase tracking-wider">Call to Action</span>
         </div>
-        <span className={`text-sm font-bold uppercase tracking-widest ${score.callToActionPresent ? 'text-[var(--sys-color-kr-activistSmokeGreen-base)]' : 'text-[var(--sys-color-solidarityRed-base)]'}`}>
+        <span style={M3Type.labelLarge} className={`uppercase tracking-widest ${score.callToActionPresent ? 'text-[var(--sys-color-kr-activistSmokeGreen-base)]' : 'text-[var(--sys-color-solidarityRed-base)]'}`}>
           {score.callToActionPresent ? '✓ Present' : '✗ Missing'}
         </span>
       </div>
-    </div>
+    </M3Card>
   );
 }
