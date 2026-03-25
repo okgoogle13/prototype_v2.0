@@ -164,7 +164,7 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
           <div className="xl:col-span-2 flex flex-col gap-6">
             <div ref={resumeRef}>
-              <TailoredResumeView careerData={careerData} analysis={analysis} template={selectedTemplate} locale={locale} onUpdate={onUpdate} />
+              <TailoredResumeView careerData={careerData} analysis={analysis} job={job} template={selectedTemplate} locale={locale} onUpdate={onUpdate} />
             </div>
             <div className="flex justify-end">
               {analysis.Cover_Letter_Draft ? (
@@ -486,7 +486,7 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
           <div className="mt-8">
             <h3 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] mb-4">Resume Preview</h3>
             <div className="opacity-75 pointer-events-none transform scale-95 origin-top">
-              <TailoredResumeView careerData={careerData} analysis={analysis} template={selectedTemplate} locale={locale} onUpdate={onUpdate} />
+              <TailoredResumeView careerData={careerData} analysis={analysis} job={job} template={selectedTemplate} locale={locale} onUpdate={onUpdate} />
             </div>
           </div>
         </div>

@@ -1,10 +1,10 @@
 {
-  "projectId": "careercopilot-468811",
-  "appId": "1:867091085935:web:28867d5297b6cae81d2b9a",
-  "apiKey": "AIzaSyCDNTfyaYA7HhaaBIwZ08WeAtc_k9ndJg4",
-  "authDomain": "careercopilot-468811.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-5d0bbd27-4908-4048-a214-c5ad2fc345b0",
-  "storageBucket": "careercopilot-468811.firebasestorage.app",
-  "messagingSenderId": "867091085935",
-  "measurementId": ""
+  "projectId": "YOUR_PROJECT_ID",
+  "appId": "YOUR_APP_ID",
+  "apiKey": "YOUR_API_KEY",
+  "authDomain": "YOUR_AUTH_DOMAIN",
+  "firestoreDatabaseId": "YOUR_FIRESTORE_DATABASE_ID",
+  "storageBucket": "YOUR_STORAGE_BUCKET",
+  "messagingSenderId": "YOUR_MESSAGING_SENDER_ID",
+  "measurementId": "YOUR_MEASUREMENT_ID"
 }

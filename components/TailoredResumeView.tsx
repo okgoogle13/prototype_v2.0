@@ -3,7 +3,7 @@
  * Prototype-only component.
  */
 import React from 'react';
-import { CareerDatabase, MatchAnalysis, StructuredAchievement } from '../types';
+import { CareerDatabase, MatchAnalysis, StructuredAchievement, JobOpportunity } from '../types';
 import { TemplateStyle } from '../constants';
 import { SingleColumnResume } from './feature/SingleColumnResume';
 import { TwoColumnResume } from './feature/TwoColumnResume';
@@ -12,12 +12,13 @@ import { useTailoredResume } from '../hooks/useTailoredResume';
 interface TailoredResumeViewProps {
   careerData: CareerDatabase;
   analysis: MatchAnalysis;
+  job: JobOpportunity;
   template: TemplateStyle;
   locale?: 'US' | 'UK/AU';
   onUpdate?: (data: CareerDatabase) => void;
 }
 
-export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerData, analysis, template, locale = 'US', onUpdate }) => {
+export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerData, analysis, job, template, locale = 'US', onUpdate }) => {
   const { Personal_Information } = careerData;
   
   const {
@@ -27,6 +28,7 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
     isPolishing,
     suggestions,
     handlePolish,
+    handlePolishSummary,
     applySuggestion,
     discardSuggestion,
     getAchievementsForEntry,
@@ -35,7 +37,7 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
     projectEntries,
     volunteerEntries,
     certificationEntries
-  } = useTailoredResume({ careerData, analysis, onUpdate });
+  } = useTailoredResume({ careerData, analysis, job, onUpdate });
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -107,6 +109,7 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
           applySuggestion={applySuggestion}
           discardSuggestion={discardSuggestion}
           handlePolish={handlePolish}
+          handlePolishSummary={handlePolishSummary}
           workEntries={workEntries}
           educationEntries={educationEntries}
           projectEntries={projectEntries}
@@ -129,6 +132,7 @@ export const TailoredResumeView: React.FC<TailoredResumeViewProps> = ({ careerDa
           applySuggestion={applySuggestion}
           discardSuggestion={discardSuggestion}
           handlePolish={handlePolish}
+          handlePolishSummary={handlePolishSummary}
           workEntries={workEntries}
           educationEntries={educationEntries}
           projectEntries={projectEntries}

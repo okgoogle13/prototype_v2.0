@@ -882,6 +882,44 @@ export async function generateVoiceProfile(documents: { inlineData: { data: stri
   return JSON.parse(response.text || "{}");
 }
 
+export const refineSummary = async (
+    currentSummary: string,
+    job: JobOpportunity,
+    careerData: CareerDatabase
+): Promise<string> => {
+    const prompt = `
+      You are an expert career coach. Refine the following professional summary to be more concise, impactful, and better aligned with the target job.
+      
+      Target Job:
+      - Title: ${job.Job_Title}
+      - Company: ${job.Company_Name}
+      - Key Responsibilities: ${job.Key_Responsibilities.join(', ')}
+      - Required Skills: ${job.Required_Hard_Skills.join(', ')}
+      
+      Current Summary:
+      "${currentSummary}"
+      
+      User's Top Skills:
+      ${careerData.Master_Skills_Inventory.slice(0, 10).map(s => s.Skill_Name).join(', ')}
+      
+      Guidelines:
+      1. Keep it to 3-4 sentences maximum.
+      2. Focus on the "Value Proposition": How the user's top strengths solve the job's core problems.
+      3. Incorporate key keywords from the job description naturally.
+      4. Avoid AI clichés (e.g., "thrilled", "passionate", "tapestry").
+      5. Use strong, active language.
+      
+      Return ONLY the refined summary text.
+    `;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: { parts: [{ text: prompt }] },
+    });
+
+    return response.text?.trim() || currentSummary;
+};
+
 /**
  * Tests a voice profile by rewriting a sample text.
  */

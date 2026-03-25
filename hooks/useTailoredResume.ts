@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { CareerDatabase, MatchAnalysis, StructuredAchievement } from '../types';
-import { refineAchievementField } from '../services/geminiService';
+import { refineAchievementField, refineSummary } from '../services/geminiService';
+import { JobOpportunity } from '../types';
 
 interface UseTailoredResumeProps {
   careerData: CareerDatabase;
   analysis: MatchAnalysis;
+  job?: JobOpportunity;
   onUpdate?: (data: CareerDatabase) => void;
 }
 
-export function useTailoredResume({ careerData, analysis, onUpdate }: UseTailoredResumeProps) {
+export function useTailoredResume({ careerData, analysis, job, onUpdate }: UseTailoredResumeProps) {
   const [achievements, setAchievements] = useState<StructuredAchievement[]>(careerData.Structured_Achievements);
   const [tailoredSummary, setTailoredSummary] = useState(analysis.Tailored_Summary);
   const [isPolishing, setIsPolishing] = useState<string | null>(null);
@@ -34,34 +36,51 @@ export function useTailoredResume({ careerData, analysis, onUpdate }: UseTailore
     }
   };
 
-  const applySuggestion = (achId: string, field: keyof StructuredAchievement) => {
-    const suggestion = suggestions[`${achId}-${String(field)}`];
+  const handlePolishSummary = async () => {
+    if (!job) return;
+    setIsPolishing('summary');
+    try {
+      const polishedText = await refineSummary(tailoredSummary, job, careerData);
+      setSuggestions(prev => ({ ...prev, 'summary': polishedText }));
+    } catch (error) {
+      console.error("Failed to polish summary:", error);
+      alert("Failed to polish summary. Please try again.");
+    } finally {
+      setIsPolishing(null);
+    }
+  };
+
+  const applySuggestion = (achId: string, field: keyof StructuredAchievement | 'summary') => {
+    const suggestion = suggestions[achId === 'summary' ? 'summary' : `${achId}-${String(field)}`];
     if (!suggestion) return;
     
-    const updatedAchievements = achievements.map(a => 
-      a.Achievement_ID === achId ? { ...a, [field]: suggestion } : a
-    );
-    
-    setAchievements(updatedAchievements);
-    
-    if (onUpdate) {
-      onUpdate({
-        ...careerData,
-        Structured_Achievements: updatedAchievements
-      });
+    if (achId === 'summary') {
+      setTailoredSummary(suggestion);
+    } else {
+      const updatedAchievements = achievements.map(a => 
+        a.Achievement_ID === achId ? { ...a, [field as keyof StructuredAchievement]: suggestion } : a
+      );
+      setAchievements(updatedAchievements);
+      
+      if (onUpdate) {
+        onUpdate({
+          ...careerData,
+          Structured_Achievements: updatedAchievements
+        });
+      }
     }
 
     setSuggestions(prev => {
       const next = { ...prev };
-      delete next[`${achId}-${String(field)}`];
+      delete next[achId === 'summary' ? 'summary' : `${achId}-${String(field)}`];
       return next;
     });
   };
 
-  const discardSuggestion = (achId: string, field: keyof StructuredAchievement) => {
+  const discardSuggestion = (achId: string, field: keyof StructuredAchievement | 'summary') => {
     setSuggestions(prev => {
       const next = { ...prev };
-      delete next[`${achId}-${String(field)}`];
+      delete next[achId === 'summary' ? 'summary' : `${achId}-${String(field)}`];
       return next;
     });
   };
@@ -96,6 +115,7 @@ export function useTailoredResume({ careerData, analysis, onUpdate }: UseTailore
     isPolishing,
     suggestions,
     handlePolish,
+    handlePolishSummary,
     applySuggestion,
     discardSuggestion,
     getAchievementsForEntry,
