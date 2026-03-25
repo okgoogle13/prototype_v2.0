@@ -407,6 +407,36 @@ export const analyzeFitAndGenerateDrafts = async (
     return JSON.parse(jsonString) as MatchAnalysis;
 };
 
+export const generateProfileGuidance = async (
+    section: string,
+    currentData: any,
+    targetRoles: string[]
+): Promise<{ tips: string[], keywords: string[], examples: string[] }> => {
+    const prompt = `
+      You are an expert career coach. Provide specific guidance and actionable tips for the "${section}" section of a user's professional profile.
+      
+      Target Roles: ${targetRoles.join(', ')}
+      Current Data in this section: ${JSON.stringify(currentData)}
+
+      Tasks:
+      1. Provide 3-5 actionable tips to improve this specific section.
+      2. Suggest 5-10 high-impact keywords that should be included based on the target roles.
+      3. Provide 2-3 short examples of how to fill out fields in this section effectively.
+
+      Return JSON: { "tips": string[], "keywords": string[], "examples": string[] }
+    `;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: { parts: [{ text: prompt }] },
+        config: {
+            responseMimeType: "application/json",
+        }
+    });
+
+    return JSON.parse(response.text || '{ "tips": [], "keywords": [], "examples": [] }');
+};
+
 export const extractBasicJobDetails = async (urlOrText: string, isBase64: boolean = false): Promise<{ Job_Title: string; Company_Name: string }> => {
   const isUrl = !isBase64 && (urlOrText.trim().startsWith('http://') || urlOrText.trim().startsWith('https://'));
   

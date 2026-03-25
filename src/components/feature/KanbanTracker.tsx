@@ -2,8 +2,17 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Badge } from '../ui/Badge';
 import { M3Card } from '../ui/M3Card';
+import { M3Button } from '../ui/M3Button';
 import { M3Type } from '../../theme/typography';
-import { FileText, Mail, Link, ExternalLink, History, Target, ChevronRight, MoreVertical, Calendar, MapPin } from 'lucide-react';
+import { FileText, Mail, Link, ExternalLink, History, Target, ChevronRight, MoreVertical, Calendar, MapPin, Plus } from 'lucide-react';
+
+interface InterviewStage {
+  id: string;
+  type: string;
+  date: string;
+  notes: string;
+  status: "pending" | "completed" | "passed" | "failed";
+}
 
 interface Application {
   id: string;
@@ -15,13 +24,71 @@ interface Application {
   location: string;
   resumeVersion: string;
   coverLetterId: string;
+  interviewStages?: InterviewStage[];
+  outcome?: string;
 }
 
 const mockApplications: Application[] = [
-  { id: "1", company: "TechCorp", role: "Senior Frontend Engineer", date: "2024-03-15", status: "interviewing", atsScore: 92, location: "Remote", resumeVersion: "v2.1-SoftwareEngineer", coverLetterId: "CL-9921" },
-  { id: "2", company: "InnoSoft", role: "Product Designer", date: "2024-03-10", status: "applied", atsScore: 85, location: "San Francisco, CA", resumeVersion: "v1.8-Designer", coverLetterId: "CL-8812" },
-  { id: "3", company: "GlobalData", role: "Full Stack Developer", date: "2024-02-28", status: "rejected", atsScore: 78, location: "London, UK", resumeVersion: "v1.5-FullStack", coverLetterId: "CL-7731" },
-  { id: "4", company: "FutureAI", role: "Machine Learning Engineer", date: "2024-02-15", status: "offered", atsScore: 95, location: "Austin, TX", resumeVersion: "v3.0-MLE", coverLetterId: "CL-9955" },
+  { 
+    id: "1", 
+    company: "TechCorp", 
+    role: "Senior Frontend Engineer", 
+    date: "2024-03-15", 
+    status: "interviewing", 
+    atsScore: 92, 
+    location: "Remote", 
+    resumeVersion: "v2.1-SoftwareEngineer", 
+    coverLetterId: "CL-9921",
+    interviewStages: [
+      { id: "s1", type: "Phone Screen", date: "2024-03-20", notes: "Discussed React experience and system design.", status: "passed" },
+      { id: "s2", type: "Technical Interview", date: "2024-03-25", notes: "Live coding session. Focus on performance optimization.", status: "pending" }
+    ]
+  },
+  { 
+    id: "2", 
+    company: "InnoSoft", 
+    role: "Product Designer", 
+    date: "2024-03-10", 
+    status: "applied", 
+    atsScore: 85, 
+    location: "San Francisco, CA", 
+    resumeVersion: "v1.8-Designer", 
+    coverLetterId: "CL-8812",
+    interviewStages: []
+  },
+  { 
+    id: "3", 
+    company: "GlobalData", 
+    role: "Full Stack Developer", 
+    date: "2024-02-28", 
+    status: "rejected", 
+    atsScore: 78, 
+    location: "London, UK", 
+    resumeVersion: "v1.5-FullStack", 
+    coverLetterId: "CL-7731",
+    outcome: "Rejected after second round. Feedback: Need more experience with distributed systems.",
+    interviewStages: [
+      { id: "s1", type: "Initial Call", date: "2024-03-05", notes: "Good cultural fit.", status: "passed" },
+      { id: "s2", type: "System Design", date: "2024-03-12", notes: "Struggled with database sharding questions.", status: "failed" }
+    ]
+  },
+  { 
+    id: "4", 
+    company: "FutureAI", 
+    role: "Machine Learning Engineer", 
+    date: "2024-02-15", 
+    status: "offered", 
+    atsScore: 95, 
+    location: "Austin, TX", 
+    resumeVersion: "v3.0-MLE", 
+    coverLetterId: "CL-9955",
+    outcome: "Accepted offer! Starting April 1st.",
+    interviewStages: [
+      { id: "s1", type: "Recruiter Screen", date: "2024-02-20", notes: "Very enthusiastic about the role.", status: "passed" },
+      { id: "s2", type: "Technical Panel", date: "2024-02-28", notes: "Strong performance in algorithm section.", status: "passed" },
+      { id: "s3", type: "Onsite/Final", date: "2024-03-05", notes: "Met with the CTO. Great alignment on vision.", status: "passed" }
+    ]
+  },
 ];
 
 const columns = [
@@ -121,9 +188,16 @@ export function ApplicationDetailWorkspace({ app }: { app: Application }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         <M3Card variant="outlined" className="p-6">
-          <h3 style={{ ...M3Type.titleSmall, color: 'var(--sys-color-worker-ash-base)' }} className="mb-4">Application status</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 style={{ ...M3Type.titleSmall, color: 'var(--sys-color-worker-ash-base)' }}>Application status</h3>
+            {app.status === 'interviewing' && (
+              <M3Button variant="text" className="h-6 px-2 min-w-0">
+                Update
+              </M3Button>
+            )}
+          </div>
           <div className="flex items-center gap-4">
             <div className={`w-3 h-3 rounded-full ${
               app.status === "offered" ? "bg-[var(--sys-color-signalGreen-base)]" :
@@ -137,11 +211,60 @@ export function ApplicationDetailWorkspace({ app }: { app: Application }) {
           <h3 style={{ ...M3Type.titleSmall, color: 'var(--sys-color-worker-ash-base)' }} className="mb-4">Submitted on</h3>
           <p style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }}>{app.date}</p>
         </M3Card>
+        <M3Card variant="outlined" className="p-6">
+          <h3 style={{ ...M3Type.titleSmall, color: 'var(--sys-color-worker-ash-base)' }} className="mb-4">Interview stages</h3>
+          <p style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }}>{app.interviewStages?.length || 0}</p>
+        </M3Card>
       </div>
 
-      <div className="space-y-8">
+      {app.outcome && (
+        <div className="mb-12 p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-[28px]">
+          <h3 style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)', letterSpacing: '0.2em', textTransform: 'uppercase' }} className="mb-4">Final Outcome</h3>
+          <p style={{ ...M3Type.titleLarge, color: app.status === 'offered' ? 'var(--sys-color-signalGreen-base)' : 'var(--sys-color-solidarityRed-base)' }}>
+            {app.outcome}
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-12">
         <section>
-          <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-4 border-l-4 border-[var(--sys-color-solidarityRed-base)] pl-4">Source documents</h3>
+          <div className="flex items-center justify-between mb-6">
+            <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="border-l-4 border-[var(--sys-color-inkGold-base)] pl-4">Interview Stages</h3>
+            <M3Button variant="tonal" className="h-9">
+              <Plus size={16} className="mr-2" />
+              Log Stage
+            </M3Button>
+          </div>
+          <div className="space-y-4">
+            {app.interviewStages && app.interviewStages.length > 0 ? (
+              app.interviewStages.map((stage) => (
+                <M3Card key={stage.id} variant="outlined" className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)]">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 style={{ ...M3Type.titleMedium, color: 'var(--sys-color-paperWhite-base)' }}>{stage.type}</h4>
+                      <p style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }}>{stage.date}</p>
+                    </div>
+                    <Badge variant={
+                      stage.status === 'passed' ? 'success' : 
+                      stage.status === 'failed' ? 'error' : 
+                      stage.status === 'completed' ? 'info' : 'warning'
+                    }>
+                      {stage.status}
+                    </Badge>
+                  </div>
+                  <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>{stage.notes}</p>
+                </M3Card>
+              ))
+            ) : (
+              <div className="p-12 text-center border-2 border-dashed border-[var(--sys-color-outline-variant)] rounded-[28px] opacity-40">
+                <p style={M3Type.bodyLarge}>No interview stages logged yet.</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section>
+          <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-6 border-l-4 border-[var(--sys-color-solidarityRed-base)] pl-4">Source documents</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <AssetCard 
               icon={<FileText size={24} />} 
@@ -159,11 +282,12 @@ export function ApplicationDetailWorkspace({ app }: { app: Application }) {
         </section>
 
         <section>
-          <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-4 border-l-4 border-[var(--sys-color-metalBlue-base)] pl-4">Application timeline</h3>
+          <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-6 border-l-4 border-[var(--sys-color-metalBlue-base)] pl-4">Application timeline</h3>
           <div className="space-y-4">
-            <TimelineItem date="2024-03-15" event="Interview scheduled" desc="Round 1 with hiring manager" />
-            <TimelineItem date="2024-03-10" event="Application submitted" desc="Tailored via CareerCopilot" />
-            <TimelineItem date="2024-03-09" event="Job clipped" desc="Found via LinkedIn" />
+            {app.interviewStages?.map(stage => (
+              <TimelineItem key={stage.id} date={stage.date} event={stage.type} desc={stage.notes} />
+            ))}
+            <TimelineItem date={app.date} event="Application submitted" desc="Tailored via CareerCopilot" />
           </div>
         </section>
       </div>

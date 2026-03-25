@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Search, Plus, Briefcase, ExternalLink, Filter } from 'lucide-react';
+import { Search, Plus, Briefcase, ExternalLink, Filter, Calendar } from 'lucide-react';
 import { M3Card } from '../components/ui/M3Card';
 import { M3Button } from '../components/ui/M3Button';
 import { M3Type } from '../theme/typography';
+import { calendarService } from '../services/calendarService';
 
 interface Job {
   id: string;
@@ -25,6 +26,28 @@ export function JobsWorklist() {
   const [searchQuery, setSearchQuery] = useState('');
   const [pasteUrl, setPasteUrl] = useState('');
   const [jobs] = useState<Job[]>(mockJobs);
+  const [syncingJobId, setSyncingJobId] = useState<string | null>(null);
+
+  const handleSyncJob = async (e: React.MouseEvent, job: Job) => {
+    e.stopPropagation();
+    setSyncingJobId(job.id);
+    try {
+      const result = await calendarService.syncToCalendar({
+        title: job.title,
+        company: job.company,
+        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Mock deadline
+        description: `Application for ${job.title} at ${job.company}.`
+      });
+      if (result.success) {
+        alert(`Synced ${job.title} to Google Calendar!`);
+      }
+    } catch (error) {
+      console.error("Sync failed", error);
+      alert("Failed to sync. Make sure Google is connected in Profile.");
+    } finally {
+      setSyncingJobId(null);
+    }
+  };
 
   const filteredJobs = jobs.filter(job => 
     job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -85,7 +108,21 @@ export function JobsWorklist() {
                 <div className="w-12 h-12 bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-xl flex items-center justify-center text-[var(--sys-color-inkGold-base)]">
                   <Briefcase size={24} />
                 </div>
-                <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">{job.posted}</span>
+                <div className="flex flex-col items-end gap-2">
+                  <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">{job.posted}</span>
+                  <button 
+                    onClick={(e) => handleSyncJob(e, job)}
+                    disabled={syncingJobId === job.id}
+                    className="p-2 bg-cyan-500/10 border border-cyan-500/20 rounded-lg text-cyan-400 hover:bg-cyan-500/20 transition-all disabled:opacity-50"
+                    title="Sync to Google Calendar"
+                  >
+                    {syncingJobId === job.id ? (
+                      <div className="w-4 h-4 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin" />
+                    ) : (
+                      <Calendar size={16} />
+                    )}
+                  </button>
+                </div>
               </div>
               <div>
                 <h3 className="font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight group-hover:text-[var(--sys-color-solidarityRed-base)] transition-colors">{job.title}</h3>

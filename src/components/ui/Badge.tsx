@@ -2,11 +2,12 @@ import React from "react";
 import { motion } from "motion/react";
 
 type Props = {
-  label: string;
-  variant?: 'default' | 'warning' | 'success' | 'danger';
+  label?: string;
+  children?: React.ReactNode;
+  variant?: 'default' | 'warning' | 'success' | 'danger' | 'error' | 'info';
 };
 
-export function Badge({ label, variant = 'default' }: Props) {
+export function Badge({ label, children, variant = 'default' }: Props) {
   let textColor = "var(--sys-color-paperWhite-base)";
   let bg = "var(--sys-color-charcoalBackground-steps-3)";
   let borderColor = "var(--sys-color-outline-variant)";
@@ -19,10 +20,14 @@ export function Badge({ label, variant = 'default' }: Props) {
     textColor = "var(--sys-color-charcoalBackground-base)";
     bg = "var(--sys-color-signalGreen-base)";
     borderColor = "var(--sys-color-signalGreen-base)";
-  } else if (variant === 'danger') {
+  } else if (variant === 'danger' || variant === 'error') {
     textColor = "var(--sys-color-paperWhite-base)";
     bg = "var(--sys-color-solidarityRed-base)";
     borderColor = "var(--sys-color-solidarityRed-base)";
+  } else if (variant === 'info') {
+    textColor = "var(--sys-color-paperWhite-base)";
+    bg = "var(--sys-color-metalBlue-base)";
+    borderColor = "var(--sys-color-metalBlue-base)";
   }
 
   return (
@@ -37,7 +42,7 @@ export function Badge({ label, variant = 'default' }: Props) {
         borderColor: borderColor
       }}
     >
-      {label}
+      {label || children}
     </motion.span>
   );
 }

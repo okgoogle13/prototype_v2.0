@@ -5,6 +5,7 @@ import { RESUME_TEMPLATES, TemplateStyle } from '../constants';
 import { useDocumentExport } from './useDocumentExport';
 import { useATSScoring } from './useATSScoring';
 import { useAutoSave } from './useAutoSave';
+import { calendarService } from '../src/services/calendarService';
 
 interface UseStudioMatchProps {
   careerData: CareerDatabase;
@@ -176,6 +177,36 @@ export function useStudioMatch({
     alert('Copied to clipboard for ATS parsing!');
   };
 
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncSuccess, setSyncSuccess] = useState(false);
+
+  const handleSyncToCalendar = async () => {
+    setIsSyncing(true);
+    try {
+      const tokens = JSON.parse(localStorage.getItem('google_tokens') || 'null');
+      
+      const result = await calendarService.syncToCalendar({
+        title: job.Job_Title,
+        company: job.Company_Name,
+        deadline: job.Application_Deadline || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        description: `Application for ${job.Job_Title} at ${job.Company_Name}. Match Score: ${analysis?.Overall_Fit_Score}%`
+      }, tokens);
+
+      if (result.success) {
+        setSyncSuccess(true);
+        setTimeout(() => setSyncSuccess(false), 3000);
+        alert('Synced to Google Calendar with proactive reminders!');
+      } else {
+        throw new Error('Sync failed');
+      }
+    } catch (err) {
+      console.error("Failed to sync to calendar:", err);
+      alert('Failed to sync to calendar. Please ensure you have connected your Google account in Profile.');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   return {
     analysis,
     isLoading,
@@ -219,6 +250,9 @@ export function useStudioMatch({
     handleCopyToClipboard,
     unlockStep,
     isAutoSaving,
-    lastSaved
+    lastSaved,
+    isSyncing,
+    syncSuccess,
+    handleSyncToCalendar
   };
 }

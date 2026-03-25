@@ -40,20 +40,50 @@ import {
   Sparkles,
   ArrowRight,
   Info,
-  AlertCircle
+  AlertCircle,
+  Calendar,
+  X
 } from "lucide-react";
 
 import { User } from 'firebase/auth';
-import { processCareerDocuments } from "../../services/geminiService";
-import { CareerDatabase, IngestedDocument } from "../../types";
+import { processCareerDocuments, generateVoiceProfile, generateProfileGuidance } from "../../services/geminiService";
+import { CareerDatabase, IngestedDocument, VoiceProfile } from "../../types";
 import { saveUserCareerData, getUserCareerData } from "../../services/firebase";
+import { calendarService } from "../services/calendarService";
 
 interface Props {
   user?: User | null;
 }
 
 export function ProfileView({ user }: Props) {
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [googleTokens, setGoogleTokens] = useState<any>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
+        setGoogleTokens(event.data.tokens);
+        // In a real app, we'd save this to Firestore
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const handleConnectGoogle = async () => {
+    try {
+      const url = await calendarService.getAuthUrl();
+      window.open(url, 'google_oauth', 'width=600,height=700');
+    } catch (error) {
+      console.error("Failed to get auth URL", error);
+      alert("Failed to initiate Google connection. Please check your backend configuration.");
+    }
+  };
+
+  const handleDisconnectGoogle = async () => {
+    await calendarService.disconnect();
+    setGoogleTokens(null);
+  };
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -61,6 +91,8 @@ export function ProfileView({ user }: Props) {
   const [portfolioUrls, setPortfolioUrls] = useState<string[]>([]);
   const [completeness, setCompleteness] = useState(25);
   const [skills, setSkills] = useState<string[]>([]);
+  const [targetRoles, setTargetRoles] = useState<string[]>([]);
+  const [targetTitles, setTargetTitles] = useState<string[]>([]);
   const [suggestedSkills, setSuggestedSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
   const [ingestedDocuments, setIngestedDocuments] = useState<IngestedDocument[]>([]);
@@ -70,35 +102,77 @@ export function ProfileView({ user }: Props) {
   const [processError, setProcessError] = useState<string | null>(null);
   const [fullCareerData, setFullCareerData] = useState<CareerDatabase | null>(null);
 
-  // Stubbed Voice Profile State (MIG-FINAL)
-  const [stubSavedProfile, setStubSavedProfile] = useState<{ sample: string; savedAt: Date } | null>(null);
-  const [stubIsLoading, setStubIsLoading] = useState(false);
-  const [stubError, setStubError] = useState<string | null>(null);
-  const [simulateError, setSimulateError] = useState(false);
+  // Voice Profile State
+  const [voiceProfiles, setVoiceProfiles] = useState<VoiceProfile[]>([]);
+  const [isVoiceLoading, setIsVoiceLoading] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const handleStubSaveVoice = async (sample: string) => {
-    setStubIsLoading(true);
-    setStubError(null);
+  const handleSaveVoice = async (sample: string) => {
+    if (!user?.uid) return;
+    setIsVoiceLoading(true);
+    setVoiceError(null);
     
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    if (simulateError) {
-      setStubError("Calibration failed: Sample too short or contains invalid patterns.");
-      setStubIsLoading(false);
-      return;
+    try {
+      // Convert sample text to base64 for the service
+      const base64Sample = btoa(unescape(encodeURIComponent(sample)));
+      const profileData = await generateVoiceProfile([{ 
+        inlineData: { data: base64Sample, mimeType: 'text/plain' } 
+      }]);
+      
+      const newProfile: VoiceProfile = {
+        id: crypto.randomUUID(),
+        name: "Authentic Voice",
+        tone: profileData.tone || "Professional",
+        formality: profileData.formality || "Professional",
+        commonPhrases: profileData.commonPhrases || [],
+        structuralPatterns: profileData.structuralPatterns || "",
+        constraints: profileData.constraints || [],
+        isDefault: true
+      };
+
+      // For now, we replace existing profiles with the new one
+      const updatedProfiles = [newProfile];
+      
+      const updatedData: CareerDatabase = {
+        ...fullCareerData!,
+        Voice_Profiles: updatedProfiles
+      };
+      
+      await saveUserCareerData(user.uid, updatedData);
+      setFullCareerData(updatedData);
+      setVoiceProfiles(updatedProfiles);
+    } catch (err) {
+      console.error("Voice calibration failed:", err);
+      setVoiceError("Calibration failed: Unable to analyze the writing sample. Please ensure it's long enough and contains clear patterns.");
+    } finally {
+      setIsVoiceLoading(false);
     }
+  };
 
-    setStubSavedProfile({
-      sample,
-      savedAt: new Date()
-    });
-    setStubIsLoading(false);
+  const handleResetVoice = async () => {
+    if (!user?.uid || !fullCareerData) return;
+    setIsVoiceLoading(true);
+    try {
+      const updatedData: CareerDatabase = {
+        ...fullCareerData,
+        Voice_Profiles: []
+      };
+      await saveUserCareerData(user.uid, updatedData);
+      setFullCareerData(updatedData);
+      setVoiceProfiles([]);
+    } catch (err) {
+      console.error("Reset voice failed:", err);
+    } finally {
+      setIsVoiceLoading(false);
+    }
   };
 
   const [activeSection, setActiveSection] = useState("identity");
 
   const sections = [
     { id: "identity", label: "Identity", icon: "User" },
+    { id: "career", label: "Career Profile", icon: "Sparkles" },
     { id: "documents", label: "Master resume profile", icon: "FileText" },
     { id: "voice", label: "Authentic voice", icon: "Mic" },
     { id: "skills", label: "Skills", icon: "Zap" },
@@ -120,6 +194,9 @@ export function ProfileView({ user }: Props) {
           setSkills(data.Master_Skills_Inventory.map(s => s.Skill_Name) || []);
           setIngestedDocuments(data.Ingested_Documents || []);
           setDocCount(data.Ingested_Documents?.length || 0);
+          setVoiceProfiles(data.Voice_Profiles || []);
+          setTargetRoles(data.Career_Profile?.Job_Preferences?.Target_Roles || []);
+          setTargetTitles(data.Career_Profile?.Target_Titles || []);
         } else {
           // Auto-populate from Google account if no Firestore data exists
           if (user.displayName) setFullName(user.displayName);
@@ -170,9 +247,13 @@ export function ProfileView({ user }: Props) {
           Subtype: []
         })),
         Ingested_Documents: ingestedDocuments,
-        Career_Profile: fullCareerData?.Career_Profile || {
-          Target_Titles: [],
-          Master_Summary_Points: []
+        Career_Profile: {
+          ...fullCareerData?.Career_Profile,
+          Target_Titles: targetTitles,
+          Job_Preferences: {
+            ...fullCareerData?.Career_Profile?.Job_Preferences,
+            Target_Roles: targetRoles
+          }
         },
         Career_Entries: fullCareerData?.Career_Entries || [],
         Structured_Achievements: fullCareerData?.Structured_Achievements || [],
@@ -461,6 +542,88 @@ export function ProfileView({ user }: Props) {
                           Load sample profile
                         </M3Button>
                       </div>
+
+                      <ProfileGuidance 
+                        section="identity" 
+                        data={{ fullName, email, phone, location }} 
+                        targetRoles={targetRoles} 
+                      />
+                    </div>
+                  )}
+
+                  {activeSection === "career" && (
+                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[32px] border border-[var(--sys-color-outline-variant)] shadow-sm">
+                      <h3 className="text-[22px] leading-[28px] font-bold text-[var(--sys-color-paperWhite-base)] mb-6">Career Profile</h3>
+                      
+                      <div className="space-y-8">
+                        <div>
+                          <label className="block text-sm font-bold text-[var(--sys-color-worker-ash-base)] mb-4">Target Roles</label>
+                          <p className="text-xs text-[var(--sys-color-worker-ash-base)] mb-4">What roles are you aiming for? This helps us tailor your profile guidance.</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {targetRoles.map((role, i) => (
+                              <span key={i} className="px-4 py-2 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-full text-xs text-[var(--sys-color-paperWhite-base)] flex items-center gap-2">
+                                {role}
+                                <button onClick={() => setTargetRoles(prev => prev.filter((_, idx) => idx !== i))} className="hover:text-red-400">
+                                  <X size={14} />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                          <div className="flex gap-2">
+                            <input 
+                              type="text" 
+                              placeholder="Add a target role (e.g. Senior Product Manager)"
+                              className="flex-1 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-xl px-4 py-3 text-sm text-[var(--sys-color-paperWhite-base)] outline-none focus:border-[var(--sys-color-worker-ash-base)] transition-all"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  const val = e.currentTarget.value.trim();
+                                  if (val && !targetRoles.includes(val)) {
+                                    setTargetRoles([...targetRoles, val]);
+                                    e.currentTarget.value = "";
+                                  }
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-bold text-[var(--sys-color-worker-ash-base)] mb-4">Target Titles</label>
+                          <p className="text-xs text-[var(--sys-color-worker-ash-base)] mb-4">Specific job titles you're interested in.</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {targetTitles.map((title, i) => (
+                              <span key={i} className="px-4 py-2 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-full text-xs text-[var(--sys-color-paperWhite-base)] flex items-center gap-2">
+                                {title}
+                                <button onClick={() => setTargetTitles(prev => prev.filter((_, idx) => idx !== i))} className="hover:text-red-400">
+                                  <X size={14} />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                          <div className="flex gap-2">
+                            <input 
+                              type="text" 
+                              placeholder="Add a target title"
+                              className="flex-1 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-xl px-4 py-3 text-sm text-[var(--sys-color-paperWhite-base)] outline-none focus:border-[var(--sys-color-worker-ash-base)] transition-all"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  const val = e.currentTarget.value.trim();
+                                  if (val && !targetTitles.includes(val)) {
+                                    setTargetTitles([...targetTitles, val]);
+                                    e.currentTarget.value = "";
+                                  }
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <ProfileGuidance 
+                        section="career" 
+                        data={{ targetRoles, targetTitles }} 
+                        targetRoles={targetRoles} 
+                      />
                     </div>
                   )}
 
@@ -503,6 +666,12 @@ export function ProfileView({ user }: Props) {
                             hideTitle={true} 
                             submitLabel="Upload documents to build your master resume profile"
                           />
+
+                          <ProfileGuidance 
+                            section="documents" 
+                            data={{ ingestedDocuments }} 
+                            targetRoles={targetRoles} 
+                          />
                         </div>
                       ) : (
                         <div className="space-y-6">
@@ -536,6 +705,12 @@ export function ProfileView({ user }: Props) {
                             ))}
                           </div>
 
+                          <ProfileGuidance 
+                            section="documents" 
+                            data={{ ingestedDocuments }} 
+                            targetRoles={targetRoles} 
+                          />
+
                           <div className="pt-6 border-t border-[var(--sys-color-outline-variant)]">
                             <h4 className="text-xs font-bold text-[var(--sys-color-worker-ash-base)] mb-4">Add more documents</h4>
                             <DocumentInput 
@@ -552,12 +727,11 @@ export function ProfileView({ user }: Props) {
 
                   {activeSection === "voice" && (
                     <VoiceProfileManagementSection 
-                      savedProfile={stubSavedProfile}
-                      onSave={handleStubSaveVoice}
-                      isLoading={stubIsLoading}
-                      error={stubError}
-                      simulateError={simulateError}
-                      onToggleError={() => setSimulateError(!simulateError)}
+                      voiceProfiles={voiceProfiles}
+                      onSave={handleSaveVoice}
+                      onReset={handleResetVoice}
+                      isLoading={isVoiceLoading}
+                      error={voiceError}
                     />
                   )}
 
@@ -627,42 +801,56 @@ export function ProfileView({ user }: Props) {
                           Add
                         </M3Button>
                       </div>
+
+                      <ProfileGuidance 
+                        section="skills" 
+                        data={{ skills }} 
+                        targetRoles={targetRoles} 
+                      />
                     </div>
                   )}
 
                   {activeSection === "integrations" && (
-                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[32px] border border-[var(--sys-color-outline-variant)] shadow-sm">
-                      <h3 className="text-[22px] leading-[28px] font-bold text-[var(--sys-color-paperWhite-base)] mb-6">Integrations</h3>
-                      <p className="text-[var(--sys-color-worker-ash-base)] mb-8">Connect your external tools to automate your job search and sync your career assets.</p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <IntegrationCard 
-                          name="LinkedIn" 
-                          desc="Import your profile data and job history directly."
-                          status="Connected"
-                          lastSync="1 hour ago"
-                          icon={<svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>}
-                        />
-                        <IntegrationCard 
-                          name="Google Drive" 
-                          desc="Sync your resumes and cover letters from your cloud storage."
-                          status="Disconnected"
-                          icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>}
-                        />
-                        <IntegrationCard 
-                          name="Gmail Scan" 
-                          desc="Automatically detect job application emails and update your tracker."
-                          status="Connected"
-                          lastSync="2 hours ago"
-                          icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}
-                        />
-                        <IntegrationCard 
-                          name="Slack" 
-                          desc="Receive real-time notifications for job updates and interview invites."
-                          status="Disconnected"
-                          icon={<Zap size={24} />}
-                        />
+                    <div className="space-y-8">
+                      <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[32px] border border-[var(--sys-color-outline-variant)] shadow-sm">
+                        <h3 className="text-[22px] leading-[28px] font-bold text-[var(--sys-color-paperWhite-base)] mb-6">Integrations</h3>
+                        <p className="text-[var(--sys-color-worker-ash-base)] mb-8">Connect your external tools to automate your job search and sync your career assets.</p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <IntegrationCard 
+                            name="LinkedIn" 
+                            desc="Import your profile data and job history directly."
+                            status="Connected"
+                            lastSync="1 hour ago"
+                            icon={<svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>}
+                          />
+                          <IntegrationCard 
+                            name="Google Drive" 
+                            desc="Sync your resumes and cover letters from your cloud storage."
+                            status="Disconnected"
+                            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>}
+                          />
+                          <IntegrationCard 
+                            name="Gmail Scan" 
+                            desc="Automatically detect job application emails and update your tracker."
+                            status="Connected"
+                            lastSync="2 hours ago"
+                            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}
+                          />
+                          <IntegrationCard 
+                            name="Slack" 
+                            desc="Receive real-time notifications for job updates and interview invites."
+                            status="Disconnected"
+                            icon={<Zap size={24} />}
+                          />
+                        </div>
                       </div>
+
+                      <CalendarIntegrationSection 
+                        isConnected={!!googleTokens}
+                        onConnect={handleConnectGoogle}
+                        onDisconnect={handleDisconnectGoogle}
+                      />
                     </div>
                   )}
 
@@ -739,7 +927,81 @@ export function ProfileView({ user }: Props) {
   );
 }
 
-function IntegrationCard({ name, desc, status, lastSync, icon }: any) {
+function CalendarIntegrationSection({ isConnected, onConnect, onDisconnect }: any) {
+  const [syncedEvents] = useState([
+    { id: '1', title: 'Senior Frontend Engineer', company: 'TechCorp', date: '2024-03-28', status: 'Synced' },
+    { id: '2', title: 'Product Designer', company: 'DesignStudio', date: '2024-03-30', status: 'Synced' },
+  ]);
+
+  return (
+    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[32px] border border-[var(--sys-color-outline-variant)] shadow-sm">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h3 className="text-[22px] leading-[28px] font-bold text-[var(--sys-color-paperWhite-base)] mb-2">Google Calendar</h3>
+          <p className="text-[var(--sys-color-worker-ash-base)]">Manage your synced application deadlines and reminders.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-[var(--sys-color-signalGreen-base)]' : 'bg-[var(--sys-color-solidarityRed-base)]'}`} />
+          <span className="text-xs font-bold text-[var(--sys-color-paperWhite-base)]">{isConnected ? 'Connected' : 'Disconnected'}</span>
+        </div>
+      </div>
+
+      {!isConnected ? (
+        <div className="p-10 flex flex-col items-center justify-center text-center bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-[24px] border border-dashed border-[var(--sys-color-outline-variant)]">
+          <div className="w-16 h-16 rounded-full bg-[var(--sys-color-charcoalBackground-steps-4)] flex items-center justify-center mb-6">
+            <Calendar size={32} className="text-[var(--sys-color-worker-ash-base)] opacity-20" />
+          </div>
+          <h4 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">Connect your calendar</h4>
+          <p className="text-sm text-[var(--sys-color-worker-ash-base)] max-w-xs mx-auto mb-8">
+            Sync your job application deadlines directly to your Google Calendar with proactive reminders.
+          </p>
+          <M3Button variant="filled" onClick={onConnect}>
+            Connect Google Calendar
+          </M3Button>
+        </div>
+      ) : (
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl">
+              <h4 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-4">Calendar Settings</h4>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-[var(--sys-color-paperWhite-base)]">Primary Calendar</span>
+                  <span className="text-xs text-[var(--sys-color-worker-ash-base)]">nishantdougall@gmail.com</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-[var(--sys-color-paperWhite-base)]">Proactive Reminders</span>
+                  <span className="text-xs text-[var(--sys-color-signalGreen-base)]">Enabled</span>
+                </div>
+                <div className="pt-4 flex gap-3">
+                  <M3Button variant="outlined" className="flex-1" onClick={onDisconnect}>Disconnect</M3Button>
+                  <M3Button variant="tonal" className="flex-1">Sync All</M3Button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl">
+              <h4 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-4">Recent Syncs</h4>
+              <div className="space-y-3">
+                {syncedEvents.map(event => (
+                  <div key={event.id} className="flex items-center justify-between p-3 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded-xl">
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-[var(--sys-color-paperWhite-base)] truncate">{event.title}</p>
+                      <p className="text-[10px] text-[var(--sys-color-worker-ash-base)]">{event.company} • {event.date}</p>
+                    </div>
+                    <span className="text-[10px] font-bold text-[var(--sys-color-signalGreen-base)]">{event.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function IntegrationCard({ name, desc, status, lastSync, icon, onConnect }: any) {
   const isConnected = status === "Connected";
   return (
     <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl flex items-center justify-between group hover:border-[var(--sys-color-worker-ash-base)] transition-all">
@@ -757,6 +1019,9 @@ function IntegrationCard({ name, desc, status, lastSync, icon }: any) {
         <span className={`text-[10px] font-bold px-2 py-1 rounded ${isConnected ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
           {status}
         </span>
+        {!isConnected && onConnect && (
+          <M3Button variant="text" onClick={onConnect} style={{ padding: '0 8px', minHeight: '32px' }}>Connect</M3Button>
+        )}
         <button className="text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)]">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6"></polyline>
@@ -767,8 +1032,92 @@ function IntegrationCard({ name, desc, status, lastSync, icon }: any) {
   );
 }
 
+function ProfileGuidance({ section, data, targetRoles }: { section: string, data: any, targetRoles: string[] }) {
+  const [guidance, setGuidance] = useState<{ tips: string[], keywords: string[], examples: string[] } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchGuidance = async () => {
+    setIsLoading(true);
+    try {
+      const result = await generateProfileGuidance(section, data, targetRoles);
+      setGuidance(result);
+    } catch (error) {
+      console.error("Failed to fetch guidance:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGuidance();
+  }, [section]);
+
+  if (isLoading) {
+    return (
+      <div className="mt-6 p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl animate-pulse">
+        <div className="h-4 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded w-1/4 mb-4"></div>
+        <div className="space-y-2">
+          <div className="h-3 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded w-full"></div>
+          <div className="h-3 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded w-5/6"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!guidance) return null;
+
+  return (
+    <div className="mt-8 space-y-6">
+      <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-inkGold-base)]/20 rounded-2xl">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles size={16} className="text-[var(--sys-color-inkGold-base)]" />
+          <h4 className="text-xs font-bold text-[var(--sys-color-inkGold-base)] uppercase tracking-wider">AI Guidance & Tips</h4>
+        </div>
+        
+        <div className="space-y-4">
+          <div>
+            <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] mb-2 uppercase">Actionable Tips</p>
+            <ul className="space-y-2">
+              {guidance.tips.map((tip, i) => (
+                <li key={i} className="text-xs text-[var(--sys-color-paperWhite-base)] flex gap-2">
+                  <span className="text-[var(--sys-color-inkGold-base)]">•</span>
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {guidance.keywords.length > 0 && (
+            <div>
+              <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] mb-2 uppercase">Recommended Keywords</p>
+              <div className="flex flex-wrap gap-2">
+                {guidance.keywords.map((keyword, i) => (
+                  <span key={i} className="px-2 py-1 bg-[var(--sys-color-charcoalBackground-steps-4)] border border-[var(--sys-color-outline-variant)] rounded text-[10px] text-[var(--sys-color-worker-ash-base)]">
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div>
+            <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] mb-2 uppercase">Best Practice Examples</p>
+            <div className="space-y-2">
+              {guidance.examples.map((example, i) => (
+                <div key={i} className="p-3 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded-xl text-[10px] italic text-[var(--sys-color-worker-ash-base)] border-l-2 border-[var(--sys-color-inkGold-base)]">
+                  "{example}"
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface VoiceProfileStatusCardProps {
-  profile: { sample: string; savedAt: Date };
+  profile: VoiceProfile;
   onReplace: () => void;
   onReset: () => void;
 }
@@ -779,17 +1128,50 @@ function VoiceProfileStatusCard({ profile, onReplace, onReset }: VoiceProfileSta
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-xs font-bold text-[var(--sys-color-inkGold-base)]">Verified authentic voice</h4>
         <span className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 font-bold">
-          Calibrated {profile.savedAt.toLocaleDateString()}
+          Active Profile
         </span>
       </div>
-      <div className="p-4 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded-xl mb-6 border border-[var(--sys-color-outline-variant)]">
-        <p className="text-sm text-[var(--sys-color-paperWhite-base)] italic leading-relaxed opacity-90">
-          "{profile.sample.length > 200 ? profile.sample.substring(0, 200) + '...' : profile.sample}"
-        </p>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="space-y-4">
+          <div>
+            <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-1">Tone & Formality</p>
+            <p className="text-sm text-[var(--sys-color-paperWhite-base)] font-medium">
+              {profile.tone} • {profile.formality}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-1">Common Phrases</p>
+            <div className="flex flex-wrap gap-2">
+              {profile.commonPhrases.map((phrase, i) => (
+                <span key={i} className="px-2 py-1 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded text-[10px] text-[var(--sys-color-worker-ash-base)]">
+                  "{phrase}"
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-1">Structural Patterns</p>
+            <p className="text-xs text-[var(--sys-color-worker-ash-base)] leading-relaxed">
+              {profile.structuralPatterns}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-1">Constraints</p>
+            <ul className="list-disc list-inside text-xs text-[var(--sys-color-worker-ash-base)]">
+              {profile.constraints.map((c, i) => (
+                <li key={i}>{c}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
-      <div className="flex gap-4">
-        <M3Button variant="tonal" onClick={onReplace}>Refine sample</M3Button>
-        <M3Button variant="outlined" onClick={onReset}>Reset voice</M3Button>
+
+      <div className="flex gap-4 pt-4 border-t border-[var(--sys-color-outline-variant)]">
+        <M3Button variant="tonal" onClick={onReplace}>Refine voice</M3Button>
+        <M3Button variant="outlined" onClick={onReset}>Reset profile</M3Button>
       </div>
     </div>
   );
@@ -865,23 +1247,22 @@ function VoiceProfileCreationPanel({ onSave, isLoading, error, initialValue }: V
 }
 
 interface VoiceProfileManagementSectionProps {
-  savedProfile: { sample: string; savedAt: Date } | null;
+  voiceProfiles: VoiceProfile[];
   onSave: (sample: string) => Promise<void>;
+  onReset: () => Promise<void>;
   isLoading: boolean;
   error: string | null;
-  simulateError: boolean;
-  onToggleError: () => void;
 }
 
 function VoiceProfileManagementSection({
-  savedProfile,
+  voiceProfiles,
   onSave,
+  onReset,
   isLoading,
-  error,
-  simulateError,
-  onToggleError
+  error
 }: VoiceProfileManagementSectionProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const activeProfile = voiceProfiles.find(p => p.isDefault) || voiceProfiles[0];
 
   const handleReplace = () => {
     setIsEditing(true);
@@ -889,9 +1270,7 @@ function VoiceProfileManagementSection({
 
   const handleSaveWrapper = async (sample: string) => {
     await onSave(sample);
-    if (!simulateError) {
-      setIsEditing(false);
-    }
+    setIsEditing(false);
   };
 
   return (
@@ -900,43 +1279,29 @@ function VoiceProfileManagementSection({
         <div>
           <h3 className="text-[22px] leading-[28px] font-bold type-solidarityProtest text-[var(--sys-color-paperWhite-base)] mb-2">Authentic voice</h3>
           <p className="text-[var(--sys-color-worker-ash-base)]">
-            {savedProfile && !isEditing
+            {activeProfile && !isEditing
               ? "Your voice profile is active and being used to calibrate generated documents." 
               : "Calibrate the AI to mirror your natural writing style, ensuring consistency across all career documents."}
           </p>
         </div>
-        
-        {/* Stub Toggle for Error Simulation */}
-        <button 
-          onClick={onToggleError}
-          className={`px-3 py-1 rounded text-[8px] font-bold uppercase tracking-widest border transition-all ${
-            simulateError 
-              ? "bg-[var(--sys-color-solidarityRed-base)]/20 border-[var(--sys-color-solidarityRed-base)] text-[var(--sys-color-solidarityRed-base)]" 
-              : "bg-transparent border-[var(--sys-color-outline-variant)] text-[var(--sys-color-worker-ash-base)]"
-          }`}
-        >
-          {simulateError ? "Error Mode: ON" : "Error Mode: OFF"}
-        </button>
       </div>
 
-      {savedProfile && !isEditing ? (
+      {activeProfile && !isEditing ? (
         <VoiceProfileStatusCard 
-          profile={savedProfile} 
+          profile={activeProfile} 
           onReplace={handleReplace} 
-          onReset={() => {
-            handleReplace();
-          }}
+          onReset={onReset}
         />
       ) : (
         <div className="space-y-8">
-          {!savedProfile && !isEditing && (
+          {!activeProfile && !isEditing && (
             <div className="p-10 flex flex-col items-center justify-center text-center bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-[24px] border border-dashed border-[var(--sys-color-outline-variant)]">
               <div className="w-16 h-16 rounded-full bg-[var(--sys-color-charcoalBackground-steps-4)] flex items-center justify-center mb-6">
                 <Mic size={32} className="text-[var(--sys-color-worker-ash-base)] opacity-20" />
               </div>
               <h4 className="text-xl font-bold text-[var(--sys-color-paperWhite-base)] mb-2">No voice profile</h4>
               <p className="text-sm text-[var(--sys-color-worker-ash-base)] max-w-xs mx-auto mb-8">
-                Record your voice to generate personalized cover letters and interview responses that sound like you.
+                Input a writing sample to generate personalized cover letters and interview responses that sound like you.
               </p>
             </div>
           )}
@@ -944,7 +1309,6 @@ function VoiceProfileManagementSection({
             onSave={handleSaveWrapper}
             isLoading={isLoading}
             error={error}
-            initialValue={savedProfile?.sample}
           />
         </div>
       )}

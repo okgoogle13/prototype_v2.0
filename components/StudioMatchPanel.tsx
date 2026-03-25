@@ -3,6 +3,7 @@
  * This component is for generation/analysis support and is not a canonical route.
  */
 import React from 'react';
+import { Sparkles } from 'lucide-react';
 import { CareerDatabase, JobOpportunity, MatchAnalysis, CoverLetterScoreResult } from '../types';
 import { TailoredResumeView } from './TailoredResumeView';
 import { KSCResponsesView } from './KSCResponsesView';
@@ -71,7 +72,9 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
     handleGenerateKSC,
     handleSaveToProfile,
     handleCopyToClipboard,
-    unlockStep
+    unlockStep,
+    isSyncing,
+    handleSyncToCalendar
   } = useStudioMatch({
     careerData,
     job,
@@ -144,6 +147,9 @@ export const StudioMatchPanel: React.FC<MatchDashboardProps> = (props) => {
         exportToDOCX={exportToDOCX}
         handleCopyToClipboard={handleCopyToClipboard}
         completedSteps={completedSteps}
+        job={job}
+        onSyncToCalendar={handleSyncToCalendar}
+        isSyncing={isSyncing}
       />
 
       {activeTab === 'analysis' && (
