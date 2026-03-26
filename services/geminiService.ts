@@ -313,7 +313,11 @@ export const refineKSCResponse = async (ksc: KSCResponse): Promise<Partial<KSCRe
     return JSON.parse(response.text || '{}');
 };
 
-export const refineAchievementField = async (ach: StructuredAchievement, field: keyof StructuredAchievement): Promise<string> => {
+export const refineAchievementField = async (
+  ach: StructuredAchievement,
+  field: keyof StructuredAchievement,
+  isGovernmentJob: boolean = false
+): Promise<string> => {
     const prompt = `
       Context: The user has a career achievement: "${ach.Original_Text}".
       Current Parsed Data:
@@ -324,6 +328,7 @@ export const refineAchievementField = async (ach: StructuredAchievement, field: 
       - Outcome: ${ach.Outcome}
 
       Task: Suggest a stronger, more professional, or more specific value for the field: "${field}".
+      ${isGovernmentJob ? 'The user is applying for a government job. Use formal, structured language, emphasize compliance, public service impact, and standardized methodologies.' : ''}
       If the field is 'Metric' and the current value is 'X' or missing, suggest a realistic placeholder format (e.g. "reduced processing time by 20%").
       
       Return ONLY the suggested string value.
@@ -332,6 +337,7 @@ export const refineAchievementField = async (ach: StructuredAchievement, field: 
      const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: { parts: [{ text: prompt }] },
+        config: isGovernmentJob ? { tools: [{ googleSearch: {} }] } : undefined,
     });
 
     return response.text?.trim() || "";

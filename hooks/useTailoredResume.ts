@@ -21,12 +21,16 @@ export function useTailoredResume({ careerData, analysis, job, onUpdate }: UseTa
     setAchievements(careerData.Structured_Achievements);
   }, [careerData.Structured_Achievements]);
 
+  const isGovernmentJob = job ? 
+    /department|government|council|agency|ministry|authority|community services/i.test(job.Company_Name) || 
+    /government|public service|compliance|policy|community services/i.test(job.Key_Responsibilities.join(' ')) : false;
+
   const handlePolish = async (achId: string, field: keyof StructuredAchievement) => {
     setIsPolishing(`${achId}-${String(field)}`);
     try {
       const ach = achievements.find(a => a.Achievement_ID === achId);
       if (!ach) return;
-      const polishedText = await refineAchievementField(ach, field);
+      const polishedText = await refineAchievementField(ach, field, isGovernmentJob);
       setSuggestions(prev => ({ ...prev, [`${achId}-${String(field)}`]: polishedText }));
     } catch (error) {
       console.error("Failed to polish text:", error);

@@ -13,39 +13,58 @@ import { DocumentInput } from "../../components/DocumentInput";
 import { Modal } from "../components/ui/Modal";
 import { AutocompleteInput } from "../components/ui/AutocompleteInput";
 import { commonIndustrySkills } from "../utils/skills";
+import { March, Megaphone, Placard, ScaffoldArea, ScaffoldInput, StatusBadge, Strike, KrIcon, Valve } from "../components/ui/Primitives";
+
 import { 
-  Zap, 
-  User as LucideUser, 
+  User as UserIcon, 
+  Briefcase, 
   FileText, 
   Mic, 
-  Link, 
   Settings, 
+  LogOut, 
+  Plus, 
+  Trash2, 
+  Download, 
+  Upload, 
+  CheckCircle2, 
+  AlertCircle, 
+  ChevronRight, 
+  Search, 
+  Filter, 
+  MoreVertical, 
+  Save, 
+  X, 
+  Zap, 
+  Calendar, 
+  Sparkles, 
   Mail, 
   Phone, 
   MapPin, 
   Globe, 
-  Plus, 
-  Trash2, 
-  CheckCircle2, 
+  Linkedin, 
+  Github, 
+  Twitter, 
+  ExternalLink, 
+  Copy, 
+  Check, 
+  Clock, 
+  History, 
+  Target, 
+  Layout, 
+  Layers, 
   Database, 
   Shield, 
-  CreditCard, 
+  Key, 
   Bell, 
-  LogOut, 
-  ChevronRight, 
-  ExternalLink, 
-  Lock, 
-  Smartphone,
-  RefreshCw,
-  Sparkles,
-  ArrowRight,
-  Info,
-  AlertCircle,
-  Calendar,
-  X
+  Moon, 
+  Sun, 
+  Languages, 
+  HelpCircle, 
+  Info, 
+  RefreshCw 
 } from "lucide-react";
-
 import { User } from 'firebase/auth';
+import { toast } from "sonner";
 import { processCareerDocuments, generateVoiceProfile, generateProfileGuidance } from "../../services/geminiService";
 import { CareerDatabase, IngestedDocument, VoiceProfile } from "../../types";
 import { saveUserCareerData, getUserCareerData } from "../../services/firebase";
@@ -142,9 +161,12 @@ export function ProfileView({ user }: Props) {
       await saveUserCareerData(user.uid, updatedData);
       setFullCareerData(updatedData);
       setVoiceProfiles(updatedProfiles);
+      toast.success("Voice profile calibrated successfully.");
     } catch (err) {
       console.error("Voice calibration failed:", err);
-      setVoiceError("Calibration failed: Unable to analyze the writing sample. Please ensure it's long enough and contains clear patterns.");
+      const msg = "Calibration failed: Unable to analyze the writing sample. Please ensure it's long enough and contains clear patterns.";
+      setVoiceError(msg);
+      toast.error(msg);
     } finally {
       setIsVoiceLoading(false);
     }
@@ -161,8 +183,10 @@ export function ProfileView({ user }: Props) {
       await saveUserCareerData(user.uid, updatedData);
       setFullCareerData(updatedData);
       setVoiceProfiles([]);
+      toast.success("Voice profile reset.");
     } catch (err) {
       console.error("Reset voice failed:", err);
+      toast.error("Failed to reset voice profile.");
     } finally {
       setIsVoiceLoading(false);
     }
@@ -177,7 +201,6 @@ export function ProfileView({ user }: Props) {
     { id: "voice", label: "Authentic voice", icon: "Mic" },
     { id: "skills", label: "Skills", icon: "Zap" },
     { id: "integrations", label: "Integrations", icon: "Link" },
-    { id: "settings", label: "Settings", icon: "Settings" },
   ];
 
   // Load data from Firestore or Google Auth
@@ -853,61 +876,6 @@ export function ProfileView({ user }: Props) {
                       />
                     </div>
                   )}
-
-                  {activeSection === "settings" && (
-                    <div className="bg-[var(--sys-color-charcoalBackground-steps-2)] p-8 rounded-[32px] border border-[var(--sys-color-outline-variant)] shadow-sm">
-                      <h3 className="text-[22px] leading-[28px] font-bold text-[var(--sys-color-paperWhite-base)] mb-8">Settings</h3>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <div className="space-y-6">
-                          <h4 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">Account configuration</h4>
-                          <div className="space-y-4">
-                            <TextInput label="Display name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-                            <TextInput label="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
-                          </div>
-                        </div>
-
-                        <div className="space-y-6">
-                          <h4 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">Locale and preferences</h4>
-                          <div className="space-y-4">
-                            <div className="space-y-2">
-                              <label className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">System language</label>
-                              <select className="w-full p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-xl focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors">
-                                <option value="en-AU">AUS English (default)</option>
-                                <option value="en-US">US English</option>
-                                <option value="en-GB">UK English</option>
-                              </select>
-                            </div>
-                            <div className="flex items-center justify-between p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-xl">
-                              <span className="text-xs font-bold text-[var(--sys-color-paperWhite-base)]">Dark mode</span>
-                              <div className="w-10 h-5 bg-[var(--sys-color-inkGold-base)] rounded-full relative">
-                                <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-12 pt-8 border-t border-[var(--sys-color-outline-variant)] flex flex-col sm:flex-row items-center justify-between gap-6">
-                        <div className="space-y-1">
-                          <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)]">Data privacy</p>
-                          <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-bold">Manage your information and account status</p>
-                        </div>
-                        <div className="flex gap-4">
-                          <M3Button 
-                            variant="outlined"
-                            onClick={() => setShowDeleteModal(true)}
-                            className="border-[var(--sys-color-solidarityRed-base)]/30 text-[var(--sys-color-solidarityRed-base)] hover:bg-[var(--sys-color-solidarityRed-base)] hover:text-white"
-                          >
-                            Delete my data
-                          </M3Button>
-                          <M3Button variant="outlined">
-                            Export data
-                          </M3Button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -1124,12 +1092,12 @@ interface VoiceProfileStatusCardProps {
 
 function VoiceProfileStatusCard({ profile, onReplace, onReset }: VoiceProfileStatusCardProps) {
   return (
-    <div className="p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-inkGold-base)]/30 rounded-[24px] shadow-sm">
+    <Placard className="p-6 border-[var(--sys-color-inkGold-base)]/30">
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-xs font-bold text-[var(--sys-color-inkGold-base)]">Verified authentic voice</h4>
-        <span className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 font-bold">
+        <StatusBadge variant="success">
           Active Profile
-        </span>
+        </StatusBadge>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -1144,7 +1112,7 @@ function VoiceProfileStatusCard({ profile, onReplace, onReset }: VoiceProfileSta
             <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-1">Common Phrases</p>
             <div className="flex flex-wrap gap-2">
               {profile.commonPhrases.map((phrase, i) => (
-                <span key={i} className="px-2 py-1 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded text-[10px] text-[var(--sys-color-worker-ash-base)]">
+                <span key={i} className="px-2 py-1 bg-[var(--sys-color-charcoalBackground-steps-4)] rounded text-[10px] text-[var(--sys-color-worker-ash-base)] font-mono">
                   "{phrase}"
                 </span>
               ))}
@@ -1154,13 +1122,13 @@ function VoiceProfileStatusCard({ profile, onReplace, onReset }: VoiceProfileSta
         <div className="space-y-4">
           <div>
             <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-1">Structural Patterns</p>
-            <p className="text-xs text-[var(--sys-color-worker-ash-base)] leading-relaxed">
+            <p className="text-xs text-[var(--sys-color-worker-ash-base)] leading-relaxed font-mono">
               {profile.structuralPatterns}
             </p>
           </div>
           <div>
             <p className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-1">Constraints</p>
-            <ul className="list-disc list-inside text-xs text-[var(--sys-color-worker-ash-base)]">
+            <ul className="list-disc list-inside text-xs text-[var(--sys-color-worker-ash-base)] font-mono">
               {profile.constraints.map((c, i) => (
                 <li key={i}>{c}</li>
               ))}
@@ -1173,7 +1141,7 @@ function VoiceProfileStatusCard({ profile, onReplace, onReset }: VoiceProfileSta
         <M3Button variant="tonal" onClick={onReplace}>Refine voice</M3Button>
         <M3Button variant="outlined" onClick={onReset}>Reset profile</M3Button>
       </div>
-    </div>
+    </Placard>
   );
 }
 
@@ -1187,26 +1155,27 @@ function VoiceSampleSubmissionForm({ onSubmit, isLoading, initialValue = "" }: V
   const [inputValue, setInputValue] = useState(initialValue);
 
   return (
-    <div className="space-y-4">
-      <div>
-        <label className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 mb-2 block font-bold">
-          Source writing sample
-        </label>
-        <textarea 
-          value={inputValue} 
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Paste a cover letter, professional summary, or a few paragraphs of your best work. This sample will define your AI-generated tone."
-          className="w-full bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] p-4 rounded-xl font-bold text-sm focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-all min-h-[150px]"
-        />
+    <Placard className="p-6">
+      <div className="space-y-4">
+        <div>
+          <label className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 mb-2 block font-bold uppercase tracking-wider">
+            Source writing sample
+          </label>
+          <textarea 
+            value={inputValue} 
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Paste a cover letter, professional summary, or a few paragraphs of your best work. This sample will define your AI-generated tone."
+            className="w-full bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] p-4 rounded-xl font-medium text-sm focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-all min-h-[150px]"
+          />
+        </div>
+        <Strike 
+          onClick={() => onSubmit(inputValue)} 
+          disabled={isLoading || !inputValue.trim()}
+        >
+          {isLoading ? "Analyzing patterns..." : "Calibrate voice"}
+        </Strike>
       </div>
-      <M3Button 
-        variant="filled"
-        onClick={() => onSubmit(inputValue)} 
-        disabled={isLoading || !inputValue.trim()}
-      >
-        {isLoading ? "Analyzing patterns..." : "Calibrate voice"}
-      </M3Button>
-    </div>
+    </Placard>
   );
 }
 

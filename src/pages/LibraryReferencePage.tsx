@@ -21,8 +21,10 @@ import {
   Target,
   Zap,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Image as ImageIcon
 } from "lucide-react";
+import { Placard, Strike, StatusBadge } from "../components/ui/Primitives";
 import { useUserStore } from "../hooks/useUserStore";
 
 export function LibraryReferencePage() {
@@ -35,6 +37,7 @@ export function LibraryReferencePage() {
     { id: "resume", label: "Resume builder", icon: <FileText size={18} /> },
     { id: "cover", label: "Cover letter", icon: <Mail size={18} /> },
     { id: "ksc", label: "KSC responses", icon: <CheckSquare size={18} /> },
+    { id: "studio", label: "Image Studio (Preview)", icon: <Sparkles size={18} /> },
     { id: "interview", label: "Interview prep", icon: <MessageSquare size={18} /> },
     { id: "network", label: "Networking", icon: <Users size={18} /> },
   ];
@@ -123,6 +126,9 @@ export function LibraryReferencePage() {
                   )}
                   {activeTab === "ksc" && (
                     <KSCStepContent step={step} onNext={() => setStep(2)} onGenerate={handleGenerate} />
+                  )}
+                  {activeTab === "studio" && (
+                    <ImageStudioContent />
                   )}
                   {["interview", "network"].includes(activeTab) && (
                     <div className="py-20 text-center flex flex-col items-center justify-center">
@@ -228,7 +234,7 @@ function ResumeStepContent({ step, onNext, onGenerate }: any) {
     );
   }
 
-  return <FinalReviewContent />;
+  return <FinalReviewContent type="resume" />;
 }
 
 function BulletItem({ original, suggestion }: { original: string, suggestion: string }) {
@@ -332,7 +338,59 @@ function CoverLetterStepContent({ step, onNext, onGenerate, letterStyle, setLett
     );
   }
 
-  return <FinalReviewContent />;
+  return <FinalReviewContent type="cover" />;
+}
+
+function ImageStudioContent() {
+  const [prompt, setPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerate = () => {
+    setIsGenerating(true);
+    setTimeout(() => setIsGenerating(false), 2000);
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-col gap-2">
+        <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>Image Studio (Preview)</h2>
+        <p className="text-sm text-[var(--sys-color-worker-ash-base)]">Generate professional headshots or portfolio assets using AI.</p>
+      </div>
+
+      <Placard className="p-6">
+        <div className="space-y-4">
+          <div>
+            <label className="text-[10px] text-[var(--sys-color-worker-ash-base)] opacity-60 mb-2 block font-bold uppercase tracking-wider">
+              Visual prompt
+            </label>
+            <textarea 
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe the image you want to generate (e.g., 'Professional headshot of a software engineer in a modern office setting, soft lighting, high resolution')."
+              className="w-full bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] p-4 rounded-xl font-medium text-sm focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-all min-h-[100px]"
+            />
+          </div>
+          <Strike 
+            onClick={handleGenerate} 
+            disabled={isGenerating || !prompt.trim()}
+          >
+            {isGenerating ? "Generating assets..." : "Generate"}
+          </Strike>
+        </div>
+      </Placard>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Placard key={i} className="aspect-square flex items-center justify-center border-dashed border-2 border-[var(--sys-color-outline-variant)]/50">
+            <div className="text-center">
+              <Sparkles size={24} className="text-[var(--sys-color-worker-ash-base)] opacity-20 mx-auto mb-2" />
+              <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] opacity-40 uppercase">Placeholder {i}</span>
+            </div>
+          </Placard>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function KSCStepContent({ step, onNext, onGenerate }: any) {
@@ -387,7 +445,7 @@ function KSCStepContent({ step, onNext, onGenerate }: any) {
     );
   }
 
-  return <FinalReviewContent />;
+  return <FinalReviewContent type="ksc" />;
 }
 
 function KSCItem({ title, desc }: { title: string, desc: string }) {
@@ -419,7 +477,7 @@ function KSCItem({ title, desc }: { title: string, desc: string }) {
   );
 }
 
-function FinalReviewContent() {
+function FinalReviewContent({ type = "resume" }: { type?: string }) {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -430,32 +488,69 @@ function FinalReviewContent() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl">
-          <div className="flex items-center gap-2 mb-2">
-            <Target size={14} className="text-[var(--sys-color-inkGold-base)]" />
-            <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">Tone match</span>
-          </div>
-          <div className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)]">98%</div>
-          <div className="text-[8px] font-bold text-[var(--sys-color-signalGreen-base)] mt-1">Highly authentic</div>
+      {type === "cover" ? (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Placard className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Target size={14} className="text-[var(--sys-color-inkGold-base)]" />
+              <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Keyword match</span>
+            </div>
+            <div className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] font-mono tracking-tighter">94%</div>
+            <div className="text-[8px] font-bold text-[var(--sys-color-signalGreen-base)] mt-1 uppercase">High relevance</div>
+          </Placard>
+          <Placard className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <MessageSquare size={14} className="text-[var(--sys-color-inkGold-base)]" />
+              <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Narrative flow</span>
+            </div>
+            <div className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] font-mono tracking-tighter">88%</div>
+            <div className="text-[8px] font-bold text-[var(--sys-color-worker-ash-base)] mt-1 uppercase">Strong structure</div>
+          </Placard>
+          <Placard className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <UserCircle size={14} className="text-[var(--sys-color-inkGold-base)]" />
+              <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Personalization</span>
+            </div>
+            <div className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] font-mono tracking-tighter">92%</div>
+            <div className="text-[8px] font-bold text-[var(--sys-color-signalGreen-base)] mt-1 uppercase">Highly tailored</div>
+          </Placard>
+          <Placard className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Zap size={14} className="text-[var(--sys-color-inkGold-base)]" />
+              <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Tone alignment</span>
+            </div>
+            <div className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] font-mono tracking-tighter">96%</div>
+            <div className="text-[8px] font-bold text-[var(--sys-color-worker-ash-base)] mt-1 uppercase">Voice matched</div>
+          </Placard>
         </div>
-        <div className="p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl">
-          <div className="flex items-center gap-2 mb-2">
-            <FileText size={14} className="text-[var(--sys-color-inkGold-base)]" />
-            <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">Keyword density</span>
-          </div>
-          <div className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)]">4.2%</div>
-          <div className="text-[8px] font-bold text-[var(--sys-color-worker-ash-base)] mt-1">Optimal range</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Placard className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Target size={14} className="text-[var(--sys-color-inkGold-base)]" />
+              <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Tone match</span>
+            </div>
+            <div className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] font-mono">98%</div>
+            <div className="text-[8px] font-bold text-[var(--sys-color-signalGreen-base)] mt-1 uppercase">Highly authentic</div>
+          </Placard>
+          <Placard className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText size={14} className="text-[var(--sys-color-inkGold-base)]" />
+              <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Keyword density</span>
+            </div>
+            <div className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] font-mono">4.2%</div>
+            <div className="text-[8px] font-bold text-[var(--sys-color-worker-ash-base)] mt-1 uppercase">Optimal range</div>
+          </Placard>
+          <Placard className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Mail size={14} className="text-[var(--sys-color-inkGold-base)]" />
+              <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Impact score</span>
+            </div>
+            <div className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] font-mono">89/100</div>
+            <div className="text-[8px] font-bold text-[var(--sys-color-worker-ash-base)] mt-1 uppercase">Strong narrative</div>
+          </Placard>
         </div>
-        <div className="p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-2xl">
-          <div className="flex items-center gap-2 mb-2">
-            <Mail size={14} className="text-[var(--sys-color-inkGold-base)]" />
-            <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">Impact score</span>
-          </div>
-          <div className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)]">89/100</div>
-          <div className="text-[8px] font-bold text-[var(--sys-color-worker-ash-base)] mt-1">Strong narrative</div>
-        </div>
-      </div>
+      )}
 
       <M3Card variant="elevated" className="p-12 bg-white text-black min-h-[600px] shadow-2xl rounded-none">
         <div className="max-w-2xl mx-auto space-y-6 font-serif">

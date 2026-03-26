@@ -1,10 +1,28 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Badge } from '../ui/Badge';
-import { M3Card } from '../ui/M3Card';
+import { 
+  FileText, 
+  Mail, 
+  Link, 
+  ExternalLink, 
+  History, 
+  Target, 
+  ChevronRight, 
+  MoreVertical, 
+  Calendar, 
+  MapPin, 
+  Plus,
+  GripVertical,
+  Clock,
+  Briefcase,
+  ArrowUpRight,
+  CheckCircle2,
+  AlertCircle
+} from 'lucide-react';
 import { M3Button } from '../ui/M3Button';
 import { M3Type } from '../../theme/typography';
-import { FileText, Mail, Link, ExternalLink, History, Target, ChevronRight, MoreVertical, Calendar, MapPin, Plus } from 'lucide-react';
+import { Placard, ScaffoldArea, StatusBadge, Valve } from '../ui/Primitives';
+import { cn } from '../../lib/utils';
 
 interface InterviewStage {
   id: string;
@@ -19,7 +37,7 @@ interface Application {
   company: string;
   role: string;
   date: string;
-  status: "applied" | "interviewing" | "offered" | "rejected";
+  status: "draft" | "applied" | "interviewing" | "offered" | "archived";
   atsScore: number;
   location: string;
   resumeVersion: string;
@@ -29,6 +47,18 @@ interface Application {
 }
 
 const mockApplications: Application[] = [
+  { 
+    id: "0", 
+    company: "FutureTech", 
+    role: "Lead UI Engineer", 
+    date: "2024-03-20", 
+    status: "draft", 
+    atsScore: 88, 
+    location: "Remote", 
+    resumeVersion: "v2.2-Lead", 
+    coverLetterId: "CL-Draft-1",
+    interviewStages: []
+  },
   { 
     id: "1", 
     company: "TechCorp", 
@@ -61,7 +91,7 @@ const mockApplications: Application[] = [
     company: "GlobalData", 
     role: "Full Stack Developer", 
     date: "2024-02-28", 
-    status: "rejected", 
+    status: "archived", 
     atsScore: 78, 
     location: "London, UK", 
     resumeVersion: "v1.5-FullStack", 
@@ -92,76 +122,101 @@ const mockApplications: Application[] = [
 ];
 
 const columns = [
-  { id: 'applied', label: 'Applied', color: 'var(--sys-color-worker-ash-base)' },
-  { id: 'interviewing', label: 'Interviewing', color: 'var(--sys-color-inkGold-base)' },
-  { id: 'offered', label: 'Offered', color: 'var(--sys-color-signalGreen-base)' },
-  { id: 'rejected', label: 'Archived', color: 'var(--sys-color-solidarityRed-base)' },
+  { id: 'draft', label: 'Draft', color: 'var(--sys-color-worker-ash-base)' },
+  { id: 'applied', label: 'Applied', color: 'var(--sys-color-inkGold-base)' },
+  { id: 'interviewing', label: 'Interviewing', color: 'var(--sys-color-solidarityRed-base)' },
+  { id: 'offered', label: 'Offer', color: 'var(--sys-color-signalGreen-base)' },
+  { id: 'archived', label: 'Archived', color: 'var(--sys-color-charcoalBackground-steps-4)' },
 ];
 
 export function KanbanTracker({ onSelectApp, selectedId }: { onSelectApp: (id: string) => void, selectedId: string | null }) {
+  const [apps, setApps] = useState(mockApplications);
+
   return (
     <div className="flex gap-6 h-full overflow-x-auto pb-4 scrollbar-hide">
       {columns.map((column) => (
-        <div key={column.id} className="w-[300px] flex-shrink-0 flex flex-col gap-4">
-          <div className="flex items-center justify-between px-2">
-            <div className="flex items-center gap-2">
+        <div key={column.id} className="w-[320px] flex-shrink-0 flex flex-col gap-4">
+          <div className="flex items-center justify-between px-3 py-2 bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-xl border border-[var(--sys-color-outline-variant)]">
+            <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: column.color }} />
-              <h3 style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }}>{column.label}</h3>
+              <h3 className="uppercase tracking-[0.2em] font-bold text-[10px] text-[var(--sys-color-paperWhite-base)]">{column.label}</h3>
+              <span className="px-2 py-0.5 rounded-md bg-[var(--sys-color-charcoalBackground-steps-4)] text-[10px] font-mono text-[var(--sys-color-worker-ash-base)]">
+                {apps.filter(app => app.status === column.id).length}
+              </span>
             </div>
-            <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="opacity-40">
-              {mockApplications.filter(app => app.status === column.id).length}
-            </span>
+            <button className="p-1 hover:bg-[var(--sys-color-charcoalBackground-steps-4)] rounded-md transition-colors text-[var(--sys-color-worker-ash-base)]">
+              <Plus size={14} />
+            </button>
           </div>
 
-          <div className="flex-1 flex flex-col gap-3 p-2 bg-[var(--sys-color-charcoalBackground-steps-3)]/30 rounded-[24px] border border-[var(--sys-color-outline-variant)]/30">
-            {mockApplications
+          <ScaffoldArea className="flex-1 flex flex-col gap-4 p-2 overflow-y-auto scrollbar-hide">
+            {apps
               .filter(app => app.status === column.id)
               .map((app) => (
-                <motion.button
+                <motion.div
                   layoutId={app.id}
                   key={app.id}
+                  className="w-full cursor-pointer group relative"
                   onClick={() => onSelectApp(app.id)}
-                  className={`p-4 rounded-2xl text-left transition-all border group relative overflow-hidden ${
-                    selectedId === app.id
-                      ? "bg-[var(--sys-color-charcoalBackground-steps-3)] border-[var(--sys-color-inkGold-base)]/50 shadow-xl"
-                      : "bg-[var(--sys-color-charcoalBackground-steps-2)] border-[var(--sys-color-outline-variant)] hover:border-[var(--sys-color-worker-ash-base)]"
-                  }`}
                 >
-                  {selectedId === app.id && (
-                    <div className="absolute top-0 left-0 w-1 h-full bg-[var(--sys-color-inkGold-base)]" />
-                  )}
-                  
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 style={{ ...M3Type.labelMedium, color: 'var(--sys-color-paperWhite-base)' }} className="truncate max-w-[180px]">
-                      {app.company}
-                    </h4>
-                    <div className="flex items-center gap-1">
-                      <Target size={10} className="text-[var(--sys-color-inkGold-base)]" />
-                      <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-paperWhite-base)' }}>{app.atsScore}%</span>
+                  <Placard 
+                    className={cn(
+                      "p-5 border transition-all",
+                      selectedId === app.id
+                        ? "border-[var(--sys-color-inkGold-base)] shadow-2xl bg-[var(--sys-color-charcoalBackground-steps-3)] scale-[1.02]"
+                        : "border-[var(--sys-color-outline-variant)] hover:border-[var(--sys-color-worker-ash-base)]"
+                    )}
+                  >
+                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-[var(--sys-color-worker-ash-base)]">
+                      <GripVertical size={16} className="cursor-grab active:cursor-grabbing" />
                     </div>
-                  </div>
-                  
-                  <p style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="mb-4 line-clamp-1">{app.role}</p>
-                  
-                  <div className="flex items-center justify-between mt-auto">
-                    <div style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="flex items-center gap-2">
-                      <Calendar size={10} />
-                      {app.date}
+
+                    <div className="flex flex-col gap-4">
+                      <div className="flex justify-between items-start pr-6">
+                        <div>
+                          <h4 className="text-sm font-bold text-[var(--sys-color-paperWhite-base)] mb-1 group-hover:text-[var(--sys-color-inkGold-base)] transition-colors">
+                            {app.company}
+                          </h4>
+                          <p className="text-[11px] font-medium text-[var(--sys-color-worker-ash-base)] leading-tight">
+                            {app.role}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[var(--sys-color-charcoalBackground-steps-4)] border border-[var(--sys-color-outline-variant)]">
+                          <Target size={12} className="text-[var(--sys-color-inkGold-base)]" />
+                          <span className="text-[10px] font-bold font-mono text-[var(--sys-color-paperWhite-base)]">{app.atsScore}%</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[10px] font-medium text-[var(--sys-color-worker-ash-base)]">
+                          <MapPin size={12} />
+                          <span>{app.location}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-[var(--sys-color-outline-variant)]/50">
+                        <div className="flex items-center gap-2 text-[10px] font-mono text-[var(--sys-color-worker-ash-base)]">
+                          <Clock size={12} />
+                          <span>{app.date}</span>
+                        </div>
+                        <div className="flex -space-x-2">
+                          <div className="w-6 h-6 rounded-full bg-[var(--sys-color-solidarityRed-base)] border-2 border-[var(--sys-color-charcoalBackground-steps-2)] flex items-center justify-center text-[8px] font-bold text-white">
+                            {app.company.charAt(0)}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="w-6 h-6 rounded-full bg-[var(--sys-color-charcoalBackground-steps-4)] flex items-center justify-center text-[var(--sys-color-worker-ash-base)] group-hover:text-[var(--sys-color-paperWhite-base)] transition-colors">
-                      <ChevronRight size={14} />
-                    </div>
-                  </div>
-                </motion.button>
+                  </Placard>
+                </motion.div>
               ))}
             
-            {mockApplications.filter(app => app.status === column.id).length === 0 && (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center opacity-20">
-                <div className="w-12 h-12 border-2 border-dashed border-[var(--sys-color-worker-ash-base)] rounded-full mb-4" />
-                <p style={M3Type.labelMedium}>Empty column</p>
+            {apps.filter(app => app.status === column.id).length === 0 && (
+              <div className="flex-1 flex flex-col items-center justify-center p-12 text-center border-2 border-dashed border-[var(--sys-color-outline-variant)] rounded-[28px] opacity-20">
+                <Briefcase size={32} className="mb-4 text-[var(--sys-color-worker-ash-base)]" />
+                <p className="uppercase tracking-[0.2em] text-[10px] font-bold text-[var(--sys-color-worker-ash-base)]">No items</p>
               </div>
             )}
-          </div>
+          </ScaffoldArea>
         </div>
       ))}
     </div>
@@ -170,162 +225,135 @@ export function KanbanTracker({ onSelectApp, selectedId }: { onSelectApp: (id: s
 
 export function ApplicationDetailWorkspace({ app }: { app: Application }) {
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-12">
-        <div>
-          <h1 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }} className="mb-2">
+    <div className="max-w-4xl mx-auto space-y-12">
+      <header className="flex flex-col md:flex-row justify-between items-start gap-8">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <StatusBadge variant={app.status === 'offered' ? 'success' : app.status === 'archived' ? 'default' : 'warning'}>
+              {app.status}
+            </StatusBadge>
+            <span className="text-[10px] font-mono text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">Applied {app.date}</span>
+          </div>
+          <h1 className="text-5xl font-bold text-[var(--sys-color-paperWhite-base)] tracking-tight">
             {app.role}
           </h1>
-          <p style={{ ...M3Type.titleLarge, color: 'var(--sys-color-inkGold-base)' }}>
-            {app.company} • {app.location}
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <div style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>
-            {app.atsScore}<span style={{ ...M3Type.titleMedium, color: 'var(--sys-color-worker-ash-base)' }}>/100</span>
+          <div className="flex items-center gap-4 text-xl font-bold text-[var(--sys-color-inkGold-base)]">
+            <Briefcase size={24} />
+            <span>{app.company}</span>
+            <span className="text-[var(--sys-color-worker-ash-base)] opacity-30">•</span>
+            <MapPin size={24} />
+            <span>{app.location}</span>
           </div>
-          <p style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }}>ATS match score</p>
         </div>
-      </div>
+        
+        <Placard className="p-6 flex flex-col items-center justify-center min-w-[140px]">
+          <span className="text-4xl font-bold text-[var(--sys-color-paperWhite-base)]">{app.atsScore}</span>
+          <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest mt-1">ATS Score</span>
+        </Placard>
+      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        <M3Card variant="outlined" className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 style={{ ...M3Type.titleSmall, color: 'var(--sys-color-worker-ash-base)' }}>Application status</h3>
-            {app.status === 'interviewing' && (
-              <M3Button variant="text" className="h-6 px-2 min-w-0">
-                Update
-              </M3Button>
-            )}
-          </div>
-          <div className="flex items-center gap-4">
-            <div className={`w-3 h-3 rounded-full ${
-              app.status === "offered" ? "bg-[var(--sys-color-signalGreen-base)]" :
-              app.status === "rejected" ? "bg-[var(--sys-color-solidarityRed-base)]" :
-              "bg-[var(--sys-color-inkGold-base)]"
-            }`} />
-            <span style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="capitalize">{app.status}</span>
-          </div>
-        </M3Card>
-        <M3Card variant="outlined" className="p-6">
-          <h3 style={{ ...M3Type.titleSmall, color: 'var(--sys-color-worker-ash-base)' }} className="mb-4">Submitted on</h3>
-          <p style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }}>{app.date}</p>
-        </M3Card>
-        <M3Card variant="outlined" className="p-6">
-          <h3 style={{ ...M3Type.titleSmall, color: 'var(--sys-color-worker-ash-base)' }} className="mb-4">Interview stages</h3>
-          <p style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }}>{app.interviewStages?.length || 0}</p>
-        </M3Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <MetricCard label="Resume Version" value={app.resumeVersion} icon={<FileText size={18} />} />
+        <MetricCard label="Cover Letter" value={app.coverLetterId} icon={<Mail size={18} />} />
+        <MetricCard label="Interview Stages" value={String(app.interviewStages?.length || 0)} icon={<History size={18} />} />
       </div>
 
       {app.outcome && (
-        <div className="mb-12 p-6 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] rounded-[28px]">
-          <h3 style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)', letterSpacing: '0.2em', textTransform: 'uppercase' }} className="mb-4">Final Outcome</h3>
-          <p style={{ ...M3Type.titleLarge, color: app.status === 'offered' ? 'var(--sys-color-signalGreen-base)' : 'var(--sys-color-solidarityRed-base)' }}>
-            {app.outcome}
+        <Placard className="p-8 border-l-8 border-[var(--sys-color-solidarityRed-base)] bg-[var(--sys-color-solidarityRed-base)]/5">
+          <h3 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest mb-4">Final Outcome</h3>
+          <p className="text-2xl font-bold text-[var(--sys-color-paperWhite-base)] leading-relaxed italic">
+            "{app.outcome}"
           </p>
-        </div>
+        </Placard>
       )}
 
-      <div className="space-y-12">
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="border-l-4 border-[var(--sys-color-inkGold-base)] pl-4">Interview Stages</h3>
-            <M3Button variant="tonal" className="h-9">
-              <Plus size={16} className="mr-2" />
-              Log Stage
-            </M3Button>
-          </div>
-          <div className="space-y-4">
-            {app.interviewStages && app.interviewStages.length > 0 ? (
-              app.interviewStages.map((stage) => (
-                <M3Card key={stage.id} variant="outlined" className="p-6 bg-[var(--sys-color-charcoalBackground-steps-2)]">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h4 style={{ ...M3Type.titleMedium, color: 'var(--sys-color-paperWhite-base)' }}>{stage.type}</h4>
-                      <p style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }}>{stage.date}</p>
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">Interview Pipeline</h3>
+          <M3Button variant="tonal" className="h-10">
+            <Plus size={18} className="mr-2" />
+            Log Stage
+          </M3Button>
+        </div>
+        
+        <div className="space-y-4">
+          {app.interviewStages && app.interviewStages.length > 0 ? (
+            app.interviewStages.map((stage) => (
+              <Valve key={stage.id} className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-4">
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center",
+                      stage.status === 'passed' ? "bg-[var(--sys-color-signalGreen-base)]/10 text-[var(--sys-color-signalGreen-base)]" :
+                      stage.status === 'failed' ? "bg-[var(--sys-color-solidarityRed-base)]/10 text-[var(--sys-color-solidarityRed-base)]" :
+                      "bg-[var(--sys-color-charcoalBackground-steps-4)] text-[var(--sys-color-worker-ash-base)]"
+                    )}>
+                      {stage.status === 'passed' ? <CheckCircle2 size={20} /> : <Clock size={20} />}
                     </div>
-                    <Badge variant={
-                      stage.status === 'passed' ? 'success' : 
-                      stage.status === 'failed' ? 'error' : 
-                      stage.status === 'completed' ? 'info' : 'warning'
-                    }>
-                      {stage.status}
-                    </Badge>
+                    <div>
+                      <h4 className="text-lg font-bold text-[var(--sys-color-paperWhite-base)]">{stage.type}</h4>
+                      <p className="text-[10px] font-mono text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">{stage.date}</p>
+                    </div>
                   </div>
-                  <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>{stage.notes}</p>
-                </M3Card>
-              ))
-            ) : (
-              <div className="p-12 text-center border-2 border-dashed border-[var(--sys-color-outline-variant)] rounded-[28px] opacity-40">
-                <p style={M3Type.bodyLarge}>No interview stages logged yet.</p>
-              </div>
-            )}
-          </div>
-        </section>
+                  <StatusBadge variant={
+                    stage.status === 'passed' ? 'success' : 
+                    stage.status === 'failed' ? 'error' : 'default'
+                  }>
+                    {stage.status}
+                  </StatusBadge>
+                </div>
+                <p className="text-sm text-[var(--sys-color-worker-ash-base)] leading-relaxed font-medium pl-14">
+                  {stage.notes}
+                </p>
+              </Valve>
+            ))
+          ) : (
+            <div className="p-16 text-center border-2 border-dashed border-[var(--sys-color-outline-variant)] rounded-[32px] opacity-30">
+              <History size={48} className="mx-auto mb-4 text-[var(--sys-color-worker-ash-base)]" />
+              <p className="text-lg font-bold text-[var(--sys-color-paperWhite-base)]">No interview stages logged yet.</p>
+              <p className="text-sm text-[var(--sys-color-worker-ash-base)] mt-2">Track your progress as you move through the hiring process.</p>
+            </div>
+          )}
+        </div>
+      </section>
 
-        <section>
-          <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-6 border-l-4 border-[var(--sys-color-solidarityRed-base)] pl-4">Source documents</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <AssetCard 
-              icon={<FileText size={24} />} 
-              label="Resume version" 
-              value={app.resumeVersion} 
-              action="View version"
-            />
-            <AssetCard 
-              icon={<Mail size={24} />} 
-              label="Cover letter" 
-              value={app.coverLetterId} 
-              action="View draft"
-            />
-          </div>
-        </section>
-
-        <section>
-          <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-6 border-l-4 border-[var(--sys-color-metalBlue-base)] pl-4">Application timeline</h3>
-          <div className="space-y-4">
-            {app.interviewStages?.map(stage => (
-              <TimelineItem key={stage.id} date={stage.date} event={stage.type} desc={stage.notes} />
-            ))}
-            <TimelineItem date={app.date} event="Application submitted" desc="Tailored via CareerCopilot" />
-          </div>
-        </section>
-      </div>
+      <section className="space-y-6">
+        <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">Application Timeline</h3>
+        <div className="space-y-0 pl-4 border-l-2 border-[var(--sys-color-outline-variant)]">
+          {app.interviewStages?.map(stage => (
+            <TimelineRow key={stage.id} date={stage.date} event={stage.type} desc={stage.notes} />
+          ))}
+          <TimelineRow date={app.date} event="Application submitted" desc="Tailored via CareerCopilot" isLast />
+        </div>
+      </section>
     </div>
   );
 }
 
-function AssetCard({ icon, label, value, action }: any) {
+function MetricCard({ label, value, icon }: { label: string, value: string, icon: React.ReactNode }) {
   return (
-    <M3Card variant="outlined" className="p-6 flex flex-col gap-4 hover:bg-[var(--sys-color-charcoalBackground-steps-3)] transition-all cursor-pointer group">
-      <div className="flex items-center justify-between">
-        <div className="text-[var(--sys-color-inkGold-base)]">{icon}</div>
-        <ExternalLink size={16} className="text-[var(--sys-color-worker-ash-base)] group-hover:text-[var(--sys-color-paperWhite-base)] transition-colors" />
+    <Placard className="p-6 flex items-center gap-4">
+      <div className="w-12 h-12 rounded-2xl bg-[var(--sys-color-charcoalBackground-steps-3)] flex items-center justify-center text-[var(--sys-color-inkGold-base)] border border-[var(--sys-color-outline-variant)]">
+        {icon}
       </div>
       <div>
-        <h4 style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="mb-1">{label}</h4>
-        <p style={{ ...M3Type.titleSmall, color: 'var(--sys-color-paperWhite-base)' }} className="truncate">{value}</p>
+        <h4 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest mb-1">{label}</h4>
+        <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)]">{value}</p>
       </div>
-      <div className="pt-2 border-t border-[var(--sys-color-outline-variant)]">
-        <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-solidarityRed-base)' }}>{action}</span>
-      </div>
-    </M3Card>
+    </Placard>
   );
 }
 
-function TimelineItem({ date, event, desc }: any) {
+function TimelineRow({ date, event, desc, isLast }: { date: string, event: string, desc: string, isLast?: boolean, key?: string | number }) {
   return (
-    <div className="flex gap-6">
-      <div className="flex flex-col items-center">
-        <div className="w-3 h-3 rounded-full bg-[var(--sys-color-solidarityRed-base)]" />
-        <div className="w-0.5 h-full bg-[var(--sys-color-outline-variant)] opacity-30" />
-      </div>
-      <div className="pb-6">
-        <div className="flex items-center gap-3 mb-1">
-          <span style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }}>{date}</span>
-          <span style={{ ...M3Type.titleSmall, color: 'var(--sys-color-paperWhite-base)' }}>{event}</span>
+    <div className="relative pl-8 pb-10">
+      <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-[var(--sys-color-solidarityRed-base)] border-4 border-[var(--sys-color-charcoalBackground-base)]" />
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-mono text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">{date}</span>
+          <span className="text-sm font-bold text-[var(--sys-color-paperWhite-base)]">{event}</span>
         </div>
-        <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>{desc}</p>
+        <p className="text-xs text-[var(--sys-color-worker-ash-base)] font-medium leading-relaxed">{desc}</p>
       </div>
     </div>
   );

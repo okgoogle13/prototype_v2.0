@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { AppShell } from './src/components/layout/AppShell';
 import { ApplyQuickWorkspaceReference } from './src/pages/ApplyQuickWorkspaceReference';
 import { ProfileView } from './src/pages/ProfileView';
+import { SettingsView } from './src/pages/SettingsView';
 import { PastApplicationsReference } from './src/pages/PastApplicationsReference';
 import { LibraryReferencePage } from './src/pages/LibraryReferencePage';
 import { OptimisePage } from './src/pages/ImageStudioPage';
@@ -135,7 +136,7 @@ const App: React.FC = () => {
       {activeTab === 'APPLICATIONS' && <PastApplicationsReference user={user} />}
       {activeTab === 'SUBMITTED_DOCS' && <LibraryReferencePage user={user} />}
       {activeTab === 'PROFILE' && <ProfileView user={user} />}
-      {activeTab === 'SETTINGS' && <div className="p-8 text-center text-[var(--sys-color-worker-ash-base)]">Settings (Coming Soon)</div>}
+      {activeTab === 'SETTINGS' && <SettingsView user={user} />}
     </AppShell>
   );
 };
