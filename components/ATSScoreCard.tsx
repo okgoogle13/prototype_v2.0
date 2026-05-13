@@ -53,38 +53,71 @@ export function ATSScoreCard({ score, isCalculating, documentType }: ATSScoreCar
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.3 }}
+          className="space-y-6"
         >
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            {Object.entries(score.breakdown).map(([key, value]) => (
-              <div key={key} className="p-3 shadow-sm" style={{ background: 'color-mix(in srgb, var(--sys-color-charcoalBackground-base) 85%, transparent)', borderColor: 'var(--sys-color-concreteGrey-steps-0)', borderRadius: 'var(--sys-shape-blockRiot02)', borderWidth: 1, borderStyle: 'solid' }}>
-                <div style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="uppercase tracking-wider mb-1">{key.replace(/([A-Z])/g, ' $1')}</div>
-                <div style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }} className="font-bold">{value}%</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {Object.entries(score.breakdown)
+              .filter(([_, value]) => value !== undefined)
+              .map(([key, value]) => (
+              <div 
+                key={key} 
+                className="p-4 rounded-2xl border transition-all hover:bg-white/5" 
+                style={{ 
+                  background: 'var(--sys-color-charcoalBackground-steps-2)', 
+                  borderColor: 'var(--sys-color-outline-variant)',
+                  borderWidth: 1 
+                }}
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <span style={{ ...M3Type.labelSmall, color: 'var(--sys-color-worker-ash-base)' }} className="uppercase font-bold tracking-widest text-[10px]">
+                    {key.replace(/([A-Z])/g, ' $1').trim().replace(/^\w/, c => c.toUpperCase())}
+                  </span>
+                  <span style={{ ...M3Type.labelLarge, color: 'var(--sys-color-paperWhite-base)' }} className="font-black">
+                    {value}%
+                  </span>
+                </div>
+                <div className="w-full h-1 rounded-full overflow-hidden bg-black/20">
+                   <motion.div 
+                     initial={{ width: 0 }}
+                     animate={{ width: `${value}%` }}
+                     transition={{ duration: 1, ease: "easeOut" }}
+                     className="h-full rounded-full" 
+                     style={{ background: getScoreBg(Number(value)) }} 
+                   />
+                </div>
               </div>
             ))}
           </div>
-          <div className="text-center mb-6">
-            <span style={M3Type.headlineSmall} className={`text-6xl font-black ${getScoreColor(score.overallScore)}`}>
-              {score.overallScore}%
-            </span>
-            <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }} className="mt-2">
-              This score is equivalent to industry-standard ATS compliance scanners. It is not an arbitrary calculation.
-            </p>
-          </div>
-          <div className="relative w-32 h-32 mx-auto">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="var(--sys-color-charcoalBackground-steps-2)" strokeWidth="8" />
-              <circle 
-                cx="50" cy="50" r="45" fill="none" 
-                className={`transition-all duration-1000 ease-out`}
-                style={{ stroke: getScoreBg(score.overallScore) }}
-                strokeWidth="8" 
-                strokeDasharray={`${score.overallScore * 2.827} 282.7`} 
-              />
-            </svg>
-            <div className={`absolute inset-0 flex items-center justify-center`}>
-              <span style={M3Type.headlineSmall} className={`text-3xl font-bold ${getScoreColor(score.overallScore)}`}>
-                {score.overallScore}
+          
+          <div className="py-8 flex flex-col items-center justify-center relative">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-40 h-40 rounded-full blur-3xl opacity-20" style={{ background: getScoreBg(score.overallScore) }} />
+            </div>
+            <div className="relative w-32 h-32 mx-auto">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="var(--sys-color-charcoalBackground-steps-2)" strokeWidth="8" />
+                <circle 
+                  cx="50" cy="50" r="45" fill="none" 
+                  className={`transition-all duration-1000 ease-out`}
+                  style={{ stroke: getScoreBg(score.overallScore) }}
+                  strokeWidth="8" 
+                  strokeDasharray={`${score.overallScore * 2.827} 282.7`} 
+                />
+              </svg>
+              <div className={`absolute inset-0 flex items-center justify-center`}>
+                <span style={M3Type.headlineSmall} className={`text-3xl font-bold ${getScoreColor(score.overallScore)}`}>
+                  {score.overallScore}
+                </span>
+              </div>
+            </div>
+            
+            <div className="text-center mt-6">
+              <span style={M3Type.headlineSmall} className={`text-5xl font-black ${getScoreColor(score.overallScore)}`}>
+                {score.overallScore}%
               </span>
+              <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }} className="mt-2 max-w-[280px] mx-auto text-xs leading-relaxed uppercase tracking-tighter opacity-60">
+                Industry-standard ATS compliance scanner equivalent output
+              </p>
             </div>
           </div>
 

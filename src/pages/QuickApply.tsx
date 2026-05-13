@@ -43,8 +43,8 @@ export const QuickApply: React.FC<QuickApplyProps> = ({ onAnalyze, onGoToDashboa
   };
 
   const jobListContent = (
-    <div className="flex flex-col gap-4 overflow-y-auto h-full pr-2">
-      <h2 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)', marginBottom: '8px' }}>Saved opportunities</h2>
+    <div className="flex flex-col gap-3 overflow-y-auto h-full pr-2">
+      <h2 style={{ ...M3Type.labelLarge, color: 'var(--sys-color-worker-ash-base)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Recent activity</h2>
       {MOCK_JOBS.map(job => {
         const isActive = job.id === activeJobId;
         const isHovered = job.id === hoveredJobId;
@@ -55,14 +55,14 @@ export const QuickApply: React.FC<QuickApplyProps> = ({ onAnalyze, onGoToDashboa
             onClick={() => setActiveJobId(job.id)}
             onMouseEnter={() => setHoveredJobId(job.id)}
             onMouseLeave={() => setHoveredJobId(null)}
-            className="cursor-pointer transition-all"
+            className="cursor-pointer transition-all p-4"
             style={{
-              borderLeft: isActive ? '3px solid #00BCD4' : '3px solid transparent',
+              borderLeft: isActive ? '3px solid var(--sys-color-solidarityRed-base)' : '3px solid transparent',
+              background: isActive ? 'var(--sys-color-charcoalBackground-steps-2)' : undefined
             }}
           >
-            <h3 style={{ ...M3Type.titleMedium, color: 'var(--sys-color-paperWhite-base)' }}>{job.title}</h3>
-            <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>{job.company}</p>
-            <p style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)', opacity: 0.7, marginTop: '4px' }}>{job.location}</p>
+            <h3 style={{ ...M3Type.titleSmall, color: 'var(--sys-color-paperWhite-base)' }} className="truncate">{job.title}</h3>
+            <p style={{ ...M3Type.labelSmall, color: 'var(--sys-color-worker-ash-base)' }} className="truncate">{job.company}</p>
           </M3Card>
         );
       })}
@@ -70,22 +70,8 @@ export const QuickApply: React.FC<QuickApplyProps> = ({ onAnalyze, onGoToDashboa
   );
 
   const quickApplyContent = (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full max-w-2xl">
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-8"
-      >
-        <h1 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)', marginBottom: '16px' }}>
-          Quick apply
-        </h1>
-        <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>
-          Drop in a job URL and we'll prep your full application in seconds.
-        </p>
-      </motion.div>
-
-      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.2 }}
@@ -97,45 +83,48 @@ export const QuickApply: React.FC<QuickApplyProps> = ({ onAnalyze, onGoToDashboa
         />
       </motion.div>
       
-      <div className="mt-8 text-center">
+      <div className="mt-8 text-center flex items-center justify-center gap-6">
+        <div className="h-px bg-[var(--sys-color-outline-variant)] flex-1 hidden md:block" />
         <M3Button 
           variant="text"
           onClick={() => {
             setHasSetJobTarget(true);
             if (onGoToDashboard) onGoToDashboard();
           }}
+          style={{ opacity: 0.6 }}
         >
-          Go to dashboard →
+          Skip to dashboard →
         </M3Button>
+        <div className="h-px bg-[var(--sys-color-outline-variant)] flex-1 hidden md:block" />
       </div>
     </div>
   );
 
   return (
     <div 
-      className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden"
+      className="min-h-screen flex flex-col p-4 md:p-8 lg:p-12 relative overflow-hidden"
       style={{ background: 'var(--sys-color-charcoalBackground-base)' }}
     >
       {/* Grit Particle Overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-5 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
       
-      <div className="w-full max-w-7xl mx-auto relative z-10 flex-1 flex flex-col">
+      <div className="w-full max-w-7xl mx-auto relative z-10 flex-1 flex flex-col justify-center">
         {isDesktop ? (
-          <div className="flex flex-row gap-8 h-full flex-1">
-            <div className="w-[40%] h-full">
+          <div className="flex flex-row gap-12 h-full max-h-[700px] items-center">
+            <div className="w-80 h-full flex flex-col border-r border-[var(--sys-color-outline-variant)] pr-8 py-8">
               {jobListContent}
             </div>
-            <div className="w-[60%] h-full flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center p-8">
               {quickApplyContent}
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-8 h-full">
+          <div className="flex flex-col gap-12 w-full max-w-lg mx-auto">
+            <div className="w-full">
+              {quickApplyContent}
+            </div>
             <div className="w-full">
               {jobListContent}
-            </div>
-            <div className="w-full flex items-center justify-center">
-              {quickApplyContent}
             </div>
           </div>
         )}
@@ -143,3 +132,4 @@ export const QuickApply: React.FC<QuickApplyProps> = ({ onAnalyze, onGoToDashboa
     </div>
   );
 };
+

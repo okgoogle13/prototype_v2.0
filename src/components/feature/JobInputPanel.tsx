@@ -47,37 +47,41 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
       animate={{ opacity: 1, y: 0, rotate: 0 }}
       transition={{ type: "spring", stiffness: 200, damping: 20 }}
     >
-      <M3Card variant="elevated" className="p-10 relative overflow-hidden">
+      <M3Card variant="elevated" className="p-8 relative overflow-hidden shadow-2xl">
         {/* Wheat-paste noise background */}
-        <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('https://www.transparenttextures.com/patterns/wall-4-light.png')]" />
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/white-diamond.png')]" />
         
         <div className="relative z-10">
         {isAnalyzing ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-6">
+          <div className="flex flex-col items-center justify-center py-16 gap-8">
             <StatusSpecificLoadingState />
             <div className="text-center">
-              <p style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="animate-pulse">
-                Analyzing job...
+              <p style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }} className="tracking-tight mb-2">
+                Assembling Your Workspace
               </p>
-              <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }} className="opacity-60">
-                Tailoring your application workspace...
+              <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }} className="opacity-60 max-w-xs mx-auto">
+                Running asymmetric pre-processing on the requirements...
               </p>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-6">
-            <SectionHeader 
-              title="Apply now" 
-              subtitle="Drop in a job URL and we'll prep your full application in seconds."
-            />
-            <div className="flex flex-col gap-4">
-              <TextInput 
-                label="Paste job posting URL" 
-                placeholder="https://linkedin.com/jobs/..." 
-                value={jobUrl}
-                onChange={(e) => setJobUrl(e.target.value)}
-                onBlur={handleUrlBlur}
-              />
+          <div className="flex flex-col gap-8">
+            <div>
+              <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)', marginBottom: '8px' }}>Launch Application</h2>
+              <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-worker-ash-base)' }}>Paste a job URL to automatically prep your resume and cover letter.</p>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              <div className="group relative">
+                <TextInput 
+                  label="Job Listing URL" 
+                  placeholder="https://linkedin.com/jobs/..." 
+                  value={jobUrl}
+                  onChange={(e) => setJobUrl(e.target.value)}
+                  onBlur={handleUrlBlur}
+                />
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-[var(--sys-color-solidarityRed-base)] to-[var(--sys-color-inkGold-base)] rounded-xl blur opacity-0 group-hover:opacity-10 transition duration-1000 group-focus-within:opacity-20 pointer-events-none" />
+              </div>
               
               {isExtracting && (
                 <div style={{ ...M3Type.labelMedium, color: 'var(--sys-color-worker-ash-base)' }} className="animate-pulse mt-2">
@@ -162,31 +166,27 @@ export function JobInputPanel({ onAnalyze, isAnalyzing }: Props) {
                 )}
               </AnimatePresence>
 
-              {!isInstalled && (
-                <div className="bg-[var(--sys-color-protestMetalBlue-steps-0)] border border-[var(--sys-color-protestMetalBlue-steps-1)] p-4 rounded-[var(--sys-shape-radius-lg)] flex items-center justify-between mt-4">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-6 h-6 text-[var(--sys-color-protestMetalBlue-steps-4)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    <div>
-                      <h4 style={{ ...M3Type.titleMedium, color: 'var(--sys-color-protestMetalBlue-steps-5)' }}>Apply faster</h4>
-                      <p style={{ ...M3Type.bodyMedium, color: 'var(--sys-color-protestMetalBlue-steps-4)' }} className="opacity-80">Import directly from job boards.</p>
-                    </div>
-                  </div>
-                  <M3Button variant="outlined" onClick={() => {}}>Install extension</M3Button>
-                </div>
-              )}
-              
               <div className="flex justify-end mt-4">
-                <motion.div whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-                  <M3Button variant="filled" onClick={handleAnalyze}>Start my application</M3Button>
+                <motion.div whileHover={(!jobUrl && !rawText) ? {} : { y: -2 }}>
+                  <M3Button 
+                    variant="filled" 
+                    onClick={handleAnalyze} 
+                    disabled={!jobUrl && !rawText}
+                    style={{ 
+                      minWidth: '240px', 
+                      height: '56px',
+                      opacity: (!jobUrl && !rawText) ? 0.4 : 1 
+                    }}
+                  >
+                    {!jobUrl && !rawText ? 'Enter Job Details' : 'Start My Application'}
+                  </M3Button>
                 </motion.div>
               </div>
             </div>
           </div>
         )}
       </div>
-      </M3Card>
+    </M3Card>
     </motion.div>
   );
 }

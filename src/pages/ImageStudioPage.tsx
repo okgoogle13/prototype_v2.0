@@ -25,11 +25,15 @@ import {
   AlertTriangle,
   Check,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  ClipboardPaste
 } from "lucide-react";
 import { useUserStore } from "../hooks/useUserStore";
 import { Placard, StatusBadge, Valve, ScaffoldInput } from "../components/ui/Primitives";
 import { cn } from "../lib/utils";
+import { ATSScorer } from "../../services/atsScorer";
+import { ATSScoreResult } from "../../types";
+import { ATSScoreCard } from "../../components/ATSScoreCard";
 
 import { User } from 'firebase/auth';
 
@@ -43,7 +47,9 @@ export function OptimisePage({ user }: Props) {
   const [isScanned, setIsScanned] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
+  const [resumeText, setResumeText] = useState("");
   const [selectedResume, setSelectedResume] = useState("Software Engineer Resume");
+  const [scanResult, setScanResult] = useState<ATSScoreResult | null>(null);
 
   useEffect(() => {
     if (pendingJobUrl && !jobDescription) {
@@ -52,7 +58,7 @@ export function OptimisePage({ user }: Props) {
   }, [pendingJobUrl]);
 
   const handleScan = async () => {
-    if (!jobDescription) return;
+    if (!jobDescription || !resumeText) return;
     
     setIsAnalyzing(true);
     const isGov = jobDescription.toLowerCase().includes("government") || 
@@ -62,12 +68,17 @@ export function OptimisePage({ user }: Props) {
     setIsGovernmentJob(isGov);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const scorer = new ATSScorer();
+      const result = scorer.calculateScore(resumeText, jobDescription, 'resume') as ATSScoreResult;
+      
+      // Simulate network delay for "realism" and UI feedback
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setScanResult(result);
       setIsScanned(true);
       setPendingJobUrl(null);
     } catch (error) {
       console.error("Analysis failed:", error);
-      setIsScanned(true);
     } finally {
       setIsAnalyzing(false);
     }
@@ -132,22 +143,23 @@ export function OptimisePage({ user }: Props) {
               <div className="w-full md:w-[400px] flex-shrink-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] flex flex-col gap-6 overflow-y-auto rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none md:rounded-br-none border-r border-[var(--sys-color-outline-variant)]">
                 <div>
                   <h2 className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-4">Your resume</h2>
-                  <select 
-                    value={selectedResume}
-                    onChange={(e) => setSelectedResume(e.target.value)}
-                    className="w-full p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-xl focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors mb-4 text-sm font-bold"
-                  >
-                    <option>Software engineer resume</option>
-                    <option>Full stack resume</option>
-                    <option>Current profile resume</option>
-                  </select>
-
-                  <div className="p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-xl border border-[var(--sys-color-outline-variant)]">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-[var(--sys-color-solidarityRed-base)] flex items-center justify-center text-white font-bold">AJ</div>
-                      <div>
-                        <p className="text-sm font-bold text-[var(--sys-color-paperWhite-base)]">Alex Johnson</p>
-                        <p className="text-[10px] text-[var(--sys-color-worker-ash-base)] font-bold">Senior frontend engineer</p>
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <textarea
+                        value={resumeText}
+                        onChange={(e) => setResumeText(e.target.value)}
+                        placeholder="Paste your full resume text here..."
+                        className="w-full h-48 p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-xl focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors text-xs font-medium leading-relaxed resize-none"
+                      />
+                      <div className="absolute top-3 right-3 opacity-30 hover:opacity-100 transition-opacity">
+                        <ClipboardPaste size={16} className="text-[var(--sys-color-worker-ash-base)]" />
+                      </div>
+                    </div>
+                    
+                    <div className="p-3 bg-[var(--sys-color-charcoalBackground-steps-3)] rounded-xl border border-[var(--sys-color-outline-variant)] flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-[var(--sys-color-solidarityRed-base)] flex items-center justify-center text-white text-[10px] font-bold">PDF</div>
+                        <span className="text-[10px] font-bold text-[var(--sys-color-paperWhite-base)]">Upload file coming soon</span>
                       </div>
                     </div>
                   </div>
@@ -160,14 +172,14 @@ export function OptimisePage({ user }: Props) {
                   <textarea
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
-                    placeholder="Paste job description here or load from Workspace..."
-                    className="flex-1 w-full p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-xl focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors resize-none mb-6 min-h-[200px] text-sm font-medium leading-relaxed"
+                    placeholder="Paste job description here..."
+                    className="flex-1 w-full p-4 bg-[var(--sys-color-charcoalBackground-steps-3)] border border-[var(--sys-color-outline-variant)] text-[var(--sys-color-paperWhite-base)] rounded-xl focus:outline-none focus:border-[var(--sys-color-inkGold-base)] transition-colors resize-none mb-6 min-h-[150px] text-sm font-medium leading-relaxed"
                   />
                   
                   <M3Button 
                     variant="filled"
                     onClick={handleScan}
-                    disabled={isAnalyzing || !jobDescription}
+                    disabled={isAnalyzing || !jobDescription || !resumeText}
                     className="h-14"
                   >
                     {isAnalyzing ? (
@@ -199,9 +211,9 @@ export function OptimisePage({ user }: Props) {
                       <div className="w-24 h-24 bg-[var(--sys-color-charcoalBackground-steps-2)] rounded-[32px] border-2 border-dashed border-[var(--sys-color-outline-variant)] flex items-center justify-center mb-8">
                         <Search size={40} className="text-[var(--sys-color-worker-ash-base)] opacity-20" />
                       </div>
-                      <h3 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] mb-4 tracking-tight">Run a scan to see your match score</h3>
+                      <h3 className="text-3xl font-bold text-[var(--sys-color-paperWhite-base)] mb-4 tracking-tight">Run a real scan to see your match score</h3>
                       <p className="text-sm text-[var(--sys-color-worker-ash-base)] mb-12 max-w-md mx-auto">
-                        Our asymmetric pre-processor will analyze your resume against the job requirements to identify critical gaps.
+                        Paste your resume and the job description on the left. Our asymmetric pre-processor will analyze them and identify critical gaps.
                       </p>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
@@ -229,112 +241,93 @@ export function OptimisePage({ user }: Props) {
                       animate={{ opacity: 1, x: 0 }}
                       className="space-y-12 max-w-5xl mx-auto w-full"
                     >
-                      <Placard className="p-8 flex flex-col md:flex-row items-center gap-12">
-                        <div className="relative w-[160px] h-[160px]">
-                          <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                            <circle 
-                              cx="50" cy="50" r="45" 
-                              fill="none" 
-                              stroke="var(--sys-color-outline-variant)" 
-                              strokeWidth="6" 
-                            />
-                            <circle 
-                              cx="50" cy="50" r="45" 
-                              fill="none" 
-                              stroke="var(--sys-color-signalGreen-base)" 
-                              strokeWidth="6" 
-                              strokeDasharray="282.7"
-                              strokeDashoffset={282.7 * (1 - 0.73)}
-                              strokeLinecap="round"
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-5xl font-bold text-[var(--sys-color-paperWhite-base)]">73</span>
-                            <span className="text-[10px] font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-widest">Match</span>
-                          </div>
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div className="lg:col-span-5">
+                          <ATSScoreCard 
+                             score={scanResult} 
+                             isCalculating={isAnalyzing} 
+                             documentType="resume" 
+                          />
                         </div>
-                        <div className="flex-1 text-center md:text-left">
-                          <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-                            <StatusBadge variant="success">Good Match</StatusBadge>
-                            <StatusBadge variant="default">ATS Friendly</StatusBadge>
-                          </div>
-                          <h2 className="text-4xl font-bold text-[var(--sys-color-paperWhite-base)] mb-4">You're close, Alex.</h2>
-                          <p className="text-sm text-[var(--sys-color-worker-ash-base)] leading-relaxed max-w-md">
-                            Your profile matches 73% of the core requirements. Adding 3 specific keywords and quantifying your impact could push you over 90%.
-                          </p>
+
+                        <div className="lg:col-span-7 space-y-6">
+                           <Placard className="p-6">
+                              <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <Search size={16} className="text-[var(--sys-color-inkGold-base)]" />
+                                Analysis Summary
+                              </h3>
+                              <p className="text-lg font-bold text-[var(--sys-color-paperWhite-base)] mb-4">
+                                {scanResult && scanResult.overallScore >= 80 
+                                  ? "Excellent alignment. Your document is highly optimized for this role." 
+                                  : scanResult && scanResult.overallScore >= 60 
+                                  ? "Good base match. A few targeted improvements will significantly boost your chances."
+                                  : "Low alignment detected. Significant revisions are required to pass automated filters."}
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                <StatusBadge variant={scanResult && scanResult.overallScore >= 70 ? "success" : "warning"}>
+                                  {scanResult && scanResult.overallScore >= 70 ? "ATS Optimized" : "Needs Work"}
+                                </StatusBadge>
+                                <StatusBadge variant="default">Resume Analysis</StatusBadge>
+                              </div>
+                           </Placard>
+
+                           <div className="grid grid-cols-2 gap-4">
+                             <AnalysisMetric title="Keywords" score={scanResult?.breakdown.keywordMatch || 0} icon={<Search size={14} />} />
+                             <AnalysisMetric title="Skills" score={scanResult?.breakdown.skillsAlignment || 0} icon={<Zap size={14} />} />
+                           </div>
                         </div>
-                        <div className="flex flex-col gap-2 w-full md:w-auto">
-                          <M3Button variant="filled">Apply Fixes</M3Button>
-                          <M3Button variant="outlined">Download PDF</M3Button>
-                        </div>
-                      </Placard>
+                      </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <section className="space-y-4">
-                          <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Gap Analysis</h3>
+                          <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Missing Keywords</h3>
                           <div className="space-y-3">
-                            <GapItem 
-                              title="Missing Hard Skill: React Testing Library" 
-                              desc="The job description explicitly mentions RTL for unit testing."
-                              severity="high"
-                            />
-                            <GapItem 
-                              title="Quantifiable Metrics" 
-                              desc="Your Senior Frontend role lacks percentage-based impact metrics."
-                              severity="medium"
-                            />
-                            <GapItem 
-                              title="Missing Keyword: GraphQL" 
-                              desc="GraphQL is listed as a preferred skill."
-                              severity="low"
-                            />
+                            {scanResult?.missingKeywords.slice(0, 5).map((kw, idx) => (
+                              <GapItem 
+                                key={idx}
+                                title={`Missing keyword: ${kw}`} 
+                                desc="This term was found in the job description but not in your resume."
+                                severity={idx < 2 ? "high" : "medium"}
+                              />
+                            ))}
+                            {scanResult?.missingKeywords.length === 0 && (
+                              <p className="text-xs text-[var(--sys-color-worker-ash-base)]">No missing keywords found! Great job.</p>
+                            )}
                           </div>
                         </section>
 
                         <section className="space-y-4">
-                          <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Keyword Cloud</h3>
+                          <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Found Keywords</h3>
                           <Placard className="p-6">
                             <div className="flex flex-wrap gap-2">
-                              <KeywordTag label="React" status="found" />
-                              <KeywordTag label="TypeScript" status="found" />
-                              <KeywordTag label="Node.js" status="found" />
-                              <KeywordTag label="AWS" status="found" />
-                              <KeywordTag label="Tailwind" status="found" />
-                              <KeywordTag label="GraphQL" status="missing" />
-                              <KeywordTag label="Agile" status="missing" />
-                              <KeywordTag label="Leadership" status="missing" />
-                              <KeywordTag label="Testing" status="missing" />
-                              <KeywordTag label="CI/CD" status="found" />
-                              <KeywordTag label="Docker" status="found" />
+                              {scanResult?.matchedKeywords.map((kw, idx) => (
+                                <KeywordTag key={idx} label={kw} status="found" />
+                              ))}
+                              {scanResult?.matchedKeywords.length === 0 && (
+                                <p className="text-xs text-[var(--sys-color-worker-ash-base)]">No matches yet. Try adding industry-specific terms.</p>
+                              )}
                             </div>
                           </Placard>
                         </section>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <AnalysisMetric title="Hard Skills" score={85} icon={<Zap size={18} />} />
-                        <AnalysisMetric title="Soft Skills" score={60} icon={<ShieldCheck size={18} />} />
-                        <AnalysisMetric title="Readability" score={95} icon={<FileText size={18} />} />
-                      </div>
-
                       <section className="space-y-4">
-                        <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Detailed Recommendations</h3>
+                        <h3 className="text-sm font-bold text-[var(--sys-color-worker-ash-base)] uppercase tracking-wider">Recommendations</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <RecommendationCard 
-                            icon={<AlertCircle className="text-[var(--sys-color-inkGold-base)]" />}
-                            text="Add 'React Testing Library' to your skills section to match the job requirement."
-                          />
-                          <RecommendationCard 
-                            icon={<TrendingUp className="text-[var(--sys-color-signalGreen-base)]" />}
-                            text="Quantify your impact in your Senior Frontend Engineer role with metrics (e.g., 'Improved performance by 30%')."
-                          />
+                          {scanResult?.suggestions.map((s, idx) => (
+                            <RecommendationCard 
+                              key={idx}
+                              icon={<AlertCircle className="text-[var(--sys-color-inkGold-base)]" />}
+                              text={s}
+                            />
+                          ))}
                           <RecommendationCard 
                             icon={<FileText className="text-[var(--sys-color-worker-ash-base)]" />}
                             text="Ensure your resume is in PDF format for optimal ATS parsing."
                           />
                           <RecommendationCard 
                             icon={<Sparkles className="text-[var(--sys-color-stencilYellow-base)]" />}
-                            text="Use your calibrated Voice Profile to rewrite your summary for a more 'Reflective' tone."
+                            text="Quantify your impact with metrics (e.g., 'Improved performance by 30%') to pass quality filters."
                           />
                         </div>
                       </section>
@@ -380,7 +373,7 @@ export function OptimisePage({ user }: Props) {
   );
 }
 
-function GapItem({ title, desc, severity }: { title: string, desc: string, severity: 'high' | 'medium' | 'low' }) {
+const GapItem: React.FC<{ title: string, desc: string, severity: 'high' | 'medium' | 'low' }> = ({ title, desc, severity }) => {
   const severityColors = {
     high: 'text-[var(--sys-color-solidarityRed-base)]',
     medium: 'text-[var(--sys-color-inkGold-base)]',
@@ -400,7 +393,7 @@ function GapItem({ title, desc, severity }: { title: string, desc: string, sever
   );
 }
 
-function KeywordTag({ label, status }: { label: string, status: 'found' | 'missing' }) {
+const KeywordTag: React.FC<{ label: string, status: 'found' | 'missing' }> = ({ label, status }) => {
   return (
     <div className={cn(
       "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all",
@@ -433,7 +426,7 @@ function AnalysisMetric({ title, score, icon }: { title: string, score: number, 
   );
 }
 
-function RecommendationCard({ icon, text }: { icon: React.ReactNode, text: string }) {
+const RecommendationCard: React.FC<{ icon: React.ReactNode, text: string }> = ({ icon, text }) => {
   return (
     <div className="p-4 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] rounded-xl flex gap-4 items-start">
       <div className="mt-0.5">{icon}</div>

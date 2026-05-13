@@ -24,7 +24,7 @@ import { useChromeExtension } from './hooks/useChromeExtension';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [isGuest, setIsGuest] = useState(false);
+  const [isGuest, setIsGuest] = useState(true);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const { 
     hasCompletedOnboarding, 
