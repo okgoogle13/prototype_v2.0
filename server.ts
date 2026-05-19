@@ -4,6 +4,8 @@ import { createServer as createViteServer } from "vite";
 import { google } from "googleapis";
 import cookieSession from "cookie-session";
 import path from "path";
+import { initializeCareerDatabaseSheet } from "./services/sheetsService";
+import { createDocumentFromTemplate } from "./services/docsService";
 
 async function startServer() {
   const app = express();
@@ -25,9 +27,39 @@ async function startServer() {
     `${process.env.APP_URL}/api/auth/google/callback`
   );
 
-  // API routes FIRST
+    // API routes FIRST
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  app.post("/api/sheets/init", async (req, res) => {
+    const { tokens, title } = req.body;
+    const authTokens = tokens || (req as any).session.tokens;
+    
+    if (!authTokens) return res.status(401).json({ error: "Not authenticated" });
+    oauth2Client.setCredentials(authTokens);
+    
+    try {
+      const spreadsheetId = await initializeCareerDatabaseSheet(oauth2Client, title);
+      res.json({ spreadsheetId });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to initialize sheet" });
+    }
+  });
+
+  app.post("/api/docs/create", async (req, res) => {
+    const { tokens, title, content } = req.body;
+    const authTokens = tokens || (req as any).session.tokens;
+    
+    if (!authTokens) return res.status(401).json({ error: "Not authenticated" });
+    oauth2Client.setCredentials(authTokens);
+    
+    try {
+      const documentId = await createDocumentFromTemplate(oauth2Client, title, content);
+      res.json({ documentId });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create doc" });
+    }
   });
 
   app.get("/api/auth/google/url", (req, res) => {
@@ -35,7 +67,10 @@ async function startServer() {
       access_type: 'offline',
       scope: [
         'https://www.googleapis.com/auth/calendar.events',
-        'https://www.googleapis.com/auth/userinfo.email'
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/documents',
+        'https://www.googleapis.com/auth/drive.file'
       ],
       prompt: 'consent'
     });

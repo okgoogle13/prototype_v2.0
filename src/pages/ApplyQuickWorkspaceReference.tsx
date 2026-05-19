@@ -69,9 +69,6 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange
     handleSave
   } = useApplyWorkspace({ initialJobData, user });
 
-  const { dismissedChecklist, setDismissedChecklist } = useUserStore();
-  const [showDashboard, setShowDashboard] = React.useState(true);
-
   // Stub boolean for missing profile data
   const isProfileMissing = true;
 
@@ -88,138 +85,69 @@ export function ApplyQuickWorkspaceReference({ initialJobData, user, onTabChange
   }
 
   return (
-    <SolidarityPageLayout>
-      <WorkspaceLayout>
-        <div className="flex flex-col md:flex-row w-full h-full overflow-hidden">
-          {/* LEFT PANE: Target Job Input */}
-          <div 
-            className="w-full md:w-[440px] flex-shrink-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] flex flex-col gap-4 overflow-y-auto rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none md:rounded-br-none"
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+      <AnimatePresence mode="wait">
+        {!job ? (
+          <motion.div 
+            key="dashboard"
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -16 }}
+            transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+            className="w-full h-full p-6 overflow-y-auto"
           >
-            <div className="mb-2">
-              <h1 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>
-                Target <span className="text-[var(--sys-color-solidarityRed-base)]">job</span>
-              </h1>
-              <p style={{ ...M3Type.titleLarge, color: 'var(--sys-color-stencilYellow-base)' }} className="mt-1">
-                No neutral canvas.
-              </p>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 500, marginBottom: '24px' }}>
+              Getting started
+            </h1>
+
+            {/* Quick Actions (Onboarding) */}
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', height: '80px' }}>
+              <div 
+                style={{ flex: 1, padding: '16px', borderRadius: '16px', background: 'var(--md-sys-color-surface-container-high)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                className="transition-transform hover:scale-[1.01]"
+                onClick={() => onTabChange?.('PROFILE')}
+              >
+                 <div style={{ fontSize: '0.875rem' }}>Upload master resume</div>
+                 <CheckCircle2 size={20} />
+              </div>
+              <div 
+                style={{ flex: 1, padding: '16px', borderRadius: '16px', background: 'var(--md-sys-color-surface-container-high)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                className="transition-transform hover:scale-[1.01]"
+                onClick={() => onTabChange?.('JOBS')}
+              >
+                 <div style={{ fontSize: '0.875rem' }}>Paste a job URL</div>
+                 <Link size={20} />
+              </div>
             </div>
 
-            <JobInputPanel onAnalyze={handleAnalyzeJob} isAnalyzing={isAnalyzingJob} />
-            
-            <div className="mt-auto pt-4">
-              <SaveApplicationBar />
+            <div style={{ ...M3Type.titleLarge, marginBottom: '16px' }}>
+              Activity
             </div>
-          </div>
+            <DashboardOverview onTabChange={onTabChange} />
 
-          {/* RIGHT PANE: Analysis / How It Works / Dashboard */}
-          <div 
-            className="flex-1 min-width-0 p-6 bg-[var(--sys-color-charcoalBackground-steps-1)] flex flex-col overflow-y-auto rounded-b-[28px] md:rounded-r-[28px] md:rounded-tl-none md:rounded-bl-none"
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="analysis-result"
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -16 }}
+            transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+            className="w-full h-full p-6 overflow-y-auto"
           >
-            <AnimatePresence mode="wait">
-              {!job ? (
-                <motion.div 
-                  key={showDashboard ? "dashboard" : "how-it-works"}
-                  initial={{ opacity: 0, x: 16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -16 }}
-                  transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-                  className="w-full max-w-4xl mx-auto flex flex-col h-full"
-                >
-                  <div className="flex items-center justify-between mb-8">
-                    <h2 style={{ ...M3Type.headlineSmall, color: 'var(--sys-color-paperWhite-base)' }}>
-                      {showDashboard ? "Dashboard" : "How it works"}
-                    </h2>
-                    <M3Button 
-                      variant="outlined"
-                      onClick={() => setShowDashboard(!showDashboard)}
-                    >
-                      {showDashboard ? <Sparkles size={14} className="mr-2" /> : <LayoutDashboard size={14} className="mr-2" />}
-                      {showDashboard ? "View guide" : "View dashboard"}
-                    </M3Button>
-                  </div>
-
-                  {showDashboard ? (
-                    <>
-                      {!dismissedChecklist && isProfileMissing && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="mb-8 p-6 bg-[var(--sys-color-charcoalBackground-steps-2)] border border-[var(--sys-color-outline-variant)] relative"
-                          style={{ borderRadius: 'var(--sys-shape-radius-lg)' }}
-                        >
-                          <button 
-                            onClick={() => setDismissedChecklist(true)}
-                            className="absolute top-4 right-4 text-[var(--sys-color-worker-ash-base)] hover:text-[var(--sys-color-paperWhite-base)] transition-colors"
-                          >
-                            <X size={18} />
-                          </button>
-                          <h3 style={{ ...M3Type.titleLarge, color: 'var(--sys-color-paperWhite-base)' }} className="mb-4">
-                            Getting started
-                          </h3>
-                          <div className="space-y-1">
-                            <ChecklistItem label="Upload master resume" completed={false} />
-                            <ChecklistItem label="Paste a job URL" completed={false} />
-                            <ChecklistItem label="Browse jobs" completed={false} />
-                          </div>
-                          <M3Button 
-                            variant="text"
-                            onClick={() => setDismissedChecklist(true)}
-                            className="mt-4"
-                          >
-                            Dismiss for now
-                          </M3Button>
-                        </motion.div>
-                      )}
-                      <DashboardOverview onTabChange={onTabChange} />
-                    </>
-                  ) : (
-                    <div className="grid grid-cols-1 gap-4 max-w-2xl mx-auto w-full">
-                      <StepCard 
-                        number="1" 
-                        icon={Link} 
-                        label="Drop a URL" 
-                        desc="AI reads the job posting and extracts key requirements automatically." 
-                      />
-                      <StepCard 
-                        number="2" 
-                        icon={Target} 
-                        label="Match scored" 
-                        desc="See exactly where you fit and identify critical skill gaps instantly." 
-                      />
-                      <StepCard 
-                        number="3" 
-                        icon={Sparkles} 
-                        label="Tailored response" 
-                        desc="Resume + cover letter generated in seconds, optimized for this specific role." 
-                      />
-                    </div>
-                  )}
-                </motion.div>
-              ) : (
-                <motion.div 
-                  key="analysis-result"
-                  initial={{ opacity: 0, x: 16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -16 }}
-                  transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-                  className="w-full"
-                >
-                  {careerData && (
-                    <StudioMatchPanel 
-                      careerData={careerData} 
-                      job={job} 
-                      onUpdate={handleUpdateCareerData}
-                      userId={user?.uid || "prototype-user"}
-                      onAnalyze={generateMatchAnalysis}
-                      onSave={handleSave}
-                    />
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      </WorkspaceLayout>
-    </SolidarityPageLayout>
+            {careerData && (
+              <StudioMatchPanel 
+                careerData={careerData} 
+                job={job} 
+                onUpdate={handleUpdateCareerData}
+                userId={user?.uid || "prototype-user"}
+                onAnalyze={generateMatchAnalysis}
+                onSave={handleSave}
+              />
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
